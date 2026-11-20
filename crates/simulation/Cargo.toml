@@ -1,0 +1,11 @@
+[package]
+name = "primal-simulation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+primal-voxel = { path = "../voxel" }
+
+[lints]
+workspace = true

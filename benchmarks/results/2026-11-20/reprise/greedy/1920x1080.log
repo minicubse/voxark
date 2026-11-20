@@ -1,0 +1,20 @@
+SMOKE remove/save/load verified at [0, 9, 1]
+SMOKE place/save/load verified at [0, 9, 1]
+SMOKE PASS frames=1320 elapsed_s=11.904
+{
+  "resolution": [1920, 1080],
+  "mesher": "greedy",
+  "samples": 1200,
+  "warmup_frames": 120,
+  "frame_mean_ms": 8.7828,
+  "fps_mean": 113.859,
+  "fps_1_percent_low": 57.900,
+  "fps_0_1_percent_low": 54.913,
+  "frame_p50_ms": 9.0427,
+  "frame_p95_ms": 14.2064,
+  "frame_p99_ms": 16.5992,
+  "frame_max_ms": 18.2426,
+  "mesh_chunks": 151,
+  "render_quads": 24758,
+  "method": "macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction"
+}

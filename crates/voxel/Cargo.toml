@@ -1,0 +1,10 @@
+[package]
+name = "primal-voxel"
+version = "0.1.0"
+edition.workspace = true
+
+[lib]
+name = "primal_voxel"
+
+[lints]
+workspace = true

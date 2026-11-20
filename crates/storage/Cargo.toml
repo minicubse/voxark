@@ -1,0 +1,12 @@
+[package]
+name = "primal-storage"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+primal-voxel = { path = "../voxel" }
+crc32fast = "1.5"
+tempfile = "3"
+
+[lints]
+workspace = true

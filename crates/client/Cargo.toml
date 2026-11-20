@@ -1,0 +1,13 @@
+[package]
+name = "primal-client"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+macroquad = { version = "0.4.14", default-features = false }
+primal-voxel = { path = "../voxel" }
+primal-simulation = { path = "../simulation" }
+primal-storage = { path = "../storage" }
+
+[lints]
+workspace = true
