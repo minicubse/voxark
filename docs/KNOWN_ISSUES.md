@@ -1,8 +1,8 @@
-# Limites de cette version
+# Limites vérifiées du jalon 1B
 
-- La vallée entière tient en mémoire. Ses frontières arrêtent le joueur et le terrain est généré au démarrage. Le streaming et les téléportations longue distance restent à construire.
-- La géométrie statique est stockée dans des maillages CPU soumis à Macroquad. Le HUD indique la durée d'une frame complète. Le temps GPU isolé, la VRAM et le coût précis des uploads nécessitent encore des instruments dédiés.
-- Une édition reconstruit les chunks touchés et synchronise la sauvegarde sur le fil du jeu. Des séries de modifications peuvent produire des saccades. Une écriture échouée est signalée et F5 permet de réessayer avant de fermer.
-- La sauvegarde concerne le terrain. Un fichier endommagé est refusé. Une copie de secours historique et une récupération après perte électrique réelle restent à valider.
-- Le contrôle du joueur utilise une boîte alignée sur les axes. Les pentes lisses, montures, plateformes mobiles et entités dynamiques sont des travaux ultérieurs.
-- Le jeu se joue en solo. Le serveur dédié, le réseau, la survie, les créatures et les progressions sont décrits dans la feuille de route.
+- Le streaming a une capacité finie. À grande vitesse, une partie du terrain arrive après la caméra. Les collisions bloquent la progression du personnage dans un chunk absent. Les parcours scriptés peuvent déplacer la caméra plus rapidement et comptabilisent le retard à la colonne survolée. Voir le [rapport](PERFORMANCE.md).
+- Les adresses de stockage utilisent i32. La hauteur jouable va de 0 à 127. La physique, les sommets et la caméra utilisent f32. La précision sub-bloc décroît aux très grandes distances. Les tests distinguent stockage aux extrêmes i32, déplacement graphique à 65 536 et persistance à un million de blocs.
+- Les budgets limitent les chunks, les travaux et la géométrie préparée ou conservée. Le temps du fil principal est un budget coopératif. Une opération de planification ou de collecte en cours peut le dépasser. Le working set du processus inclut aussi Macroquad, le pilote, les allocations et les buffers pour le dessin. Il varie entre les répétitions.
+- Le temps relevé autour de la soumission inclut le culling et les appels CPU à Macroquad. Les chronos GPU et la consommation de VRAM dédiée restent indisponibles dans ce banc.
+- Un fichier régional endommagé est signalé. Le client peut continuer à montrer les autres zones. Une sauvegarde échouée conserve les modifications en mémoire, et F5 permet un nouvel essai. L’import laisse le fichier v1 en place. La récupération après panne électrique réelle et un historique de sauvegardes v2 restent à valider.
+- À chaque ouverture, le joueur réapparaît près du centre. Seul le terrain est persistant. Les montures, le réseau, les créatures et les systèmes de survie restent des travaux ultérieurs.

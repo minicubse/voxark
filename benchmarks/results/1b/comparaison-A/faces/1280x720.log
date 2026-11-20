@@ -1,0 +1,22 @@
+SMOKE remove/save/load verified at [0, 9, 1]
+SMOKE place/save/load verified at [0, 9, 1]
+STREAM scenario=valley checkpoints=0 missing_ground_frames=0 stats=Stats { stale_loads: 0, stale_meshes: 75, peak_resident: 256, peak_jobs: 24, peak_mesh_bytes: 12680552 } outstanding_edits=0
+SMOKE PASS frames=1320 elapsed_s=11.150
+{
+  "resolution": [1280, 720],
+  "mesher": "faces",
+  "samples": 1200,
+  "warmup_frames": 120,
+  "frame_mean_ms": 8.3428,
+  "fps_mean": 119.864,
+  "fps_1_percent_low": 74.783,
+  "fps_0_1_percent_low": 67.919,
+  "frame_p50_ms": 8.5125,
+  "frame_p95_ms": 12.5904,
+  "frame_p99_ms": 12.9654,
+  "frame_p99_9_ms": 13.6530,
+  "frame_max_ms": 15.7938,
+  "mesh_chunks": 151,
+  "render_quads": 73678,
+  "method": "macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction"
+}

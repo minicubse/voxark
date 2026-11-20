@@ -1,10 +1,10 @@
 # Primal Voxel — Vallée originelle
 
-Première tranche jouable pour Windows x64. Explorez la vallée, creusez sous les arbres et bâtissez avec sept matériaux. Chaque bloc accepté est sauvegardé après l'édition. Le terrain conserve sa forme à la prochaine ouverture.
+Version 1B pour Windows x64. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
 
 ## Jouer
 
-Dans la distribution Windows, lancez **PrimalVoxel.exe**. Cliquez dans la fenêtre pour capturer la souris. Le premier clic entre en jeu. La sauvegarde par défaut se trouve dans `%LOCALAPPDATA%\PrimalVoxel\world.pvx`. L'option `--world "chemin\autre.pvx"` permet d'utiliser un autre fichier.
+Dans la distribution Windows, lancez **PrimalVoxel.exe**. Cliquez dans la fenêtre pour capturer la souris. Le premier clic entre en jeu. La sauvegarde active se trouve dans le dossier `%LOCALAPPDATA%\PrimalVoxel\world.pvx.regions`. À la première ouverture, une sauvegarde v1 est importée en gardant son fichier original. Pour transférer le monde actuel, copiez le dossier régional après fermeture. L'option `--world "chemin\autre.pvx"` sélectionne un autre monde.
 
 | Action | Commande |
 | --- | --- |
@@ -43,8 +43,19 @@ cargo run --locked --release -p primal-storage --example benchmark_save
 
 Pour reproduire un test graphique court avec une image, lancer `primal-client.exe --smoke --frames 300 --resolution 1280x720 --capture apercu.png --metrics mesures.json`. Le parcours utilise un monde temporaire. Avec `--world` explicite, il exige un fichier neuf.
 
-L'option `--mesher faces|greedy` sélectionne l'algorithme à comparer. En jeu, `--tick-rate 30` à `--tick-rate 120` règle la fréquence de simulation. Le parcours de mesure impose 60 Hz pour comparer les mêmes déplacements.
+L'option `--mesher faces|greedy|binary` sélectionne l'algorithme à comparer. En jeu, `--tick-rate 30` à `--tick-rate 120` règle la fréquence de simulation. Le parcours de mesure impose 60 Hz pour comparer les mêmes déplacements.
 
 Le test d'intégration Windows utilise Python 3 standard. `python tools/test-window.py target/release/primal-client.exe` ouvre deux fois le client sur une sauvegarde temporaire. Il envoie les événements clavier et souris à la fenêtre du jeu et vérifie les blocs écrits après destruction puis repose.
+
+Le client accepte quatre rayons exprimés en chunks. Par défaut, chargement 8, rendu 7, priorité de simulation 1 et anticipation 2. Le plafond effectif est de 1 024 chunks avec 64 Mio de budget de résidence, quatre workers, 24 tâches et douze maillages acceptés par frame. Les touches − et = ajustent la portée en jeu.
+
+```powershell
+primal-client.exe --scenario teleport --frames 840 --profile teleport.csv
+primal-client.exe --smoke --edit-route --valley-only --frames 1320 --metrics vallee.json
+cargo test --locked --release -p primal-streaming --test travel -- --nocapture
+cargo run --locked --release -p primal-voxel --example compare_meshers
+```
+
+Les scénarios disponibles sont `valley`, `region512`, `region1024`, `traverse`, `teleport` et `edits`. `--help` détaille les limites de workers, mémoire, publications et temps du fil principal. Le mode `--valley-only` conserve le domaine historique pour comparer deux exécutables sur la même géométrie.
 
 Le [statut du projet](docs/PROJECT_STATUS.md) donne les vérifications et la prochaine tâche. Les [mesures](docs/PERFORMANCE.md), les [limites](docs/KNOWN_ISSUES.md) et les [décisions moteur](docs/DECISIONS.md) sont suivies dans ce dépôt.

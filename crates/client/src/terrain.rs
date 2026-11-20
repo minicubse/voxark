@@ -34,7 +34,7 @@ impl Terrain {
         self.chunks.len()
     }
 
-    pub fn draw(&self, eye: Vec3, front: Vec3, distance: f32) -> usize {
+    pub fn draw(&self, eye: Vec3, front: Vec3, distance: f32, frustum: bool) -> usize {
         let mut visible = 0;
         let right = front.cross(Vec3::Y).normalize();
         let up = right.cross(front).normalize();
@@ -48,16 +48,21 @@ impl Terrain {
             );
             let offset = center - eye;
             let radius = (3.0_f32).sqrt() * CHUNK as f32 * 0.5;
-            if !sphere_visible(
-                offset,
-                front,
-                right,
-                up,
-                horizontal_tangent,
-                vertical_tangent,
-                radius,
-                distance,
-            ) {
+            let in_view = if frustum {
+                sphere_visible(
+                    offset,
+                    front,
+                    right,
+                    up,
+                    horizontal_tangent,
+                    vertical_tangent,
+                    radius,
+                    distance,
+                )
+            } else {
+                offset.length_squared() <= (distance + radius).powi(2)
+            };
+            if !in_view {
                 continue;
             }
             for mesh in meshes {

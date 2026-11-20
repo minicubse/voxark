@@ -18,4 +18,4 @@ Les états constatés et les preuves exécutées sont dans PROJECT_STATUS.md. Le
 | 9 — Couverture | Détail progressif des deux matrices, exceptions par mécanique | Chaque ligne clôturée possède source, implémentation et preuve |
 | 10 — Finition | Stress tests, profils Low, interface, animation, son et distribution | Objectifs CPU/GPU/mémoire vérifiés sur matériel cible |
 
-Ordre de travail immédiat après 1a validé — mesurer génération et remeshing, relever les pics mémoire et frametimes, corriger le goulet observé, puis étendre le monde par streaming. Préserver le noyau indépendant du rendu pour intégrer le serveur autoritaire au jalon 2.
+Après 1B, réduire les frames où le sol arrive en retard sur le trajet de 4,22 km. Comparer les politiques de préchargement à contenu, vitesse et budgets identiques. Reporter l’essai de backend au moment où une mesure isolera un coût du rendu susceptible de le justifier.

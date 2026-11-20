@@ -80,6 +80,7 @@ impl Job {
                 let started = Instant::now();
                 let faces = match kind {
                     MeshKind::Greedy => snapshot.greedy_mesh(),
+                    MeshKind::Binary => snapshot.binary_greedy_mesh(),
                     MeshKind::Faces => snapshot.mesh(),
                 };
                 record(Stage::Mesh, started);

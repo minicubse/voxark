@@ -2,12 +2,14 @@
 param(
     [Parameter(Mandatory=$true)][string]$Executable,
     [ValidatePattern('^\d+x\d+$')][string]$Resolution = '1280x720',
-    [ValidateSet('faces','greedy')][string]$Mesher = 'greedy',
+    [ValidateSet('faces','greedy','binary')][string]$Mesher = 'greedy',
     [ValidateRange(240,20000)][int]$Frames = 1320,
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../benchmarks/results/local'),
     [string]$Scenario,
     [switch]$EditRoute,
     [switch]$ValleyOnly,
+    [switch]$NoFrustum,
+    [ValidateRange(-1,24)][int]$PreloadRadius = -1,
     [switch]$Profile,
     [switch]$Capture
 )
@@ -26,6 +28,8 @@ if ($Scenario) {
     if ($Scenario -notin @('valley','region512','region1024','traverse','teleport','edits')) { throw "Scénario inconnu" }
     $info.Arguments += " --scenario $Scenario"
 }
+if ($PreloadRadius -ge 0) { $info.Arguments += " --preload-radius $PreloadRadius" }
+if ($NoFrustum) { $info.Arguments += " --no-frustum" }
 if ($ValleyOnly) { $info.Arguments += " --valley-only" }
 if ($EditRoute) { $info.Arguments += " --edit-route" }
 if ($Profile) { $info.Arguments += " --profile `"$base.csv`"" }

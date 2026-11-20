@@ -5,6 +5,7 @@ use std::time::Duration;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Mesher {
+    Binary,
     Faces,
     Greedy,
 }
@@ -13,6 +14,7 @@ impl Mesher {
     pub fn name(self) -> &'static str {
         match self {
             Self::Faces => "faces",
+            Self::Binary => "binary",
             Self::Greedy => "greedy",
         }
     }
@@ -34,6 +36,7 @@ pub struct Options {
     pub tick_rate: u16,
     pub scenario: Scenario,
     pub valley_only: bool,
+    pub frustum: bool,
     pub stream: StreamConfig,
 }
 
@@ -54,6 +57,7 @@ impl Options {
             tick_rate: 60,
             scenario: Scenario::Valley,
             valley_only: false,
+            frustum: true,
             stream: StreamConfig {
                 load_radius: 8,
                 render_radius: 7,
@@ -66,6 +70,7 @@ impl Options {
             match arg.as_str() {
                 "--edit-route" => options.edit_route = true,
                 "--profile" => options.profile = Some(PathBuf::from(value(&mut args, &arg)?)),
+                "--no-frustum" => options.frustum = false,
                 "--valley-only" => options.valley_only = true,
                 "--smoke" => options.smoke = true,
                 "--scenario" => {
@@ -97,8 +102,9 @@ impl Options {
                 "--mesher" => {
                     options.mesher = match value(&mut args, &arg)?.as_str() {
                         "faces" => Mesher::Faces,
+                        "binary" => Mesher::Binary,
                         "greedy" => Mesher::Greedy,
-                        _ => return Err("--mesher attend faces ou greedy".into()),
+                        _ => return Err("--mesher attend faces, greedy ou binary".into()),
                     };
                 }
                 "--tick-rate" => {
@@ -140,6 +146,9 @@ impl Options {
             .stream
             .validate()
             .map_err(|error| error.to_string())?;
+        if !options.frustum && !options.smoke {
+            return Err("--no-frustum exige --smoke".into());
+        }
         if options.valley_only && (!options.smoke || options.scenario != Scenario::Valley) {
             return Err("--valley-only exige le smoke valley".into());
         }
@@ -229,7 +238,7 @@ fn default_save_path() -> PathBuf {
 }
 
 pub fn help() -> &'static str {
-    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route --valley-only\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
+    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy|binary --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route --valley-only --no-frustum\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
 }
 
 #[cfg(test)]

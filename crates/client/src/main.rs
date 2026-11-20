@@ -110,6 +110,7 @@ async fn run(options: &Options) -> Result<(), String> {
         .map_err(|e| format!("{} {e}", options.world.display()))?;
     let kind = match options.mesher {
         options::Mesher::Greedy => MeshKind::Greedy,
+        options::Mesher::Binary => MeshKind::Binary,
         options::Mesher::Faces => MeshKind::Faces,
     };
     let mut stream = Streamer::new(
@@ -221,25 +222,7 @@ async fn run(options: &Options) -> Result<(), String> {
             }
         }
         profile.sample(frame, "accept_buffers_cpu", adopt.elapsed());
-        for (pos, started, visible, durable) in &mut pending_edits {
-            let c = chunk_at(*pos);
-            if !*visible
-                && stream
-                    .world()
-                    .dirty_chunks(*pos)
-                    .iter()
-                    .filter(|c| stream.world().is_resident(**c))
-                    .all(|&c| stream.visible_revision(c) == stream.world().mesh_revision(c))
-            {
-                profile.sample(frame, "edit_to_mesh_ready", started.elapsed());
-                *visible = true;
-            }
-            if !*durable && !stream.world().chunk_dirty(c) {
-                profile.sample(frame, "edit_to_durable", started.elapsed());
-                *durable = true;
-            }
-        }
-        pending_edits.retain(|e| !e.2 || !e.3);
+        observe_edits(&mut pending_edits, &stream, &mut profile, frame);
         if let Some(e) = f.errors.first() {
             if options.smoke {
                 return Err(e.clone());
@@ -553,7 +536,7 @@ async fn run(options: &Options) -> Result<(), String> {
             gl_use_material(fog);
         }
         let draw_start = Instant::now();
-        let visible = terrain.draw(eye, front, distance);
+        let visible = terrain.draw(eye, front, distance, options.frustum);
         profile.sample(frame, "draw_submit_cpu", draw_start.elapsed());
         gl_use_default_material();
         if let Some(hit) = raycast(stream.world(), player.eye(), front.to_array(), MAX_REACH) {
@@ -610,6 +593,30 @@ async fn run(options: &Options) -> Result<(), String> {
                     checkpoints
                 ));
             }
+            // Flush the tail outside the measured frame intervals, including short custom runs.
+            let end = Instant::now();
+            while !stream.saves_idle() || !pending_edits.is_empty() {
+                let tail = stream.tick(view);
+                if let Some(e) = tail.errors.first() {
+                    return Err(e.clone());
+                }
+                for timing in tail.timings {
+                    profile.sample(frame, timing.stage.name(), timing.duration);
+                }
+                for c in tail.evicted {
+                    terrain.remove(c);
+                }
+                for u in tail.uploads {
+                    terrain.install(u.chunk, u.payload);
+                }
+                observe_edits(&mut pending_edits, &stream, &mut profile, frame);
+                if end.elapsed().as_secs() > 8 {
+                    return Err("Le parcours n’a pas convergé après les dernières éditions".into());
+                }
+                if !stream.saves_idle() || !pending_edits.is_empty() {
+                    next_frame().await;
+                }
+            }
             println!(
                 "STREAM scenario={} checkpoints={} missing_ground_frames={missing_ground_frames} stats={:?} outstanding_edits={}",
                 options.scenario.name(),
@@ -653,6 +660,33 @@ async fn run(options: &Options) -> Result<(), String> {
     set_cursor_grab(false);
     show_mouse(true);
     Ok(())
+}
+
+fn observe_edits(
+    pending_edits: &mut Vec<(Pos, Instant, bool, bool)>,
+    stream: &Streamer<Buffers>,
+    profile: &mut Profile,
+    frame: usize,
+) {
+    for (pos, started, visible, durable) in pending_edits.iter_mut() {
+        let c = chunk_at(*pos);
+        if !*visible
+            && stream
+                .world()
+                .dirty_chunks(*pos)
+                .iter()
+                .filter(|c| stream.world().is_resident(**c))
+                .all(|&c| stream.visible_revision(c) == stream.world().mesh_revision(c))
+        {
+            profile.sample(frame, "edit_to_mesh_ready", started.elapsed());
+            *visible = true;
+        }
+        if !*durable && !stream.world().chunk_dirty(c) {
+            profile.sample(frame, "edit_to_durable", started.elapsed());
+            *durable = true;
+        }
+    }
+    pending_edits.retain(|e| !e.2 || !e.3);
 }
 
 /// Smoke-only durability barrier. Reconstruct the edited block from the disk snapshot.

@@ -84,3 +84,56 @@ fn greedy_exactly_preserves_every_oriented_material_face_in_world() {
     }
     assert!(world.greedy_mesh([i32::MAX, 0, 0]).is_empty());
 }
+
+#[test]
+fn binary_matches_exposed_faces_and_reused_buffer_clears_between_chunks() {
+    let mut world = World::new(42);
+    let mut output = Vec::new();
+    for c in world.chunks() {
+        let snapshot = world.mesh_snapshot(c).unwrap();
+        snapshot.binary_greedy_into(&mut output);
+        assert_eq!(
+            unit_faces(&snapshot.mesh()),
+            unit_faces(&output),
+            "valley {c:?}"
+        );
+    }
+    for case in 0..4 {
+        for y in 32..48 {
+            for z in 0..16 {
+                for x in 0..16 {
+                    let material = match case {
+                        0 => 0,
+                        1 => 3,
+                        2 => {
+                            if (x + y + z) % 2 == 0 {
+                                7
+                            } else {
+                                0
+                            }
+                        }
+                        _ => 1 + ((x + z + y) % 7) as u8,
+                    };
+                    world.set([x, y, z], material);
+                }
+            }
+        }
+        for c in [
+            [0, 2, 0],
+            [1, 2, 0],
+            [-1, 2, 0],
+            [0, 1, 0],
+            [0, 3, 0],
+            [0, 2, -1],
+            [0, 2, 1],
+        ] {
+            let snapshot = world.mesh_snapshot(c).unwrap();
+            snapshot.binary_greedy_into(&mut output);
+            assert_eq!(
+                unit_faces(&snapshot.mesh()),
+                unit_faces(&output),
+                "case {case} {c:?}"
+            );
+        }
+    }
+}

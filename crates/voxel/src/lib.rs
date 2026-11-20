@@ -3,6 +3,7 @@
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
+mod binary;
 mod catalog;
 mod generation;
 mod mesh;

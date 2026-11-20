@@ -74,3 +74,30 @@ Release, 840 frames dont 120 de chauffe, 720p, quatre workers, 24 tâches au max
 Les diagonales explorent les deux signes jusqu’à ±256 et ±512 blocs. Le vol rapide parcourt environ 4,22 km et la téléportation atteint (65 536, −32 768) puis revient à l’origine. Le parcours edits retire 64 blocs puis les repose aux mêmes positions, par commandes validées. Les CSV distinguent temps d’attente, génération, meshing, préparation, acceptation CPU, édition vers maillage prêt et édition vers sauvegarde confirmée. Le délai de présentation à l’écran n’est pas instrumenté.
 
 En complément, le test sans fenêtre franchit 5 120 blocs par transitions de chunk, téléporte à ±1 000 000 puis relit une édition avec une nouvelle session disque. Avec douze résidents autorisés, il en a observé huit simultanément sur ce passage, et huit tâches. La suite de validation couvre aussi les acquisitions concurrentes et les arrêts avant/après publication. La priorité suivante est l’essai de maillage binaire et du culling à géométrie contrôlée. [Parcours bruts](../benchmarks/results/1b/parcours/) · [Mesure sans fenêtre](../benchmarks/results/1b/traversee-sans-fenetre.txt)
+
+## 1B.5 — Expériences isolées
+
+La vallée de comparaison garde les 256 chunks du volume historique. Deux passages graphiques en ordre inversé, 1 320 frames chacun, 100 commandes identiques et même seed que le scénario synchrone 1B.1. Le banc vérifie la pose et la destruction par relecture disque. Les résultats finaux de géométrie sont identiques aux valeurs 1a.
+
+| Variante | FPS moyens A / B | P95 frame A / B (ms) | P99 A / B (ms) | P99,9 A / B (ms) | Pic processus A / B (Mio) | Quads |
+|---|---:|---:|---:|---:|---:|---:|
+| Greedy 720p | 119.80 / 115.29 | 11.30 / 12.80 | 11.81 / 15.96 | 13.81 / 20.09 | 550 / 550 | 24758 |
+| Greedy 1080p | 114.15 / 119.99 | 12.93 / 9.66 | 13.80 / 10.38 | 16.16 / 10.99 | 375 / 368 | 24758 |
+| Binaire 720p | 119.95 / 117.35 | 12.46 / 10.60 | 12.93 / 15.66 | 13.76 / 18.39 | 314 / 315 | 24758 |
+| Faces 720p | 119.86 / 120.00 | 12.59 / 9.61 | 12.97 / 11.31 | 13.65 / 13.40 | 319 / 331 | 73678 |
+| Greedy 720p, frustum désactivé | 107.86 / 119.22 | 15.62 / 10.68 | 16.40 / 13.10 | 19.53 / 16.20 | 309 / 551 | 24758 |
+
+La sélection par frustum garde le même rayon dans les deux variantes. Avec frustum, le temps CPU médian de soumission est de 0.344 / 0.296 ms. Sans frustum, le temps CPU médian de soumission est de 0.826 / 0.798 ms.
+L’ordre des FPS entre 720p et 1080p change entre les deux séries greedy. Une attribution au GPU demanderait un chronométrage GPU séparé et un contrôle plus strict des conditions de présentation et de fréquence.
+
+Le banc CPU utilise les mêmes vues immuables, seed 42 et douze répétitions avec rotation de l’ordre. Sur la vallée, les médianes sont 2,01 ms pour les faces, 6,03 ms pour le greedy scalaire, 2,93 ms pour le greedy à masques binaires et 2,77 ms en réutilisant en plus le vecteur de sorties. Le binaire produit les mêmes 23 443 rectangles sur cette seed. Sur un chunk en damier, les médianes sont respectivement 0,222, 0,426, 0,426 et 0,260 ms. Les tests vérifient matériau, orientation, couverture et absence de double face sur la vallée, des champs à plusieurs matériaux et les faces partagées. Le mode binaire reste disponible avec `--mesher binary`. Le greedy scalaire reste le réglage de référence du client. Le gain CPU du binaire ne se traduit pas par un gain de fluidité répété sur le parcours graphique.
+
+Le batching existant limite les maillages à 2 048 quads et conserve les indices u16. Le regroupement entre chunks, le LOD et les sommets compacts restent des essais ultérieurs. Les conditions d’essai et les critères d’équivalence visuelle sont dans l’[audit comparatif](HORIZON_AUDIT.md). [CPU brut](../benchmarks/results/1b/meshers.csv) · [Graphique A](../benchmarks/results/1b/comparaison-A/) · [Graphique B](../benchmarks/results/1b/comparaison-B/)
+
+### Vérification du binaire distribué
+
+Même vallée que le parcours synchrone, même seed, 100 commandes, 1 200 intervalles de frame mesurés après chauffe. En 720p, le binaire distribué donne 117,75 FPS moyens, P95 11,36 ms, P99 15,35 ms et P99,9 15,69 ms. Les 151 chunks maillés contiennent 24 758 quads. Les 84 éditions de frontière prennent au P95 0,011 ms sur le fil du jeu, contre 22,34 ms sur le passage synchrone. Dans la nouvelle architecture, la commande se termine avant la présentation et avant l’écriture disque. Sur les 100 commandes, le P95 est de **19,54 ms jusqu’au maillage prêt** et **33,18 ms jusqu’à la confirmation disque observée par le client**. La soumission de dessin et le rafraîchissement physique viennent ensuite pour l’image. Le test normal de fenêtre Windows a également réussi sur ce build. [Mesures du binaire](../benchmarks/results/1b/distribution/greedy/1280x720.json)
+
+Un essai supplémentaire fait varier uniquement le rayon d’anticipation demandé pendant le vol de 4,22 km, sans changer le nombre de workers ni les plafonds mémoire. À 2, 4 et 8 chunks, le sol sous la caméra attendait son premier maillage pendant respectivement **138, 115 et 85 des 720 frames**. Le nombre de chargements écartés comme obsolètes atteint 602 à 8 chunks, contre 2 à 2 chunks. Une seule répétition par réglage. Le réglage par défaut reste 2 en attendant une comparaison sur davantage de trajectoires et de vitesses. [Rayon 2](../benchmarks/results/1b/anticipation-2/) · [Rayon 4](../benchmarks/results/1b/anticipation-4/) · [Rayon 8](../benchmarks/results/1b/anticipation-8/)
+
+Les gros CSV de traces sont compressés en gzip sans perte. Les JSON machine indiquent le hash de l’exécutable pour chaque série. Les dates de capture, les versions et les configurations historiques sont conservées avec chaque jalon.

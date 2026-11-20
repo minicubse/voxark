@@ -62,3 +62,7 @@ Le futur essai A/B doit utiliser le même terrain exporté, la même caméra, le
 Les familles ARK et Primal Fear décrivent des objectifs de mécaniques. Leurs noms servent aux matrices de référence. Les futurs espèces, ressources, apparences et capacités du jeu auront leurs propres définitions et identités.
 
 Le client solo appelle le noyau de simulation. Le futur serveur sera seul autorisé à valider les commandes, modifier le monde et enregistrer les progrès. Le partage d'un noyau sans dépendance graphique prépare cette intégration. La réplication réseau reste un jalon distinct à valider avec plusieurs processus.
+
+## D004 — Rendu du monde étendu
+
+Le client conserve Macroquad. Les mesures 1B.1 ont identifié la synchronisation disque dans le temps d’édition. Le pool de streaming et les structures de persistance répondent à ce problème et au chargement distant, à travers une API sans fenêtre. Les secteurs Anvil et le pipeline wgpu d’Horizon ont été étudiés en lecture seule. Les choix locaux, leurs mesures et leurs conditions de réexamen figurent dans l’[audit Horizon](HORIZON_AUDIT.md) et le [rapport de performance](PERFORMANCE.md).
