@@ -25,7 +25,7 @@ $info.RedirectStandardOutput = $true
 $info.RedirectStandardError = $true
 $info.Arguments = "--smoke --frames $Frames --resolution $Resolution --mesher $Mesher --metrics `"$base.json`""
 if ($Scenario) {
-    if ($Scenario -notin @('valley','region512','region1024','traverse','teleport','edits')) { throw "Scénario inconnu" }
+    if ($Scenario -notin @('valley','region512','region1024','traverse','teleport','edits','walk','sprint','fly','return','moving-edits','long-flight')) { throw "Scénario inconnu" }
     $info.Arguments += " --scenario $Scenario"
 }
 if ($PreloadRadius -ge 0) { $info.Arguments += " --preload-radius $PreloadRadius" }

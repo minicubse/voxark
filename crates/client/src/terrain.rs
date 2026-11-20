@@ -30,6 +30,9 @@ impl Terrain {
             self.chunks.insert(c, b.into_meshes());
         }
     }
+    pub fn has_geometry(&self, c: ChunkPos) -> bool {
+        self.chunks.contains_key(&c)
+    }
     pub fn len(&self) -> usize {
         self.chunks.len()
     }

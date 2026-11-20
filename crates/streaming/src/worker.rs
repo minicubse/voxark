@@ -2,10 +2,11 @@ use crate::{ChunkStore, MeshKind, Stage, Timing};
 use primal_voxel::{ChunkPos, Face, GeneratedChunk, MeshSnapshot, Pos, generate_chunk};
 use std::io;
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread::{self, JoinHandle};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 pub(crate) type Prepare<P> = dyn Fn(&[Face]) -> (P, usize) + Send + Sync;
 
@@ -34,6 +35,7 @@ pub(crate) struct Done<P> {
     pub(crate) result: io::Result<Option<Product<P>>>,
     pub(crate) timings: Vec<Timing>,
     pub(crate) finished: Instant,
+    pub(crate) cpu: Option<Duration>,
 }
 
 impl Job {
@@ -109,6 +111,8 @@ pub(crate) struct Pool<P> {
     tx: Option<mpsc::Sender<Job>>,
     pub(crate) rx: mpsc::Receiver<Done<P>>,
     threads: Vec<JoinHandle<()>>,
+    waiting: Arc<AtomicUsize>,
+    peak_waiting: AtomicUsize,
 }
 
 impl<P: Send + 'static> Pool<P> {
@@ -121,7 +125,10 @@ impl<P: Send + 'static> Pool<P> {
         let (tx, tasks) = mpsc::channel::<Job>();
         let tasks = Arc::new(Mutex::new(tasks));
         let (out, rx) = mpsc::channel();
+        let waiting = Arc::new(AtomicUsize::new(0));
         let mut pool = Self {
+            waiting: waiting.clone(),
+            peak_waiting: AtomicUsize::new(0),
             tx: Some(tx),
             rx,
             threads: Vec::new(),
@@ -129,6 +136,7 @@ impl<P: Send + 'static> Pool<P> {
         for i in 0..count {
             let (tasks, out, store, prepare) =
                 (tasks.clone(), out.clone(), store.clone(), prepare.clone());
+            let waiting = waiting.clone();
             let thread = thread::Builder::new()
                 .name(format!("voxel-{i}"))
                 .spawn(move || {
@@ -138,6 +146,8 @@ impl<P: Send + 'static> Pool<P> {
                             queue.recv()
                         };
                         let Ok(job) = job else { break };
+                        waiting.fetch_sub(1, Ordering::Relaxed);
+                        let cpu = cpu_time::ThreadTime::try_now().ok();
                         let mut timings = Vec::with_capacity(3);
                         let result = catch_unwind(AssertUnwindSafe(|| {
                             job.run(mesher, store.as_ref(), prepare.as_ref(), &mut timings)
@@ -149,6 +159,7 @@ impl<P: Send + 'static> Pool<P> {
                                 result,
                                 timings,
                                 finished: Instant::now(),
+                                cpu: cpu.and_then(|v| v.try_elapsed().ok()),
                             })
                             .is_err()
                         {
@@ -161,7 +172,14 @@ impl<P: Send + 'static> Pool<P> {
         Ok(pool)
     }
 
+    pub(crate) fn peak_waiting(&self) -> usize {
+        self.peak_waiting.load(Ordering::Relaxed)
+    }
     pub(crate) fn send(&self, job: Job) {
+        self.peak_waiting.fetch_max(
+            1 + self.waiting.fetch_add(1, Ordering::Relaxed),
+            Ordering::Relaxed,
+        );
         self.tx
             .as_ref()
             .expect("live pool")

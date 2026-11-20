@@ -184,7 +184,19 @@ async fn run(options: &Options) -> Result<(), String> {
     let mut explicit_save = false;
     let mut closing = false;
     let mut burst = None;
+    let first_usable_ms = boot.elapsed().as_secs_f64() * 1000.;
     let mut missing_ground_frames = 0;
+    let mut probe = scenarios::GroundProbe::default();
+    let mut missing_data = 0;
+    let mut missing_mesh = 0;
+    let mut strict_run = 0;
+    let mut longest_strict = 0;
+    let mut missing_run = 0;
+    let mut longest_missing = 0;
+    let mut collision_missing = 0;
+    let mut distance_travelled = 0.;
+    let mut last_position = None;
+    let mut edited = std::collections::BTreeMap::new();
     let mut checkpoints = std::collections::HashSet::new();
     let mut arrivals = std::collections::HashMap::new();
     let mut pending_edits: Vec<(Pos, Instant, bool, bool)> = Vec::new();
@@ -246,12 +258,37 @@ async fn run(options: &Options) -> Result<(), String> {
         }
         if frame >= scenarios::WARMUP {
             if options.smoke {
+                let here = Vec3::from_array(player.position);
+                if let Some(previous) = last_position {
+                    distance_travelled += here.distance(previous);
+                }
+                last_position = Some(here);
+                let began = Instant::now();
+                if !player.collision_data_ready(stream.world()) {
+                    collision_missing += 1;
+                }
+                profile.sample(frame, "collision_probe", began.elapsed());
                 let [x, _, z] = view.block;
+                let surface = chunk_at(probe.surface(stream.world(), x, z));
+                if !stream.world().is_resident(surface) {
+                    missing_data += 1;
+                    strict_run += 1;
+                } else if !terrain.has_geometry(surface) {
+                    missing_mesh += 1;
+                    strict_run += 1;
+                } else {
+                    strict_run = 0;
+                }
+                longest_strict = longest_strict.max(strict_run);
                 let ground = (0..128)
                     .rev()
                     .find(|&y| stream.world().lookup([x, y, z]).is_some_and(|b| b > 0));
                 if !ground.is_some_and(|y| stream.visible_revision(chunk_at([x, y, z])).is_some()) {
                     missing_ground_frames += 1;
+                    missing_run += 1;
+                    longest_missing = longest_missing.max(missing_run);
+                } else {
+                    missing_run = 0;
                 }
             }
             for &[x, z] in options.scenario.checkpoints() {
@@ -262,6 +299,12 @@ async fn run(options: &Options) -> Result<(), String> {
                     continue;
                 }
                 // The teleport route returns to origin after its distant leg.
+                if options.scenario == Scenario::Return
+                    && x == 0
+                    && !checkpoints.contains(&[256, 64])
+                {
+                    continue;
+                }
                 if options.scenario == Scenario::Teleport
                     && x == 0
                     && !checkpoints.contains(&[65_536, -32_768])
@@ -352,7 +395,8 @@ async fn run(options: &Options) -> Result<(), String> {
             pitch = (pitch + delta.y * 2.0).clamp(-1.52, 1.52);
         }
         if options.smoke {
-            player.flying = true;
+            player.flying =
+                frame < 120 || !matches!(options.scenario, Scenario::Walk | Scenario::Sprint);
             if options.scenario.flight(frame, options.frames).is_none() {
                 yaw = -0.35
                     + ((frame as f32 / options.frames as f32) * std::f32::consts::TAU).sin() * 0.38;
@@ -388,6 +432,19 @@ async fn run(options: &Options) -> Result<(), String> {
         if options.smoke {
             if frame > 60 && options.scenario.flight(frame, options.frames).is_none() {
                 input.movement = (forward * 0.14 + right * 0.05).to_array();
+            }
+            if frame >= 120
+                && matches!(
+                    options.scenario,
+                    Scenario::Walk | Scenario::Sprint | Scenario::Fly | Scenario::MovingEdits
+                )
+            {
+                input.movement = [0., 0., 1.];
+                input.sprint = options.scenario == Scenario::Sprint;
+                input.jump = player.grounded;
+                if player.flying && frame < 180 {
+                    input.movement[1] = 0.35;
+                }
             }
             if options.scenario.flight(frame, options.frames).is_none() {
                 player.step(stream.world(), input, FIXED_DT);
@@ -465,6 +522,22 @@ async fn run(options: &Options) -> Result<(), String> {
             println!("SMOKE place/save/load verified at {pos:?}");
         }
 
+        if options.scenario == Scenario::MovingEdits && frame >= 120 && frame.is_multiple_of(30) {
+            let start = Instant::now();
+            let x = player.position[0].floor() as i32 + 2;
+            let z = player.position[2].floor() as i32;
+            let y = (0..128)
+                .rev()
+                .find(|&y| stream.world().get([x, y, z]) > 0)
+                .ok_or("Sol éditable absent")?;
+            let mut actor = player.clone();
+            actor.position = [x as f32 + 0.5, y as f32 + 1.01, z as f32 + 0.5];
+            let pos = edit(stream.world_mut(), &actor, [0., -1., 0.], Edit::Remove)
+                .map_err(|e| e.to_string())?;
+            edited.insert(pos, 0u8);
+            pending_edits.push((pos, start, false, false));
+            profile.sample(frame, "moving_command", start.elapsed());
+        }
         if options.edit_route && frame >= 120 && frame.is_multiple_of(12) {
             // Paired removals/restorations across interior and chunk-edge columns.
             let pair = (frame - 120) / 12;
@@ -550,7 +623,9 @@ async fn run(options: &Options) -> Result<(), String> {
                 Color::from_rgba(245, 240, 191, 220),
             );
         }
+        let flush = Instant::now();
         set_default_camera();
+        profile.sample(frame, "backend_flush_upload_draw", flush.elapsed());
         draw_hud(
             &player,
             selected,
@@ -623,6 +698,19 @@ async fn run(options: &Options) -> Result<(), String> {
                 checkpoints.len(),
                 stream.stats(),
                 pending_edits.len()
+            );
+            for (&p, &b) in &edited {
+                if !store
+                    .load_chunk(chunk_at(p))
+                    .map_err(|e| e.to_string())?
+                    .contains(&(p, b))
+                {
+                    return Err(format!("Édition perdue {p:?}"));
+                }
+            }
+            println!(
+                "PIPELINE missing_data={missing_data} missing_mesh={missing_mesh} longest_strict={longest_strict} first_usable_ms={first_usable_ms:.3} longest_missing={longest_missing} collision_missing={collision_missing} travel_blocks={distance_travelled:.2} disk_verified={}",
+                edited.len()
             );
             let report = metrics.json(
                 screen_width() as i32,

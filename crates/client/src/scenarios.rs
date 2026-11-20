@@ -14,6 +14,12 @@ pub enum Scenario {
     Traverse,
     Teleport,
     Edits,
+    Walk,
+    Sprint,
+    Fly,
+    Return,
+    MovingEdits,
+    LongFlight,
 }
 
 impl FromStr for Scenario {
@@ -26,6 +32,12 @@ impl FromStr for Scenario {
             "region1024" => Ok(Self::Region1024),
             "traverse" => Ok(Self::Traverse),
             "teleport" => Ok(Self::Teleport),
+            "walk" => Ok(Self::Walk),
+            "sprint" => Ok(Self::Sprint),
+            "fly" => Ok(Self::Fly),
+            "return" => Ok(Self::Return),
+            "moving-edits" => Ok(Self::MovingEdits),
+            "long-flight" => Ok(Self::LongFlight),
             "edits" => Ok(Self::Edits),
             _ => Err(
                 "--scenario attend valley, region512, region1024, traverse, teleport ou edits"
@@ -50,6 +62,12 @@ impl Scenario {
             Self::Traverse => "traverse",
             Self::Teleport => "teleport",
             Self::Edits => "edits",
+            Self::Walk => "walk",
+            Self::Sprint => "sprint",
+            Self::Fly => "fly",
+            Self::Return => "return",
+            Self::MovingEdits => "moving-edits",
+            Self::LongFlight => "long-flight",
         }
     }
 
@@ -58,7 +76,22 @@ impl Scenario {
             std::array::from_fn(|i| a[i] + (b[i] - a[i]) * u.clamp(0.0, 1.0))
         };
         match self {
-            Self::Valley | Self::Edits => None,
+            Self::Valley
+            | Self::Edits
+            | Self::Walk
+            | Self::Sprint
+            | Self::Fly
+            | Self::MovingEdits => None,
+            Self::Return => Some(lerp(
+                [0.5; 2],
+                [256.5, 64.5],
+                if t < 0.45 {
+                    t / 0.45
+                } else {
+                    1. - (t - 0.45) / 0.45
+                },
+            )),
+            Self::LongFlight => Some(lerp([0.5; 2], [8192.5, -2047.5], t / 0.90)),
             Self::Region512 | Self::Region1024 => {
                 let half = if self == Self::Region512 {
                     256.0
@@ -115,7 +148,14 @@ impl Scenario {
             Self::Region1024 => &[[511, 511]],
             Self::Traverse => &[[4096, -1024]],
             Self::Teleport => &[[65_536, -32_768], [0, 0]],
-            Self::Valley | Self::Edits => &[],
+            Self::LongFlight => &[[8192, -2048]],
+            Self::Return => &[[256, 64], [0, 0]],
+            Self::Valley
+            | Self::Edits
+            | Self::Walk
+            | Self::Sprint
+            | Self::Fly
+            | Self::MovingEdits => &[],
         }
     }
 }
@@ -235,5 +275,37 @@ mod tests {
         );
         burst.restore(&mut world, |_, _, _| {}).unwrap();
         assert!(world.edits().is_empty());
+    }
+}
+
+/// Independent generated surface for the measured column. Keep one column only;
+/// this probe cannot insert blocks or meshes in the world under measurement.
+#[derive(Default)]
+pub struct GroundProbe {
+    column: Option<[i32; 2]>,
+    chunks: Vec<primal_voxel::GeneratedChunk>,
+}
+impl GroundProbe {
+    pub fn surface(&mut self, world: &World, x: i32, z: i32) -> Pos {
+        let column = [x.div_euclid(CHUNK), z.div_euclid(CHUNK)];
+        if self.column != Some(column) {
+            self.column = Some(column);
+            self.chunks = (0..world.block_bounds().1[1] as i32 / CHUNK)
+                .map(|y| {
+                    primal_voxel::generate_chunk(world.seed(), [column[0], y, column[1]]).unwrap()
+                })
+                .collect();
+        }
+        let y = (0..self.chunks.len() as i32 * CHUNK)
+            .rev()
+            .find(|&y| {
+                let p = [x, y, z];
+                world
+                    .lookup(p)
+                    .or_else(|| self.chunks[(y / CHUNK) as usize].get(p))
+                    .is_some_and(|b| b != 0)
+            })
+            .unwrap_or(0);
+        [x, y, z]
     }
 }

@@ -50,6 +50,11 @@ pub enum MeshKind {
 }
 #[derive(Clone, Copy, Debug)]
 pub enum Stage {
+    Select,
+    Dispatch,
+    Cancel,
+    Evict,
+    Publish,
     QueueLoad,
     QueueMesh,
     QueueSave,
@@ -63,6 +68,11 @@ pub enum Stage {
 impl Stage {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Select => "plan_select",
+            Self::Dispatch => "queue_dispatch",
+            Self::Cancel => "cancel_scan",
+            Self::Evict => "evict_save_scan",
+            Self::Publish => "publish_cpu",
             Self::QueueLoad => "load_queue",
             Self::QueueMesh => "mesh_queue",
             Self::QueueSave => "save_queue",
@@ -174,6 +184,10 @@ pub struct Stats {
     pub peak_resident: usize,
     pub peak_jobs: usize,
     pub peak_mesh_bytes: usize,
+    pub peak_waiting: usize,
+    pub evictions: u64,
+    pub cancelled_cpu_ns: u64,
+    pub unavailable_cpu_samples: u64,
 }
 #[derive(Clone, Copy)]
 enum Kind {
@@ -312,6 +326,11 @@ impl<P: Send + 'static> Streamer<P> {
                 Kind::Save(_) => false,
             };
         if stale {
+            if let Some(cpu) = done.cpu {
+                self.stats.cancelled_cpu_ns += cpu.as_nanos() as u64;
+            } else {
+                self.stats.unavailable_cpu_samples += 1;
+            }
             match job.kind {
                 Kind::Load(t) => {
                     self.world.cancel_load(t);
@@ -390,6 +409,12 @@ impl<P: Send + 'static> Streamer<P> {
         if self.plan.update(view, &self.config, &self.world) {
             self.deferred.clear();
         }
+        out.timings.push(Timing {
+            chunk: view.block,
+            stage: Stage::Select,
+            duration: start.elapsed(),
+        });
+        let cancel = Instant::now();
         for j in self.jobs.values() {
             let cancel = match j.kind {
                 Kind::Load(_) => !self.plan.wants(j.chunk),
@@ -406,6 +431,12 @@ impl<P: Send + 'static> Streamer<P> {
                 self.world.cancel_load(t);
             }
         }
+        out.timings.push(Timing {
+            chunk: view.block,
+            stage: Stage::Cancel,
+            duration: cancel.elapsed(),
+        });
+        let publish = Instant::now();
         while out.uploads.len() < self.config.uploads_per_tick
             && start.elapsed() < self.config.main_budget
         {
@@ -414,12 +445,19 @@ impl<P: Send + 'static> Streamer<P> {
                 Err(_) => break,
             }
         }
+        out.timings.push(Timing {
+            chunk: view.block,
+            stage: Stage::Publish,
+            duration: publish.elapsed(),
+        });
+        let evict = Instant::now();
         let residents = self.world.chunks();
         for &c in &residents {
             if self.plan.render_rank(c).is_none() {
                 self.discard_mesh(c, &mut out);
             }
             if !self.plan.wants(c) && self.world.evict_chunk(c) {
+                self.stats.evictions += 1;
                 self.errors.retain(|&(p, _)| p != c);
             }
             if self.world.chunk_dirty(c)
@@ -431,6 +469,12 @@ impl<P: Send + 'static> Streamer<P> {
                 self.dispatch(c, Kind::Save(rev), Work::Save(self.world.chunk_edits(c)));
             }
         }
+        out.timings.push(Timing {
+            chunk: view.block,
+            stage: Stage::Evict,
+            duration: evict.elapsed(),
+        });
+        let dispatch = Instant::now();
         self.errors.retain(|&(c, k)| k == 2 || self.plan.wants(c));
         let mut loads = self
             .jobs
@@ -471,6 +515,12 @@ impl<P: Send + 'static> Streamer<P> {
                 }
             }
         }
+        out.timings.push(Timing {
+            chunk: view.block,
+            stage: Stage::Dispatch,
+            duration: dispatch.elapsed(),
+        });
+        self.stats.peak_waiting = self.pool.peak_waiting();
         // A later load/eviction in this tick may have invalidated an accepted neighbour.
         out.uploads.retain(|u| {
             self.visible_revision(u.chunk) == Some(u.revision)

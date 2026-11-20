@@ -132,6 +132,18 @@ impl Player {
         }
     }
 
+    /// All cells touched by the AABB, including support immediately below the feet.
+    pub fn collision_data_ready(&self, world: &World) -> bool {
+        let (mut lo, hi) = bounds(self.position);
+        lo[1] -= 0.02;
+        let (lo, hi) = voxel_range(lo, hi);
+        (lo[0]..=hi[0]).all(|x| {
+            (lo[1]..=hi[1]).all(|y| {
+                (lo[2]..=hi[2])
+                    .all(|z| !world.in_bounds([x, y, z]) || world.lookup([x, y, z]).is_some())
+            })
+        })
+    }
     fn collides(&self, world: &World, position: [f32; 3]) -> bool {
         let (minimum, maximum) = bounds(position);
         let (lo, hi) = movement_bounds(world);
