@@ -441,7 +441,18 @@ async fn run(options: &Options) -> Result<(), String> {
             {
                 input.movement = [0., 0., 1.];
                 input.sprint = options.scenario == Scenario::Sprint;
-                input.jump = player.grounded;
+                let [px, py, pz] = player.position;
+                // Jump only at a step on the walking route; use the same collision solver as keyboard input.
+                input.jump = !player.flying
+                    && player.grounded
+                    && stream
+                        .world()
+                        .lookup([
+                            px.floor() as i32,
+                            py.floor() as i32,
+                            (pz + 0.65).floor() as i32,
+                        ])
+                        .is_some_and(|b| b != 0);
                 if player.flying && frame < 180 {
                     input.movement[1] = 0.35;
                 }

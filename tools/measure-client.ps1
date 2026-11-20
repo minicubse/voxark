@@ -64,6 +64,7 @@ $meta = [ordered]@{
     physical_ram_bytes = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
     windows_build = (Get-CimInstance Win32_OperatingSystem).BuildNumber
     release_binary_sha256 = (Get-FileHash -LiteralPath $exe).Hash
+    process_cpu_ms = $process.TotalProcessorTime.TotalMilliseconds
     peak_working_set_bytes = $peakBytes
     process_elapsed_ms = $watch.ElapsedMilliseconds
     requested_frames = $Frames
