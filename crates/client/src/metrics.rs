@@ -26,12 +26,13 @@ impl FrameMetrics {
         let low_one = slowest_fps(&samples, 0.01);
         let low_point_one = slowest_fps(&samples, 0.001);
         format!(
-            "{{\n  \"resolution\": [{width}, {height}],\n  \"mesher\": \"{mesher}\",\n  \"samples\": {},\n  \"warmup_frames\": 120,\n  \"frame_mean_ms\": {mean:.4},\n  \"fps_mean\": {:.3},\n  \"fps_1_percent_low\": {low_one:.3},\n  \"fps_0_1_percent_low\": {low_point_one:.3},\n  \"frame_p50_ms\": {:.4},\n  \"frame_p95_ms\": {:.4},\n  \"frame_p99_ms\": {:.4},\n  \"frame_max_ms\": {:.4},\n  \"mesh_chunks\": {chunks},\n  \"render_quads\": {faces},\n  \"method\": \"macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction\"\n}}\n",
+            "{{\n  \"resolution\": [{width}, {height}],\n  \"mesher\": \"{mesher}\",\n  \"samples\": {},\n  \"warmup_frames\": 120,\n  \"frame_mean_ms\": {mean:.4},\n  \"fps_mean\": {:.3},\n  \"fps_1_percent_low\": {low_one:.3},\n  \"fps_0_1_percent_low\": {low_point_one:.3},\n  \"frame_p50_ms\": {:.4},\n  \"frame_p95_ms\": {:.4},\n  \"frame_p99_ms\": {:.4},\n  \"frame_p99_9_ms\": {:.4},\n  \"frame_max_ms\": {:.4},\n  \"mesh_chunks\": {chunks},\n  \"render_quads\": {faces},\n  \"method\": \"macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction\"\n}}\n",
             samples.len(),
             if mean > 0.0 { 1000.0 / mean } else { 0.0 },
             percentile(&samples, 0.50),
             percentile(&samples, 0.95),
             percentile(&samples, 0.99),
+            percentile(&samples, 0.999),
             samples.last().copied().unwrap_or(0.0),
         )
     }

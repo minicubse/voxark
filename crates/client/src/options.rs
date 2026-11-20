@@ -19,6 +19,8 @@ impl Mesher {
 pub struct Options {
     pub world: PathBuf,
     pub smoke: bool,
+    pub profile: Option<PathBuf>,
+    pub edit_route: bool,
     pub frames: usize,
     pub capture: Option<PathBuf>,
     pub metrics: Option<PathBuf>,
@@ -35,6 +37,8 @@ impl Options {
             world: default_save_path(),
             smoke: false,
             frames: 480,
+            profile: None,
+            edit_route: false,
             capture: None,
             metrics: None,
             width: 1280,
@@ -47,6 +51,8 @@ impl Options {
         let mut args = args.into_iter();
         while let Some(arg) = args.next() {
             match arg.as_str() {
+                "--edit-route" => options.edit_route = true,
+                "--profile" => options.profile = Some(PathBuf::from(value(&mut args, &arg)?)),
                 "--smoke" => options.smoke = true,
                 "--world" => {
                     options.world = PathBuf::from(value(&mut args, &arg)?);
@@ -96,6 +102,16 @@ impl Options {
                 _ => return Err(format!("Argument inconnu {arg}\n{}", help())),
             }
         }
+        if (options.edit_route || options.profile.is_some()) && !options.smoke {
+            return Err("Les mesures exigent --smoke".into());
+        }
+        if options.profile.as_ref().is_some_and(|p| {
+            p == &options.world
+                || Some(p) == options.metrics.as_ref()
+                || Some(p) == options.capture.as_ref()
+        }) {
+            return Err("Le profil exige un fichier distinct".into());
+        }
         if options.smoke && options.tick_rate != 60 {
             return Err("Le parcours smoke exige --tick-rate 60".into());
         }
@@ -141,7 +157,7 @@ fn default_save_path() -> PathBuf {
 }
 
 pub fn help() -> &'static str {
-    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json"
+    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route"
 }
 
 #[cfg(test)]

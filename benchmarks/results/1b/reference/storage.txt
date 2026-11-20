@@ -1,0 +1,3 @@
+edits=1 bytes=28 samples=11 save_median_ms=9.248 save_max_ms=12.504 load_median_ms=1.909 load_max_ms=2.083
+edits=10000 bytes=40024 samples=11 save_median_ms=6.469 save_max_ms=7.025 load_median_ms=4.154 load_max_ms=5.304
+edits=65536 bytes=262168 samples=11 save_median_ms=6.955 save_max_ms=7.947 load_median_ms=7.790 load_max_ms=10.650

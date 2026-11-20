@@ -27,11 +27,18 @@ impl Terrain {
         terrain
     }
 
-    pub fn rebuild(&mut self, world: &World, chunk: ChunkPos) {
+    pub fn rebuild(
+        &mut self,
+        world: &World,
+        chunk: ChunkPos,
+    ) -> (std::time::Duration, std::time::Duration) {
+        let start = std::time::Instant::now();
         let faces = match self.mesher {
             Mesher::Faces => world.mesh(chunk),
             Mesher::Greedy => world.greedy_mesh(chunk),
         };
+        let mesh_time = start.elapsed();
+        let buffers = std::time::Instant::now();
         if let Some(previous) = self.chunks.get(&chunk) {
             self.faces -= previous
                 .iter()
@@ -44,6 +51,7 @@ impl Terrain {
         } else {
             self.chunks.insert(chunk, meshes(&faces));
         }
+        (mesh_time, buffers.elapsed())
     }
 
     pub fn len(&self) -> usize {

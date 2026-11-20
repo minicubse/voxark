@@ -5,6 +5,9 @@ param(
     [ValidateSet('faces','greedy')][string]$Mesher = 'greedy',
     [ValidateRange(240,20000)][int]$Frames = 1320,
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../benchmarks/results/local'),
+    [string]$Scenario,
+    [switch]$EditRoute,
+    [switch]$Profile,
     [switch]$Capture
 )
 $ErrorActionPreference = 'Stop'
@@ -18,6 +21,12 @@ $info.CreateNoWindow = $true
 $info.RedirectStandardOutput = $true
 $info.RedirectStandardError = $true
 $info.Arguments = "--smoke --frames $Frames --resolution $Resolution --mesher $Mesher --metrics `"$base.json`""
+if ($Scenario) {
+    if ($Scenario -notin @('valley','region512','region1024','traverse','teleport','edits')) { throw "Scénario inconnu" }
+    $info.Arguments += " --scenario $Scenario"
+}
+if ($EditRoute) { $info.Arguments += " --edit-route" }
+if ($Profile) { $info.Arguments += " --profile `"$base.csv`"" }
 if ($Capture) { $info.Arguments += " --capture `"$base.png`"" }
 $process = [Diagnostics.Process]::Start($info)
 $stdout = $process.StandardOutput.ReadToEndAsync()

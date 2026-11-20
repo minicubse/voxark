@@ -41,3 +41,20 @@ Onze remplacements synchronisés et relectures par taille. Les relectures compre
 | 65 536 | 262 168 octets | 6,34 / 10,08 ms | 7,19 / 7,67 ms |
 
 La barrière disque et le remeshing synchrone sont des coûts observés sur le chemin d'édition. Pour identifier la cause des frames lentes en déplacement, instrumenter séparément le temps de soumission et le temps GPU, puis répéter un scénario long avec éditions. [Résultats disque](../benchmarks/results/2026-11-20/storage.txt)
+
+## 1B.1 — Édition sur le parcours graphique
+
+Même machine, seed et scène. Reproduction du client 1a sur trajet calme, puis ajout de 100 éditions validées, une toutes les douze frames après la chauffe. Les suppressions et restaurations alternent sur six colonnes, avec 84 éditions touchant au moins une frontière et 16 intérieures. Même suite d’actions et même géométrie finale. Une exécution par combinaison, ordre des résolutions inversé au passage sur le worker. Les résultats décrivent ces passages.
+
+| Résolution | Écriture | FPS moyens | Frame P95 / P99 / P99,9 (ms) | Édition frontière P50 / P95 sur fil graphique (ms) |
+|---|---|---:|---:|---:|
+| 720p | Synchrone | 117,75 | 18,53 / 20,24 / 36,87 | 10,81 / 22,34 |
+| 720p | Worker | 118,84 | 12,58 / 13,37 / 16,31 | 0,41 / 0,67 |
+| 1080p | Synchrone | 106,86 | 18,62 / 21,96 / 30,98 | 10,98 / 11,90 |
+| 1080p | Worker | 119,81 | 12,09 / 12,41 / 12,84 | 0,49 / 0,72 |
+
+En 720p, l’écriture synchrone des 100 snapshots a une médiane de 10,27 ms, le maillage des 200 chunks invalidés de 0,239 ms, la construction des buffers de 0,009 ms et la soumission terrain à Macroquad de 0,259 ms par frame. Après découplage, la médiane disque reste de 10,32 ms et la demande de sauvegarde sur le fil du jeu coûte 0,007 ms. Le signal de succès est émis après la réponse du worker. La soumission CPU inclut les appels draw_mesh et le culling. Le temps d’exécution GPU isolé reste inconnu.
+
+Sur le trajet calme avec le binaire 1a reproduit, 113,74 FPS moyens en 720p et 118,63 en 1080p. Sur le trajet avec éditions synchrones l’ordre s’inverse. Les deux résolutions et ces différentes charges ne permettent pas d’isoler la cause. Le nombre d’échantillons et l’ordre des passages limitent l’interprétation des extrêmes.
+
+Reproduction de la variante 1B.1 sous Windows avec `./tools/measure-client.ps1 -Executable CHEMIN -Profile -EditRoute -Frames 1320 -Resolution 1280x720`. Les CSV contiennent les événements horodatés par numéro de frame et durées en nanosecondes. Les JSON machine incluent le hash du binaire et le pic de mémoire. [Données et journaux](../benchmarks/results/1b/)

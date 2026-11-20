@@ -1,14 +1,18 @@
+mod autosave;
 mod metrics;
 mod options;
+mod profile;
 mod terrain;
 
 use macroquad::prelude::*;
 use metrics::FrameMetrics;
 use options::Options;
 use primal_simulation::{Edit, FIXED_DT, Input, MAX_REACH, Player, edit, raycast};
-use primal_storage::{WorldLock, load_or_create, save};
+use primal_storage::{WorldLock, load_or_create};
 use primal_voxel::{Pos, dirty_chunks};
+use profile::Profile;
 use std::path::Path;
+use std::time::Instant;
 use terrain::{FOG_COLOR, Terrain, block_color};
 
 const SEED: u64 = 20_261_120;
@@ -99,6 +103,7 @@ async fn run(options: &Options) -> Result<(), String> {
         .map_err(|error| format!("{}\n{error}", options.world.display()))?;
     let mut world = load_or_create(&options.world, SEED)
         .map_err(|error| format!("{}\n{error}", options.world.display()))?;
+    let mut writer = autosave::Autosave::new(options.world.clone()).map_err(|e| e.to_string())?;
     let mut player = Player::try_spawn(&world)
         .ok_or("Aucun espace libre pour apparaître dans cette sauvegarde")?;
     let mut terrain = Terrain::new(&world, options.mesher);
@@ -121,6 +126,7 @@ async fn run(options: &Options) -> Result<(), String> {
     let mut jump_pending = false;
     let mut frame = 0_usize;
     let mut metrics = FrameMetrics::default();
+    let mut profile = Profile::new(options.profile.is_some());
     let mut status = "Monde chargé · sauvegarde à chaque modification".to_owned();
     let mut status_until = get_time() + 5.0;
     let mut save_failed = false;
@@ -128,17 +134,46 @@ async fn run(options: &Options) -> Result<(), String> {
     let mut smoke_restored = false;
     let mut captured_image = false;
     let started = get_time();
+    let mut route_block = 0;
 
     loop {
+        if let Some(ack) = writer.poll(&world).map_err(|e| e.to_string())? {
+            profile.sample(ack.frame, "save_queue", ack.wait);
+            profile.sample(ack.frame, "save_disk", ack.disk);
+            match ack.result {
+                Ok(()) => {
+                    status = "Sauvegarde confirmée".into();
+                    save_failed = false;
+                }
+                Err(e) => {
+                    status = format!("ÉCHEC SAUVEGARDE · {e} · F5 pour réessayer");
+                    save_failed = true;
+                }
+            }
+            status_until = get_time() + 3.0;
+        }
         let frame_dt = get_frame_time();
         if options.smoke && frame >= 120 {
             metrics.record(frame_dt);
+            profile.sample(
+                frame - 1,
+                "frame_interval",
+                std::time::Duration::from_secs_f32(frame_dt),
+            );
         }
         if is_quit_requested() {
             if options.smoke {
                 return Err("Smoke interrompu avant validation".into());
             }
-            break;
+            if save_failed {
+                writer.request(&world, frame).map_err(|e| e.to_string())?;
+            }
+            if let Err(e) = writer.flush(&world) {
+                save_failed = true;
+                status = format!("ÉCHEC SAUVEGARDE · {e} · F5 pour réessayer");
+            } else {
+                break;
+            }
         }
         if is_key_pressed(KeyCode::Escape) {
             captured = false;
@@ -254,16 +289,8 @@ async fn run(options: &Options) -> Result<(), String> {
                     for chunk in dirty_chunks(position) {
                         terrain.rebuild(&world, chunk);
                     }
-                    match save(&options.world, &world) {
-                        Ok(()) => {
-                            status = "Modification sauvegardée".into();
-                            save_failed = false;
-                        }
-                        Err(error) => {
-                            status = format!("ÉCHEC SAUVEGARDE · {error} · F5 pour réessayer");
-                            save_failed = true;
-                        }
-                    }
+                    writer.request(&world, frame).map_err(|e| e.to_string())?;
+                    status = "Modification en cours de sauvegarde".into();
                 }
                 Err(error) => {
                     if !save_failed {
@@ -274,16 +301,8 @@ async fn run(options: &Options) -> Result<(), String> {
             status_until = get_time() + 3.0;
         }
         if is_key_pressed(KeyCode::F5) {
-            match save(&options.world, &world) {
-                Ok(()) => {
-                    status = "Monde sauvegardé".into();
-                    save_failed = false;
-                }
-                Err(error) => {
-                    status = format!("ÉCHEC SAUVEGARDE · {error}");
-                    save_failed = true;
-                }
-            }
+            writer.request(&world, frame).map_err(|e| e.to_string())?;
+            status = "Sauvegarde demandée".into();
             status_until = get_time() + 4.0;
         }
         if options.smoke && frame == 20 {
@@ -296,7 +315,10 @@ async fn run(options: &Options) -> Result<(), String> {
             for chunk in dirty_chunks(pos) {
                 terrain.rebuild(&world, chunk);
             }
-            save(&options.world, &world).map_err(|error| error.to_string())?;
+            writer
+                .request(&world, frame)
+                .and_then(|()| writer.flush(&world))
+                .map_err(|e| e.to_string())?;
             let loaded = load_or_create(&options.world, SEED).map_err(|error| error.to_string())?;
             if loaded.get(pos) != 0 {
                 return Err("Smoke: destruction perdue après rechargement".into());
@@ -314,13 +336,57 @@ async fn run(options: &Options) -> Result<(), String> {
             for chunk in dirty_chunks(pos) {
                 terrain.rebuild(&world, chunk);
             }
-            save(&options.world, &world).map_err(|error| error.to_string())?;
+            writer
+                .request(&world, frame)
+                .and_then(|()| writer.flush(&world))
+                .map_err(|e| e.to_string())?;
             let loaded = load_or_create(&options.world, SEED).map_err(|error| error.to_string())?;
             if loaded.get(pos) != block {
                 return Err("Smoke: pose perdue après rechargement".into());
             }
             smoke_restored = true;
             println!("SMOKE place/save/load verified at {pos:?}");
+        }
+
+        if options.edit_route && frame >= 120 && frame.is_multiple_of(12) {
+            // Paired removals/restorations across interior and chunk-edge columns.
+            let pair = (frame - 120) / 12;
+            let columns = [(-17, -9), (-16, -9), (-8, -9), (0, -1), (15, 4), (16, 4)];
+            let (x, z) = columns[(pair / 2) % columns.len()];
+            let start = Instant::now();
+            let surface = (1..60)
+                .rev()
+                .find(|&y| world.get([x, y, z]) != 0)
+                .ok_or("Route édition: colonne vide")?;
+            let mut actor = player.clone();
+            actor.position = [x as f32 + 0.5, surface as f32 + 2.0, z as f32 + 0.5];
+            let action = if pair.is_multiple_of(2) {
+                route_block = world.get([x, surface, z]);
+                Edit::Remove
+            } else {
+                Edit::Place(route_block)
+            };
+            let pos = edit(&mut world, &actor, [0.0, -1.0, 0.0], action)
+                .map_err(|e| format!("Route édition {e}"))?;
+            profile.sample(frame, "edit_command", start.elapsed());
+            for chunk in dirty_chunks(pos) {
+                let (mesh, buffers) = terrain.rebuild(&world, chunk);
+                profile.sample(frame, "remesh", mesh);
+                profile.sample(frame, "prepare_buffers", buffers);
+            }
+            let disk = Instant::now();
+            writer.request(&world, frame).map_err(|e| e.to_string())?;
+            profile.sample(frame, "save_enqueue", disk.elapsed());
+            let border = pos.iter().any(|v| matches!(v.rem_euclid(16), 0 | 15));
+            profile.sample(
+                frame,
+                if border {
+                    "edit_border"
+                } else {
+                    "edit_interior"
+                },
+                start.elapsed(),
+            );
         }
 
         let eye = Vec3::from_array(player.eye());
@@ -339,7 +405,9 @@ async fn run(options: &Options) -> Result<(), String> {
             fog.set_uniform("FogDistance", distance);
             gl_use_material(fog);
         }
+        let draw_start = Instant::now();
         let visible = terrain.draw(eye, front, distance);
+        profile.sample(frame, "draw_submit_cpu", draw_start.elapsed());
         gl_use_default_material();
         if let Some(hit) = raycast(&world, player.eye(), front.to_array(), MAX_REACH) {
             draw_cube_wires(
@@ -415,6 +483,10 @@ async fn run(options: &Options) -> Result<(), String> {
             break;
         }
         next_frame().await;
+    }
+    writer.flush(&world).map_err(|e| e.to_string())?;
+    if let Some(path) = &options.profile {
+        profile.write(path).map_err(|e| e.to_string())?;
     }
     set_cursor_grab(false);
     show_mouse(true);

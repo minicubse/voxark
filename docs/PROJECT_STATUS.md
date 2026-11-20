@@ -17,3 +17,7 @@ Le workspace comporte quatre crates. Le noyau et la simulation sont indépendant
 **Jalon 1b.** Ajouter un parcours de traversée avec éditions en bord de chunk, chronométrer séparément reconstruction CPU, soumission au pilote et sauvegarde. Utiliser ces mesures pour dimensionner une file de génération et de remeshing asynchrones à budget par frame. Tester qu'une édition plus récente survit à l'arrivée d'un résultat de calcul périmé. La vallée actuelle fournit la référence de correction et de performance.
 
 La réplication à deux clients, le serveur dédié, les créatures et la boucle de survie sont à développer aux jalons ultérieurs. [Feuille de route](ROADMAP.md) · [Limites](KNOWN_ISSUES.md)
+
+## 1B.1 validé
+
+Le disque est sorti du chemin interactif. Un worker sérialise les demandes et regroupe les éditions reçues pendant une écriture. Le client distingue une demande d’un accusé d’écriture, conserve F5 et attend le dernier état à la fermeture. 35 tests réussis, fmt/check/Clippy tous les targets et build release réussis. Test Windows de capture, destruction, redémarrage et pose validé. Mesures avant/après et limites dans PERFORMANCE.md. Prochaine étape : stockage dynamique, coordonnées étendues et migration régionale avant l’intégration du streaming.

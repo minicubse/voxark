@@ -113,24 +113,40 @@ fn decode(bytes: &[u8]) -> io::Result<World> {
 
 /// Writes a complete staging file beside its destination, then atomically replaces the snapshot.
 pub fn save(path: &Path, world: &World) -> io::Result<()> {
+    save_snapshot(path, world.seed(), &world.edits())
+}
+
+/// A detached, ordered v1 snapshot for a writer outside the simulation thread.
+pub fn save_snapshot(path: &Path, seed: u64, edits: &[(Pos, u8)]) -> io::Result<()> {
+    if edits.len() > MAX_RECORDS
+        || edits
+            .iter()
+            .any(|(p, b)| !World::contains(*p) || *b > MAX_BLOCK)
+        || edits.windows(2).any(|w| w[0].0 >= w[1].0)
+    {
+        return Err(invalid("Snapshot hors format PVXD v1"));
+    }
     let dir = directory_for(path)?;
     fs::create_dir_all(dir)?;
-    stage(dir, world)?.persist(path)?;
+    stage_snapshot(dir, seed, edits)?.persist(path)?;
     #[cfg(unix)]
     File::open(dir)?.sync_all()?;
     Ok(())
 }
 
+#[cfg(test)]
 fn stage(dir: &Path, world: &World) -> io::Result<NamedTempFile> {
-    // World::edits returns the coordinate order of its BTreeMap.
-    let edits = world.edits();
+    stage_snapshot(dir, world.seed(), &world.edits())
+}
+
+fn stage_snapshot(dir: &Path, seed: u64, edits: &[(Pos, u8)]) -> io::Result<NamedTempFile> {
     let mut buffer = Vec::with_capacity(HEADER + RECORD * edits.len() + CHECKSUM);
     buffer.extend(MAGIC);
     buffer.extend(FORMAT.to_le_bytes());
     buffer.extend(GENERATOR.to_le_bytes());
-    buffer.extend(world.seed().to_le_bytes());
+    buffer.extend(seed.to_le_bytes());
     buffer.extend((edits.len() as u32).to_le_bytes());
-    for ([x, y, z], block) in edits {
+    for &([x, y, z], block) in edits {
         buffer.extend([x as i8 as u8, y as i8 as u8, z as i8 as u8, block]);
     }
     buffer.extend(crc32fast::hash(&buffer).to_le_bytes());
