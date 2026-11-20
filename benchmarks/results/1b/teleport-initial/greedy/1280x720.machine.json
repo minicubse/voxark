@@ -1,0 +1,17 @@
+{
+  "cpu": "AMD Ryzen 7 7730U with Radeon Graphics",
+  "gpu": [
+    {
+      "Name": "AMD Radeon (TM) Graphics",
+      "DriverVersion": "31.0.21925.1001",
+      "CurrentRefreshRate": 60
+    }
+  ],
+  "physical_ram_bytes": 16516243456,
+  "windows_build": "26200",
+  "release_binary_sha256": "721E0FCAAE4D31CA589440380D65E56E8A260AF2EEA043101CF45C3B30B34D78",
+  "peak_working_set_bytes": 573444096,
+  "process_elapsed_ms": 5831,
+  "requested_frames": 480,
+  "requested_resolution": "1280x720"
+}

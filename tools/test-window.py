@@ -22,17 +22,31 @@ def wait_for(read, label, seconds=8):
 
 
 def read_edits(path):
-    data = path.read_bytes()
-    assert data[:4] == b"PVXD" and zlib.crc32(data[:-4]) == int.from_bytes(data[-4:], "little")
-    records = list(struct.iter_unpack("<bbbB", data[20:-4]))
-    assert len(records) == int.from_bytes(data[16:20], "little")
-    return {(x, y, z): block for x, y, z, block in records}
+    directory = Path(str(path) + ".regions")
+    edits = {}
+    for region in directory.glob("r.*.pvr"):
+        try:
+            data = region.read_bytes()
+        except FileNotFoundError:
+            continue
+        assert data[:4] == b"PVRG" and zlib.crc32(data[:-4]) == int.from_bytes(data[-4:], "little")
+        rx, ry, rz, count = struct.unpack_from("<iiiI", data, 16)
+        records = list(struct.iter_unpack("<I", data[32:-4]))
+        assert len(records) == count
+        for (record,) in records:
+            chunk, cell = divmod(record >> 8, 4096)
+            pos = (rx * 64 + chunk // 16 * 16 + cell // 256,
+                   ry * 64 + chunk // 4 % 4 * 16 + cell // 16 % 16,
+                   rz * 64 + chunk % 4 * 16 + cell % 16)
+            edits[pos] = record & 255
+    return edits
 
 
 @contextmanager
 def open_game(executable, path):
     win = ctypes.windll.user32
-    process = subprocess.Popen([executable, "--world", path, "--resolution", "800x450"])
+    log = tempfile.TemporaryFile()
+    process = subprocess.Popen([executable, "--world", path, "--resolution", "800x450"],stdout=log,stderr=log)
     callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
     found = []
 
@@ -60,12 +74,13 @@ def open_game(executable, path):
                 raise ctypes.WinError()
 
         # F5 must replace the snapshot. This also waits for world and mesh initialization.
-        original_time = path.stat().st_mtime_ns
+
 
         def ready():
             post(0x100, 0x74, (0x3F << 16) | 1)
             post(0x101, 0x74, (0x3F << 16) | 0xC0000001)
-            return path.stat().st_mtime_ns != original_time
+            log.seek(0)
+            return b"F5 SAVE CONFIRMED" in log.read()
 
         wait_for(ready, "sauvegarde par F5")
         yield post
@@ -78,6 +93,7 @@ def open_game(executable, path):
             process.kill()
             process.wait()
             raise
+    log.close()
     assert process.returncode == 0
 
 
@@ -109,6 +125,7 @@ def verify(executable, path):
         time.sleep(0.12)
         click(post, right=True)
         wait_for(lambda: read_edits(path) == {backing: 3, target: 7}, "pose de cristal par clic droit")
+    assert path.read_bytes() == data + struct.pack("<I", zlib.crc32(data))
     print("PASS Windows : F5, capture, destruction, fermeture, relecture, sélection 7 et repose.")
 
 

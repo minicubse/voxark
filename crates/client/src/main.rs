@@ -1,16 +1,22 @@
+#[cfg(test)]
 mod autosave;
+mod buffers;
 mod metrics;
 mod options;
 mod profile;
+mod scenarios;
 mod terrain;
 
+use buffers::Buffers;
 use macroquad::prelude::*;
 use metrics::FrameMetrics;
 use options::Options;
 use primal_simulation::{Edit, FIXED_DT, Input, MAX_REACH, Player, edit, raycast};
-use primal_storage::{WorldLock, load_or_create};
-use primal_voxel::{Pos, dirty_chunks};
+use primal_storage::RegionStore;
+use primal_streaming::{MeshKind, Streamer, View};
+use primal_voxel::{Pos, World, chunk_at};
 use profile::Profile;
+use scenarios::{Burst, Scenario};
 use std::path::Path;
 use std::time::Instant;
 use terrain::{FOG_COLOR, Terrain, block_color};
@@ -50,10 +56,10 @@ async fn main() {
     let cleanup_temporary_world = options.temporary_world && !options.world.exists();
     let result = run(&options).await;
     if cleanup_temporary_world {
-        let _ = std::fs::remove_file(&options.world);
-        let mut lock_path = options.world.as_os_str().to_owned();
-        lock_path.push(".lock");
-        let _ = std::fs::remove_file(lock_path);
+        // Options creates a unique private temp directory for this smoke invocation.
+        if let Some(dir) = options.world.parent() {
+            let _ = std::fs::remove_dir_all(dir);
+        }
     }
     if let Err(error) = result {
         eprintln!("PRIMAL VOXEL ERROR {error}");
@@ -88,7 +94,8 @@ async fn main() {
 }
 
 async fn run(options: &Options) -> Result<(), String> {
-    if options.smoke && options.world.exists() {
+    if options.smoke && (options.world.exists() || RegionStore::directory(&options.world).exists())
+    {
         return Err(format!(
             "Le test smoke exige une sauvegarde neuve. Fichier existant {}",
             options.world.display()
@@ -99,14 +106,45 @@ async fn run(options: &Options) -> Result<(), String> {
     draw_text("Génération de la vallée…", 40.0, 102.0, 20.0, WHITE);
     next_frame().await;
 
-    let _lock = WorldLock::acquire(&options.world)
-        .map_err(|error| format!("{}\n{error}", options.world.display()))?;
-    let mut world = load_or_create(&options.world, SEED)
-        .map_err(|error| format!("{}\n{error}", options.world.display()))?;
-    let mut writer = autosave::Autosave::new(options.world.clone()).map_err(|e| e.to_string())?;
-    let mut player = Player::try_spawn(&world)
-        .ok_or("Aucun espace libre pour apparaître dans cette sauvegarde")?;
-    let mut terrain = Terrain::new(&world, options.mesher);
+    let store = RegionStore::open(&options.world, SEED)
+        .map_err(|e| format!("{} {e}", options.world.display()))?;
+    let kind = match options.mesher {
+        options::Mesher::Greedy => MeshKind::Greedy,
+        options::Mesher::Faces => MeshKind::Faces,
+    };
+    let mut stream = Streamer::new(
+        World::streamed(store.seed()),
+        store.clone(),
+        options.stream.clone(),
+        kind,
+        Buffers::prepare,
+    )
+    .map_err(|e| e.to_string())?;
+    let mut terrain = Terrain::default();
+    let mut view = View {
+        block: [0, 16, 0],
+        forward: [0., 0., 1.],
+        velocity: [0.; 3],
+    };
+    let boot = Instant::now();
+    let mut player = loop {
+        let f = stream.tick(view);
+        if let Some(e) = f.errors.first() {
+            return Err(e.clone());
+        }
+        for u in f.uploads {
+            terrain.install(u.chunk, u.payload);
+        }
+        if stream.world().is_resident([0, 0, 0])
+            && let Some(p) = Player::try_spawn(stream.world())
+        {
+            break p;
+        }
+        if boot.elapsed().as_secs() > 12 {
+            return Err("Zone de départ indisponible sous les budgets configurés".into());
+        }
+        next_frame().await;
+    };
     let fog = match terrain::fog_material() {
         Ok(material) => Some(material),
         Err(error) => {
@@ -120,7 +158,7 @@ async fn run(options: &Options) -> Result<(), String> {
     let mut selected = 1_u8;
     let mut debug = true;
     let mut fullscreen = false;
-    let mut distance: f32 = 112.0;
+    let mut distance = (options.stream.render_radius as f32 * 16.0).max(16.0);
     let mut accumulator = 0.0;
     let fixed_dt = 1.0 / f32::from(options.tick_rate);
     let mut jump_pending = false;
@@ -136,21 +174,96 @@ async fn run(options: &Options) -> Result<(), String> {
     let started = get_time();
     let mut route_block = 0;
 
+    let mut awaiting_save = false;
+    let mut explicit_save = false;
+    let mut closing = false;
+    let mut burst = None;
+    let mut checkpoints = std::collections::HashSet::new();
+    let mut pending_edits: Vec<(Pos, Instant, bool, bool)> = Vec::new();
     loop {
-        if let Some(ack) = writer.poll(&world).map_err(|e| e.to_string())? {
-            profile.sample(ack.frame, "save_queue", ack.wait);
-            profile.sample(ack.frame, "save_disk", ack.disk);
-            match ack.result {
-                Ok(()) => {
-                    status = "Sauvegarde confirmée".into();
-                    save_failed = false;
-                }
-                Err(e) => {
-                    status = format!("ÉCHEC SAUVEGARDE · {e} · F5 pour réessayer");
-                    save_failed = true;
-                }
+        if options.smoke
+            && let Some(flight) = options.scenario.flight(frame, options.frames)
+        {
+            player.position = flight.position;
+            player.velocity = flight.velocity;
+            yaw = flight.yaw;
+            pitch = -0.45;
+        }
+        view = View {
+            block: player.position.map(|x| x.floor() as i32),
+            forward: [
+                yaw.sin() * pitch.cos(),
+                pitch.sin(),
+                yaw.cos() * pitch.cos(),
+            ],
+            velocity: player.velocity,
+        };
+        let t = Instant::now();
+        let f = stream.tick(view);
+        profile.sample(frame, "stream_tick", t.elapsed());
+        for sample in f.timings {
+            profile.sample(frame, sample.stage.name(), sample.duration);
+        }
+        for c in f.evicted {
+            terrain.remove(c);
+        }
+        let adopt = Instant::now();
+        for u in f.uploads {
+            if stream.world().mesh_revision(u.chunk) == Some(u.revision) {
+                terrain.install(u.chunk, u.payload);
             }
-            status_until = get_time() + 3.0;
+        }
+        profile.sample(frame, "accept_buffers_cpu", adopt.elapsed());
+        for (pos, started, visible, durable) in &mut pending_edits {
+            let c = chunk_at(*pos);
+            if !*visible
+                && stream
+                    .world()
+                    .dirty_chunks(*pos)
+                    .iter()
+                    .filter(|c| stream.world().is_resident(**c))
+                    .all(|&c| stream.visible_revision(c) == stream.world().mesh_revision(c))
+            {
+                profile.sample(frame, "edit_to_mesh_ready", started.elapsed());
+                *visible = true;
+            }
+            if !*durable && !stream.world().chunk_dirty(c) {
+                profile.sample(frame, "edit_to_durable", started.elapsed());
+                *durable = true;
+            }
+        }
+        pending_edits.retain(|e| !e.2 || !e.3);
+        if let Some(e) = f.errors.first() {
+            if options.smoke {
+                return Err(e.clone());
+            }
+            save_failed = true;
+            closing = false;
+            status = format!("Erreur de streaming · {e} · F5 pour réessayer");
+        }
+        if awaiting_save && stream.saves_idle() {
+            awaiting_save = false;
+            save_failed = false;
+            status = "Sauvegarde confirmée".into();
+            status_until = get_time() + 3.;
+            if explicit_save {
+                println!("F5 SAVE CONFIRMED");
+                explicit_save = false;
+            }
+            if closing {
+                break;
+            }
+        }
+        for &[x, z] in options.scenario.checkpoints() {
+            if (view.block[0] - x).abs() < 16
+                && (view.block[2] - z).abs() < 16
+                && let Some(y) = (0..64)
+                    .rev()
+                    .find(|&y| stream.world().lookup([x, y, z]).is_some_and(|b| b > 0))
+                && stream.visible_revision(chunk_at([x, y, z])).is_some()
+            {
+                checkpoints.insert([x, z]);
+            }
         }
         let frame_dt = get_frame_time();
         if options.smoke && frame >= 120 {
@@ -165,15 +278,9 @@ async fn run(options: &Options) -> Result<(), String> {
             if options.smoke {
                 return Err("Smoke interrompu avant validation".into());
             }
-            if save_failed {
-                writer.request(&world, frame).map_err(|e| e.to_string())?;
-            }
-            if let Err(e) = writer.flush(&world) {
-                save_failed = true;
-                status = format!("ÉCHEC SAUVEGARDE · {e} · F5 pour réessayer");
-            } else {
-                break;
-            }
+            stream.retry_errors();
+            awaiting_save = true;
+            closing = true;
         }
         if is_key_pressed(KeyCode::Escape) {
             captured = false;
@@ -199,9 +306,11 @@ async fn run(options: &Options) -> Result<(), String> {
         }
         if is_key_pressed(KeyCode::Equal) {
             distance = (distance + 16.0).min(192.0);
+            stream.set_render_radius((distance / 16.).ceil() as i32);
         }
         if is_key_pressed(KeyCode::Minus) {
             distance = (distance - 16.0).max(32.0);
+            stream.set_render_radius((distance / 16.).ceil() as i32);
         }
         for (index, key) in [
             KeyCode::Key1,
@@ -230,9 +339,11 @@ async fn run(options: &Options) -> Result<(), String> {
         }
         if options.smoke {
             player.flying = true;
-            yaw = -0.35
-                + ((frame as f32 / options.frames as f32) * std::f32::consts::TAU).sin() * 0.38;
-            pitch = -0.13;
+            if options.scenario.flight(frame, options.frames).is_none() {
+                yaw = -0.35
+                    + ((frame as f32 / options.frames as f32) * std::f32::consts::TAU).sin() * 0.38;
+                pitch = -0.13;
+            }
         }
         let front = vec3(
             yaw.sin() * pitch.cos(),
@@ -261,15 +372,17 @@ async fn run(options: &Options) -> Result<(), String> {
             jump_pending |= is_key_pressed(KeyCode::Space);
         }
         if options.smoke {
-            if frame > 60 {
+            if frame > 60 && options.scenario.flight(frame, options.frames).is_none() {
                 input.movement = (forward * 0.14 + right * 0.05).to_array();
             }
-            player.step(&world, input, FIXED_DT);
+            if options.scenario.flight(frame, options.frames).is_none() {
+                player.step(stream.world(), input, FIXED_DT);
+            }
         } else {
             accumulator += frame_dt.min(0.1);
             while accumulator >= fixed_dt {
                 input.jump = jump_pending;
-                player.step(&world, input, fixed_dt);
+                player.step(stream.world(), input, fixed_dt);
                 jump_pending = false;
                 accumulator -= fixed_dt;
             }
@@ -284,12 +397,9 @@ async fn run(options: &Options) -> Result<(), String> {
             None
         };
         if let Some(operation) = operation {
-            match edit(&mut world, &player, front.to_array(), operation) {
-                Ok(position) => {
-                    for chunk in dirty_chunks(position) {
-                        terrain.rebuild(&world, chunk);
-                    }
-                    writer.request(&world, frame).map_err(|e| e.to_string())?;
+            match edit(stream.world_mut(), &player, front.to_array(), operation) {
+                Ok(_) => {
+                    awaiting_save = true;
                     status = "Modification en cours de sauvegarde".into();
                 }
                 Err(error) => {
@@ -301,26 +411,21 @@ async fn run(options: &Options) -> Result<(), String> {
             status_until = get_time() + 3.0;
         }
         if is_key_pressed(KeyCode::F5) {
-            writer.request(&world, frame).map_err(|e| e.to_string())?;
+            stream.retry_errors();
+            awaiting_save = true;
+            explicit_save = true;
             status = "Sauvegarde demandée".into();
             status_until = get_time() + 4.0;
         }
         if options.smoke && frame == 20 {
             let direction = [0.0, -0.85, 0.5];
-            let hit = raycast(&world, player.eye(), direction, MAX_REACH)
+            let hit = raycast(stream.world(), player.eye(), direction, MAX_REACH)
                 .ok_or("Smoke: aucune cible terrain")?;
-            let block = world.get(hit.block);
-            let pos = edit(&mut world, &player, direction, Edit::Remove)
+            let block = stream.world().get(hit.block);
+            let pos = edit(stream.world_mut(), &player, direction, Edit::Remove)
                 .map_err(|error| format!("Smoke destruction {error:?}"))?;
-            for chunk in dirty_chunks(pos) {
-                terrain.rebuild(&world, chunk);
-            }
-            writer
-                .request(&world, frame)
-                .and_then(|()| writer.flush(&world))
-                .map_err(|e| e.to_string())?;
-            let loaded = load_or_create(&options.world, SEED).map_err(|error| error.to_string())?;
-            if loaded.get(pos) != 0 {
+            verify_write(&mut stream, &store, &mut terrain, view, pos, 0).await?;
+            if stream.world().get(pos) != 0 {
                 return Err("Smoke: destruction perdue après rechargement".into());
             }
             smoke_removed = Some((pos, block));
@@ -328,20 +433,18 @@ async fn run(options: &Options) -> Result<(), String> {
         }
         if options.smoke && frame == 40 {
             let (expected, block) = smoke_removed.ok_or("Smoke: étape destruction absente")?;
-            let pos = edit(&mut world, &player, [0.0, -0.85, 0.5], Edit::Place(block))
-                .map_err(|error| format!("Smoke pose {error:?}"))?;
+            let pos = edit(
+                stream.world_mut(),
+                &player,
+                [0.0, -0.85, 0.5],
+                Edit::Place(block),
+            )
+            .map_err(|error| format!("Smoke pose {error:?}"))?;
             if pos != expected {
                 return Err(format!("Smoke: pose {pos:?}, attendu {expected:?}"));
             }
-            for chunk in dirty_chunks(pos) {
-                terrain.rebuild(&world, chunk);
-            }
-            writer
-                .request(&world, frame)
-                .and_then(|()| writer.flush(&world))
-                .map_err(|e| e.to_string())?;
-            let loaded = load_or_create(&options.world, SEED).map_err(|error| error.to_string())?;
-            if loaded.get(pos) != block {
+            verify_write(&mut stream, &store, &mut terrain, view, pos, block).await?;
+            if stream.world().get(pos) != block {
                 return Err("Smoke: pose perdue après rechargement".into());
             }
             smoke_restored = true;
@@ -356,28 +459,26 @@ async fn run(options: &Options) -> Result<(), String> {
             let start = Instant::now();
             let surface = (1..60)
                 .rev()
-                .find(|&y| world.get([x, y, z]) != 0)
-                .ok_or("Route édition: colonne vide")?;
+                .find(|&y| stream.world().get([x, y, z]) != 0)
+                .ok_or_else(|| {
+                    format!(
+                        "Route édition: colonne vide ({x},{z}) frame {frame} en {:?}",
+                        view.block
+                    )
+                })?;
             let mut actor = player.clone();
             actor.position = [x as f32 + 0.5, surface as f32 + 2.0, z as f32 + 0.5];
             let action = if pair.is_multiple_of(2) {
-                route_block = world.get([x, surface, z]);
+                route_block = stream.world().get([x, surface, z]);
                 Edit::Remove
             } else {
                 Edit::Place(route_block)
             };
-            let pos = edit(&mut world, &actor, [0.0, -1.0, 0.0], action)
+            let pos = edit(stream.world_mut(), &actor, [0.0, -1.0, 0.0], action)
                 .map_err(|e| format!("Route édition {e}"))?;
             profile.sample(frame, "edit_command", start.elapsed());
-            for chunk in dirty_chunks(pos) {
-                let (mesh, buffers) = terrain.rebuild(&world, chunk);
-                profile.sample(frame, "remesh", mesh);
-                profile.sample(frame, "prepare_buffers", buffers);
-            }
-            let disk = Instant::now();
-            writer.request(&world, frame).map_err(|e| e.to_string())?;
-            profile.sample(frame, "save_enqueue", disk.elapsed());
-            let border = pos.iter().any(|v| matches!(v.rem_euclid(16), 0 | 15));
+            pending_edits.push((pos, start, false, false));
+            let border = scenarios::on_chunk_face(pos);
             profile.sample(
                 frame,
                 if border {
@@ -389,6 +490,21 @@ async fn run(options: &Options) -> Result<(), String> {
             );
         }
 
+        if options.scenario == Scenario::Edits && frame == 130 {
+            burst = Some(Burst::remove(stream.world_mut(), |_, p, t| {
+                pending_edits.push((p, t, false, false));
+                profile.sample(frame, "burst_command", t.elapsed());
+            })?);
+        }
+        if options.scenario == Scenario::Edits && frame == 160 {
+            burst
+                .as_ref()
+                .ok_or("Rafale absente")?
+                .restore(stream.world_mut(), |_, p, t| {
+                    pending_edits.push((p, t, false, false));
+                    profile.sample(frame, "burst_command", t.elapsed());
+                })?;
+        }
         let eye = Vec3::from_array(player.eye());
         draw_sky();
         set_camera(&Camera3D {
@@ -409,7 +525,7 @@ async fn run(options: &Options) -> Result<(), String> {
         let visible = terrain.draw(eye, front, distance);
         profile.sample(frame, "draw_submit_cpu", draw_start.elapsed());
         gl_use_default_material();
-        if let Some(hit) = raycast(&world, player.eye(), front.to_array(), MAX_REACH) {
+        if let Some(hit) = raycast(stream.world(), player.eye(), front.to_array(), MAX_REACH) {
             draw_cube_wires(
                 Vec3::new(
                     hit.block[0] as f32 + 0.5,
@@ -457,6 +573,19 @@ async fn run(options: &Options) -> Result<(), String> {
             if !smoke_restored {
                 return Err("Smoke incomplet".into());
             }
+            if checkpoints.len() != options.scenario.checkpoints().len() {
+                return Err(format!(
+                    "Terrain non confirmé aux points attendus {:?}",
+                    checkpoints
+                ));
+            }
+            println!(
+                "STREAM scenario={} checkpoints={} stats={:?} outstanding_edits={}",
+                options.scenario.name(),
+                checkpoints.len(),
+                stream.stats(),
+                pending_edits.len()
+            );
             let report = metrics.json(
                 screen_width() as i32,
                 screen_height() as i32,
@@ -484,12 +613,57 @@ async fn run(options: &Options) -> Result<(), String> {
         }
         next_frame().await;
     }
-    writer.flush(&world).map_err(|e| e.to_string())?;
+    if !stream.saves_idle() {
+        return Err("Sauvegardes encore en cours à la fin du parcours".into());
+    }
     if let Some(path) = &options.profile {
         profile.write(path).map_err(|e| e.to_string())?;
     }
     set_cursor_grab(false);
     show_mouse(true);
+    Ok(())
+}
+
+/// Smoke-only durability barrier. Reconstruct the edited block from the disk snapshot.
+async fn verify_write(
+    stream: &mut Streamer<Buffers>,
+    store: &RegionStore,
+    terrain: &mut Terrain,
+    view: View,
+    pos: Pos,
+    expected: u8,
+) -> Result<(), String> {
+    let started = Instant::now();
+    while !stream.saves_idle() {
+        let f = stream.tick(view);
+        if let Some(e) = f.errors.first() {
+            return Err(e.clone());
+        }
+        for c in f.evicted {
+            terrain.remove(c);
+        }
+        for u in f.uploads {
+            if stream.world().mesh_revision(u.chunk) == Some(u.revision) {
+                terrain.install(u.chunk, u.payload);
+            }
+        }
+        if started.elapsed().as_secs() > 8 {
+            return Err("Délai de sauvegarde dépassé".into());
+        }
+        next_frame().await;
+    }
+    let c = chunk_at(pos);
+    let edits = store.load_chunk(c).map_err(|e| e.to_string())?;
+    let value = edits
+        .iter()
+        .find(|(p, _)| *p == pos)
+        .map(|e| e.1)
+        .or_else(|| primal_voxel::generate_chunk(store.seed(), c)?.get(pos));
+    if value != Some(expected) {
+        return Err(format!(
+            "Relecture de {pos:?} : {value:?}, attendu {expected}"
+        ));
+    }
     Ok(())
 }
 

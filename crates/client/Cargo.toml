@@ -8,6 +8,7 @@ macroquad = { version = "0.4.14", default-features = false }
 primal-voxel = { path = "../voxel" }
 primal-simulation = { path = "../simulation" }
 primal-storage = { path = "../storage" }
+primal-streaming = { path = "../streaming" }
 
 [lints]
 workspace = true

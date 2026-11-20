@@ -128,6 +128,11 @@ mod tests {
         writer.request(&world, 1).unwrap();
         world.set([1, 0, 0], 0);
         writer.request(&world, 2).unwrap();
+        while let Some(ack) = writer.poll(&world).unwrap() {
+            assert!(ack.result.is_ok());
+            assert!(ack.frame <= 2);
+            let _ = (ack.wait, ack.disk);
+        }
         writer.flush(&world).unwrap();
         assert_eq!(
             world.edits(),

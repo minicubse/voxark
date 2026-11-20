@@ -302,6 +302,7 @@ dependencies = [
  "macroquad",
  "primal-simulation",
  "primal-storage",
+ "primal-streaming",
  "primal-voxel",
 ]
 
@@ -317,6 +318,15 @@ name = "primal-storage"
 version = "0.1.0"
 dependencies = [
  "crc32fast",
+ "primal-voxel",
+ "tempfile",
+]
+
+[[package]]
+name = "primal-streaming"
+version = "0.1.0"
+dependencies = [
+ "primal-storage",
  "primal-voxel",
  "tempfile",
 ]

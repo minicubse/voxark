@@ -1,59 +1,35 @@
-use crate::options::Mesher;
+use crate::buffers::Buffers;
 use macroquad::miniquad::CullFace;
 use macroquad::prelude::*;
-use primal_voxel::{CHUNK, ChunkPos, Face, World};
+#[cfg(test)]
+use primal_voxel::Face;
+use primal_voxel::{CHUNK, ChunkPos};
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 const FACES_PER_MESH: usize = 2048;
 pub const FOG_COLOR: Color = Color::new(0.70, 0.79, 0.70, 1.0);
 pub const VERTICAL_FOV: f32 = 65.0_f32.to_radians();
 
+#[derive(Default)]
 pub struct Terrain {
     chunks: BTreeMap<ChunkPos, Vec<Mesh>>,
     pub faces: usize,
-    mesher: Mesher,
 }
 
 impl Terrain {
-    pub fn new(world: &World, mesher: Mesher) -> Self {
-        let mut terrain = Self {
-            chunks: BTreeMap::new(),
-            faces: 0,
-            mesher,
-        };
-        for chunk in world.chunks() {
-            terrain.rebuild(world, chunk);
+    pub fn remove(&mut self, c: ChunkPos) {
+        if let Some(old) = self.chunks.remove(&c) {
+            self.faces -= old.iter().map(|m| m.indices.len() / 6).sum::<usize>();
         }
-        terrain
     }
-
-    pub fn rebuild(
-        &mut self,
-        world: &World,
-        chunk: ChunkPos,
-    ) -> (std::time::Duration, std::time::Duration) {
-        let start = std::time::Instant::now();
-        let faces = match self.mesher {
-            Mesher::Faces => world.mesh(chunk),
-            Mesher::Greedy => world.greedy_mesh(chunk),
-        };
-        let mesh_time = start.elapsed();
-        let buffers = std::time::Instant::now();
-        if let Some(previous) = self.chunks.get(&chunk) {
-            self.faces -= previous
-                .iter()
-                .map(|mesh| mesh.indices.len() / 6)
-                .sum::<usize>();
+    pub fn install(&mut self, c: ChunkPos, b: Buffers) {
+        self.remove(c);
+        if b.quads > 0 {
+            self.faces += b.quads;
+            self.chunks.insert(c, b.into_meshes());
         }
-        self.faces += faces.len();
-        if faces.is_empty() {
-            self.chunks.remove(&chunk);
-        } else {
-            self.chunks.insert(chunk, meshes(&faces));
-        }
-        (mesh_time, buffers.elapsed())
     }
-
     pub fn len(&self) -> usize {
         self.chunks.len()
     }
@@ -113,50 +89,15 @@ fn sphere_visible(
             <= depth * vertical_tangent + radius * (1.0 + vertical_tangent.powi(2)).sqrt()
 }
 
+#[cfg(test)]
 fn meshes(faces: &[Face]) -> Vec<Mesh> {
-    faces
-        .chunks(FACES_PER_MESH)
-        .map(|batch| {
-            let mut vertices = Vec::with_capacity(batch.len() * 4);
-            let mut indices = Vec::with_capacity(batch.len() * 6);
-            for face in batch {
-                let base = vertices.len() as u16;
-                let color = face_color(face);
-                for corner in face.corners {
-                    let mut vertex = Vertex::new(corner[0], corner[1], corner[2], 0.0, 0.0, color);
-                    vertex.normal = Vec4::new(
-                        face.normal[0] as f32,
-                        face.normal[1] as f32,
-                        face.normal[2] as f32,
-                        0.0,
-                    );
-                    vertices.push(vertex);
-                }
-                indices.extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
-            }
-            Mesh {
-                vertices,
-                indices,
-                texture: None,
-            }
-        })
-        .collect()
+    Buffers::prepare(faces).0.into_meshes()
 }
 
 pub fn block_color(block: u8) -> Color {
     primal_voxel::block_def(block).map_or(WHITE, |block| {
         Color::from_rgba(block.rgb[0], block.rgb[1], block.rgb[2], 255)
     })
-}
-
-fn face_color(face: &Face) -> Color {
-    let mut color = block_color(face.block);
-    let normal = face.normal;
-    let shade = 0.72 + normal[1] as f32 * 0.20 - normal[0] as f32 * 0.08 + normal[2] as f32 * 0.05;
-    color.r *= shade;
-    color.g *= shade;
-    color.b *= shade;
-    color
 }
 
 pub fn fog_material() -> Result<Material, macroquad::Error> {

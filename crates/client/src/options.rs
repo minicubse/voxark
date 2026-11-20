@@ -1,4 +1,7 @@
+use crate::scenarios::Scenario;
+use primal_streaming::StreamConfig;
 use std::path::PathBuf;
+use std::time::Duration;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Mesher {
@@ -29,6 +32,8 @@ pub struct Options {
     pub temporary_world: bool,
     pub mesher: Mesher,
     pub tick_rate: u16,
+    pub scenario: Scenario,
+    pub stream: StreamConfig,
 }
 
 impl Options {
@@ -46,6 +51,12 @@ impl Options {
             temporary_world: false,
             mesher: Mesher::Greedy,
             tick_rate: 60,
+            scenario: Scenario::Valley,
+            stream: StreamConfig {
+                load_radius: 8,
+                render_radius: 7,
+                ..StreamConfig::default()
+            },
         };
         let mut explicit_world = false;
         let mut args = args.into_iter();
@@ -54,6 +65,26 @@ impl Options {
                 "--edit-route" => options.edit_route = true,
                 "--profile" => options.profile = Some(PathBuf::from(value(&mut args, &arg)?)),
                 "--smoke" => options.smoke = true,
+                "--scenario" => {
+                    options.scenario = value(&mut args, &arg)?.parse()?;
+                    options.smoke = true;
+                }
+                "--load-radius" => options.stream.load_radius = number(&mut args, &arg)?,
+                "--render-radius" => options.stream.render_radius = number(&mut args, &arg)?,
+                "--simulation-radius" => {
+                    options.stream.simulation_radius = number(&mut args, &arg)?
+                }
+                "--preload-radius" => options.stream.preload_radius = number(&mut args, &arg)?,
+                "--max-chunks" => options.stream.max_chunks = number(&mut args, &arg)?,
+                "--workers" => options.stream.workers = number(&mut args, &arg)?,
+                "--max-jobs" => options.stream.max_jobs = number(&mut args, &arg)?,
+                "--uploads" => options.stream.uploads_per_tick = number(&mut args, &arg)?,
+                "--resident-mib" => options.stream.resident_bytes = mib(&mut args, &arg)?,
+                "--prepared-mib" => options.stream.prepared_bytes = mib(&mut args, &arg)?,
+                "--mesh-cache-mib" => options.stream.mesh_cache_bytes = mib(&mut args, &arg)?,
+                "--main-budget-us" => {
+                    options.stream.main_budget = Duration::from_micros(number(&mut args, &arg)?)
+                }
                 "--world" => {
                     options.world = PathBuf::from(value(&mut args, &arg)?);
                     explicit_world = true;
@@ -102,6 +133,13 @@ impl Options {
                 _ => return Err(format!("Argument inconnu {arg}\n{}", help())),
             }
         }
+        options
+            .stream
+            .validate()
+            .map_err(|error| error.to_string())?;
+        if options.edit_route && options.scenario != Scenario::Valley {
+            return Err("--edit-route utilise le parcours de comparaison valley".into());
+        }
         if (options.edit_route || options.profile.is_some()) && !options.smoke {
             return Err("Les mesures exigent --smoke".into());
         }
@@ -121,10 +159,9 @@ impl Options {
                 .duration_since(std::time::UNIX_EPOCH)
                 .map_err(|error| error.to_string())?
                 .as_nanos();
-            options.world = std::env::temp_dir().join(format!(
-                "primal-voxel-smoke-{}-{nonce}.pvx",
-                std::process::id()
-            ));
+            options.world = std::env::temp_dir()
+                .join(format!("primal-voxel-smoke-{}-{nonce}", std::process::id()))
+                .join("world.pvx");
         }
         if options
             .capture
@@ -139,6 +176,17 @@ impl Options {
                 "Les fichiers de mesure et de capture doivent être distincts du monde".into(),
             );
         }
+        let regions = primal_storage::RegionStore::directory(&options.world);
+        let mut lock = options.world.as_os_str().to_owned();
+        lock.push(".lock");
+        for path in [&options.profile, &options.metrics, &options.capture]
+            .into_iter()
+            .flatten()
+        {
+            if path.starts_with(&regions) || path.as_os_str() == lock {
+                return Err("La sortie demandée appartient à la sauvegarde régionale".into());
+            }
+        }
         Ok(options)
     }
 }
@@ -146,6 +194,21 @@ impl Options {
 fn value(args: &mut impl Iterator<Item = String>, name: &str) -> Result<String, String> {
     args.next()
         .ok_or_else(|| format!("Valeur manquante pour {name}"))
+}
+
+fn number<T: std::str::FromStr>(
+    args: &mut impl Iterator<Item = String>,
+    name: &str,
+) -> Result<T, String> {
+    value(args, name)?
+        .parse()
+        .map_err(|_| format!("{name} attend un entier"))
+}
+
+fn mib(args: &mut impl Iterator<Item = String>, name: &str) -> Result<usize, String> {
+    number::<usize>(args, name)?
+        .checked_mul(1 << 20)
+        .ok_or_else(|| format!("{name} dépasse la taille adressable"))
 }
 
 fn default_save_path() -> PathBuf {
@@ -157,7 +220,7 @@ fn default_save_path() -> PathBuf {
 }
 
 pub fn help() -> &'static str {
-    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route"
+    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
 }
 
 #[cfg(test)]
@@ -191,5 +254,41 @@ mod tests {
         .unwrap();
         assert_eq!(options.world, PathBuf::from("test.pvx"));
         assert_eq!((options.width, options.height), (1920, 1080));
+    }
+
+    #[test]
+    fn stress_runs_use_new_worlds_and_apply_budgets() {
+        let a = parse(&[
+            "--scenario",
+            "teleport",
+            "--render-radius",
+            "2",
+            "--load-radius",
+            "3",
+            "--workers",
+            "2",
+            "--uploads",
+            "1",
+            "--resident-mib",
+            "8",
+        ])
+        .unwrap();
+        assert!(a.smoke && a.temporary_world);
+        assert_eq!(a.scenario, Scenario::Teleport);
+        assert_eq!(a.stream.resident_bytes, 8 << 20);
+        assert_eq!((a.stream.workers, a.stream.uploads_per_tick), (2, 1));
+        assert_ne!(a.world, default_save_path());
+        assert!(parse(&["--scenario", "teleport", "--edit-route"]).is_err());
+        assert!(parse(&["--scenario", "oops"]).is_err());
+        assert!(
+            parse(&[
+                "--smoke",
+                "--world",
+                "save",
+                "--metrics",
+                "save.regions/world.pvxd"
+            ])
+            .is_err()
+        );
     }
 }
