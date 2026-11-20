@@ -144,8 +144,7 @@ impl World {
     /// Historical finite fixture and v1 save reader. Runtime streaming starts
     /// from `streamed` and only generates the chunks requested by the caller.
     pub fn new(seed: u64) -> Self {
-        let mut world = Self::streamed(seed);
-        world.valley = true;
+        let mut world = Self::valley_streamed(seed);
         for y in 0..4 {
             for z in -4..4 {
                 for x in -4..4 {
@@ -156,6 +155,13 @@ impl World {
                 }
             }
         }
+        world
+    }
+
+    /// Empty finite domain for streaming the historical valley in comparative benchmarks.
+    pub fn valley_streamed(seed: u64) -> Self {
+        let mut world = Self::streamed(seed);
+        world.valley = true;
         world
     }
 

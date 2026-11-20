@@ -7,6 +7,7 @@ param(
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../benchmarks/results/local'),
     [string]$Scenario,
     [switch]$EditRoute,
+    [switch]$ValleyOnly,
     [switch]$Profile,
     [switch]$Capture
 )
@@ -25,6 +26,7 @@ if ($Scenario) {
     if ($Scenario -notin @('valley','region512','region1024','traverse','teleport','edits')) { throw "Scénario inconnu" }
     $info.Arguments += " --scenario $Scenario"
 }
+if ($ValleyOnly) { $info.Arguments += " --valley-only" }
 if ($EditRoute) { $info.Arguments += " --edit-route" }
 if ($Profile) { $info.Arguments += " --profile `"$base.csv`"" }
 if ($Capture) { $info.Arguments += " --capture `"$base.png`"" }

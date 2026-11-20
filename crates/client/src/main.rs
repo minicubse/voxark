@@ -113,7 +113,11 @@ async fn run(options: &Options) -> Result<(), String> {
         options::Mesher::Faces => MeshKind::Faces,
     };
     let mut stream = Streamer::new(
-        World::streamed(store.seed()),
+        if options.valley_only {
+            World::valley_streamed(store.seed())
+        } else {
+            World::streamed(store.seed())
+        },
         store.clone(),
         options.stream.clone(),
         kind,
@@ -135,7 +139,8 @@ async fn run(options: &Options) -> Result<(), String> {
         for u in f.uploads {
             terrain.install(u.chunk, u.payload);
         }
-        if stream.world().is_resident([0, 0, 0])
+        if (0..stream.world().block_bounds().1[1] as i32 / 16)
+            .all(|y| stream.world().is_resident([0, y, 0]))
             && let Some(p) = Player::try_spawn(stream.world())
         {
             break p;
@@ -178,7 +183,9 @@ async fn run(options: &Options) -> Result<(), String> {
     let mut explicit_save = false;
     let mut closing = false;
     let mut burst = None;
+    let mut missing_ground_frames = 0;
     let mut checkpoints = std::collections::HashSet::new();
+    let mut arrivals = std::collections::HashMap::new();
     let mut pending_edits: Vec<(Pos, Instant, bool, bool)> = Vec::new();
     loop {
         if options.smoke
@@ -254,15 +261,39 @@ async fn run(options: &Options) -> Result<(), String> {
                 break;
             }
         }
-        for &[x, z] in options.scenario.checkpoints() {
-            if (view.block[0] - x).abs() < 16
-                && (view.block[2] - z).abs() < 16
-                && let Some(y) = (0..64)
+        if frame >= scenarios::WARMUP {
+            if options.smoke {
+                let [x, _, z] = view.block;
+                let ground = (0..128)
+                    .rev()
+                    .find(|&y| stream.world().lookup([x, y, z]).is_some_and(|b| b > 0));
+                if !ground.is_some_and(|y| stream.visible_revision(chunk_at([x, y, z])).is_some()) {
+                    missing_ground_frames += 1;
+                }
+            }
+            for &[x, z] in options.scenario.checkpoints() {
+                if (view.block[0] - x).abs() >= 16
+                    || (view.block[2] - z).abs() >= 16
+                    || checkpoints.contains(&[x, z])
+                {
+                    continue;
+                }
+                // The teleport route returns to origin after its distant leg.
+                if options.scenario == Scenario::Teleport
+                    && x == 0
+                    && !checkpoints.contains(&[65_536, -32_768])
+                {
+                    continue;
+                }
+                let arrival = arrivals.entry([x, z]).or_insert_with(Instant::now);
+                if let Some(y) = (0..128)
                     .rev()
                     .find(|&y| stream.world().lookup([x, y, z]).is_some_and(|b| b > 0))
-                && stream.visible_revision(chunk_at([x, y, z])).is_some()
-            {
-                checkpoints.insert([x, z]);
+                    && stream.visible_revision(chunk_at([x, y, z])).is_some()
+                {
+                    profile.sample(frame, "arrival_to_ground_mesh", arrival.elapsed());
+                    checkpoints.insert([x, z]);
+                }
             }
         }
         let frame_dt = get_frame_time();
@@ -580,7 +611,7 @@ async fn run(options: &Options) -> Result<(), String> {
                 ));
             }
             println!(
-                "STREAM scenario={} checkpoints={} stats={:?} outstanding_edits={}",
+                "STREAM scenario={} checkpoints={} missing_ground_frames={missing_ground_frames} stats={:?} outstanding_edits={}",
                 options.scenario.name(),
                 checkpoints.len(),
                 stream.stats(),

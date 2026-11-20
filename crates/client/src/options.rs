@@ -33,6 +33,7 @@ pub struct Options {
     pub mesher: Mesher,
     pub tick_rate: u16,
     pub scenario: Scenario,
+    pub valley_only: bool,
     pub stream: StreamConfig,
 }
 
@@ -52,6 +53,7 @@ impl Options {
             mesher: Mesher::Greedy,
             tick_rate: 60,
             scenario: Scenario::Valley,
+            valley_only: false,
             stream: StreamConfig {
                 load_radius: 8,
                 render_radius: 7,
@@ -64,6 +66,7 @@ impl Options {
             match arg.as_str() {
                 "--edit-route" => options.edit_route = true,
                 "--profile" => options.profile = Some(PathBuf::from(value(&mut args, &arg)?)),
+                "--valley-only" => options.valley_only = true,
                 "--smoke" => options.smoke = true,
                 "--scenario" => {
                     options.scenario = value(&mut args, &arg)?.parse()?;
@@ -137,6 +140,12 @@ impl Options {
             .stream
             .validate()
             .map_err(|error| error.to_string())?;
+        if options.valley_only && (!options.smoke || options.scenario != Scenario::Valley) {
+            return Err("--valley-only exige le smoke valley".into());
+        }
+        if options.stream.chunk_limit() < 8 {
+            return Err("Le client exige huit chunks pour la colonne de départ".into());
+        }
         if options.edit_route && options.scenario != Scenario::Valley {
             return Err("--edit-route utilise le parcours de comparaison valley".into());
         }
@@ -220,7 +229,7 @@ fn default_save_path() -> PathBuf {
 }
 
 pub fn help() -> &'static str {
-    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
+    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route --valley-only\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
 }
 
 #[cfg(test)]

@@ -194,6 +194,7 @@ pub struct Streamer<P> {
     next: u64,
     meshes: HashMap<ChunkPos, (u64, usize)>,
     mesh_bytes: usize,
+    deferred: HashMap<ChunkPos, u64>,
     errors: HashSet<(ChunkPos, u8)>,
     stats: Stats,
 }
@@ -219,6 +220,7 @@ impl<P: Send + 'static> Streamer<P> {
             next: 0,
             meshes: HashMap::new(),
             mesh_bytes: 0,
+            deferred: HashMap::new(),
             errors: HashSet::new(),
             stats: Stats::default(),
         })
@@ -283,6 +285,9 @@ impl<P: Send + 'static> Streamer<P> {
     fn discard_mesh(&mut self, c: ChunkPos, out: &mut Frame<P>) {
         if let Some((_, b)) = self.meshes.remove(&c) {
             self.mesh_bytes -= b;
+            if b > 0 {
+                self.deferred.clear();
+            }
             out.evicted.push(c)
         }
     }
@@ -360,9 +365,12 @@ impl<P: Send + 'static> Streamer<P> {
                     if let Some(p) = other {
                         self.discard_mesh(p, out);
                     } else {
-                        self.errors.insert((c, 1));
+                        self.deferred.insert(c, rev);
                         return;
                     }
+                }
+                if bytes < old {
+                    self.deferred.clear();
                 }
                 self.meshes.insert(c, (rev, bytes));
                 self.mesh_bytes = self.mesh_bytes - old + bytes;
@@ -378,7 +386,9 @@ impl<P: Send + 'static> Streamer<P> {
     pub fn tick(&mut self, view: View) -> Frame<P> {
         let start = Instant::now();
         let mut out = Frame::default();
-        self.plan.update(view, &self.config, &self.world);
+        if self.plan.update(view, &self.config, &self.world) {
+            self.deferred.clear();
+        }
         for j in self.jobs.values() {
             let cancel = match j.kind {
                 Kind::Load(_) => !self.plan.wants(j.chunk),
@@ -453,7 +463,7 @@ impl<P: Send + 'static> Streamer<P> {
                 && !self.errors.contains(&(c, 1))
             {
                 let rev = self.world.mesh_revision(c).unwrap();
-                if self.visible_revision(c) != Some(rev) {
+                if self.visible_revision(c) != Some(rev) && self.deferred.get(&c) != Some(&rev) {
                     let snapshot = self.world.mesh_snapshot(c).unwrap();
                     self.dispatch(c, Kind::Mesh(rev), Work::Mesh(snapshot));
                     mesh_jobs += 1;

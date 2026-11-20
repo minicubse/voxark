@@ -58,3 +58,19 @@ En 720p, l’écriture synchrone des 100 snapshots a une médiane de 10,27 ms, l
 Sur le trajet calme avec le binaire 1a reproduit, 113,74 FPS moyens en 720p et 118,63 en 1080p. Sur le trajet avec éditions synchrones l’ordre s’inverse. Les deux résolutions et ces différentes charges ne permettent pas d’isoler la cause. Le nombre d’échantillons et l’ordre des passages limitent l’interprétation des extrêmes.
 
 Reproduction de la variante 1B.1 sous Windows avec `./tools/measure-client.ps1 -Executable CHEMIN -Profile -EditRoute -Frames 1320 -Resolution 1280x720`. Les CSV contiennent les événements horodatés par numéro de frame et durées en nanosecondes. Les JSON machine incluent le hash du binaire et le pic de mémoire. [Données et journaux](../benchmarks/results/1b/)
+
+## 1B.4 — Traversées et éditions en monde ouvert
+
+Release, 840 frames dont 120 de chauffe, 720p, quatre workers, 24 tâches au maximum et 12 publications de maillage par frame. Le rayon demandé est de huit chunks et le plafond résident effectif est de 1 024. Le plan peut retenir moins de chunks, notamment pendant un déplacement. Chaque parcours vérifie le terrain au point d’arrivée. Une « frame sans sol prêt » signifie que la colonne sous la caméra n’a pas encore de bloc solide résident doté d’un maillage publié. Ce compteur décrit le retard local du streaming. Les FPS seuls le masquent.
+
+| Parcours | FPS moyens | Frame P95 / P99 / P99,9 (ms) | Pic processus (Mio) | Pic chunks | Frames sans sol prêt / 720 |
+|---|---:|---:|---:|---:|---:|
+| region512 | 97.1 | 15.94 / 17.67 / 20.09 | 343 | 977 | 0 |
+| region1024 | 114.9 | 13.18 / 15.82 / 16.50 | 316 | 809 | 8 |
+| traverse | 119.8 | 10.28 / 11.12 / 15.33 | 316 | 715 | 133 |
+| teleport | 106.5 | 15.73 / 17.99 / 22.56 | 555 | 1024 | 5 |
+| edits | 119.2 | 10.07 / 12.40 / 19.43 | 326 | 1024 | 0 |
+
+Les diagonales explorent les deux signes jusqu’à ±256 et ±512 blocs. Le vol rapide parcourt environ 4,22 km et la téléportation atteint (65 536, −32 768) puis revient à l’origine. Le parcours edits retire 64 blocs puis les repose aux mêmes positions, par commandes validées. Les CSV distinguent temps d’attente, génération, meshing, préparation, acceptation CPU, édition vers maillage prêt et édition vers sauvegarde confirmée. Le délai de présentation à l’écran n’est pas instrumenté.
+
+En complément, le test sans fenêtre franchit 5 120 blocs par transitions de chunk, téléporte à ±1 000 000 puis relit une édition avec une nouvelle session disque. Avec douze résidents autorisés, il en a observé huit simultanément sur ce passage, et huit tâches. La suite de validation couvre aussi les acquisitions concurrentes et les arrêts avant/après publication. La priorité suivante est l’essai de maillage binaire et du culling à géométrie contrôlée. [Parcours bruts](../benchmarks/results/1b/parcours/) · [Mesure sans fenêtre](../benchmarks/results/1b/traversee-sans-fenetre.txt)

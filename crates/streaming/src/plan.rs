@@ -42,10 +42,10 @@ pub(crate) struct Plan {
 }
 
 impl Plan {
-    pub(crate) fn update(&mut self, view: View, config: &StreamConfig, world: &World) {
+    pub(crate) fn update(&mut self, view: View, config: &StreamConfig, world: &World) -> bool {
         let focus = Focus::new(view, config);
         if self.previous.as_ref() == Some(&focus) {
-            return;
+            return false;
         }
         let [cx, cy, cz] = focus.center;
         let [lx, lz] = focus.lead;
@@ -101,6 +101,7 @@ impl Plan {
             self.order.push(chunk);
         }
         self.previous = Some(focus);
+        true
     }
 
     pub(crate) fn wants(&self, chunk: ChunkPos) -> bool {

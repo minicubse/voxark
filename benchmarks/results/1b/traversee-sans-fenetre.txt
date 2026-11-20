@@ -1,0 +1,4 @@
+running 1 test
+checkpoints=324 continuous_blocks=5120 far_x=1000000 elapsed_ms=106 Stats { stale_loads: 644, stale_meshes: 1908, peak_resident: 8, peak_jobs: 8, peak_mesh_bytes: 48 }
+.
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
