@@ -1,5 +1,7 @@
 //! Terrain snapshots for the bounded valley. See docs/ARCHITECTURE.md for the wire format.
+mod region;
 use primal_voxel::{GENERATOR_VERSION, MAX_BLOCK, Pos, World};
+pub use region::RegionStore;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, ErrorKind, Read, Write};
 use std::path::Path;

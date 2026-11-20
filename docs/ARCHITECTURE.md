@@ -35,3 +35,11 @@ Le client prend un verrou de fichier pour la session. Le fichier de verrouillage
 ## Frontière du futur serveur
 
 Le client propose une direction et une action. La simulation calcule la cellule atteinte et examine portée, matériau et occupation. Un accumulateur fait avancer le jeu à pas fixe, par défaut 60 Hz. Pour le multijoueur, le serveur devra posséder l'état du joueur, ordonner les commandes par tick, diffuser les éditions acceptées et renvoyer l'état à la reconnexion. Le transport, l'identité réseau et la réplication restent à implémenter.
+
+## 1B.2 — Terrain et régions
+
+Le constructeur de compatibilité charge la vallée historique. Le constructeur `World::streamed` démarre vide. Les clés des chunks utilisent la division euclidienne de coordonnées i32, sur 128 blocs de hauteur. Un chunk uniforme conserve un matériau. Un chunk hétérogène utilise 4 096 octets. Les différences mémorisent le matériau original des seules cellules modifiées. Les vues de maillage immuables partagent les données par Arc. Les éditions utilisent la copie sur écriture si une vue reste en vol. La physique considère un chunk absent comme un obstacle et la visée s’arrête avant la zone inconnue.
+
+PVXD v2 conserve un manifeste et des régions de 4³ chunks dans le dossier voisin `<chemin>.regions`. Les coordonnées signées de la région et les positions locales identifient les blocs. Le lecteur vérifie taille, version, seed, identité et CRC. Un remplacement atomique publie les différences par région sous verrou. La migration construit une arborescence temporaire et la renomme après synchronisation. Le fichier v1 reste disponible à l’identique. La suite teste des interruptions de processus avant et après publication. La résistance à une coupure électrique dépend du système de fichiers et du matériel.
+
+Sur la vallée de seed 42 en release, dix essais donnent une médiane de 2,09 ms pour la génération, 2,07 ms pour les faces exposées et 5,88 ms pour le greedy complet. Les voxels résidents représentent 536 701 octets de charge utile contre 2 097 152 octets précédemment. Les tables, allocations, diffs et maillages ont un coût supplémentaire. La fermeture de tous les sommets au-delà de la précision f32 exige une origine flottante future. Prochaine étape : connecter chargement et maillage aux workers. [Banc CPU](../benchmarks/results/1b/voxel-dynamique.txt)

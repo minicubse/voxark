@@ -1,0 +1,10 @@
+seed=42 chunks=256 dimensions=128x64x128 samples=10
+generation_median_ms=2.091 generation_max_ms=2.394
+culling_mesh_median_ms=2.073 culling_mesh_max_ms=2.213
+greedy_mesh_median_ms=5.876 greedy_mesh_max_ms=6.034 greedy_quads=23443 reduction_vs_exposed_percent=67.27
+full_cube_mesh_median_ms=61.054 full_cube_mesh_max_ms=72.369
+solid_voxels=348616 full_cube_faces=2091696 exposed_faces=71624 face_reduction_percent=96.58
+voxel_payload_bytes=536701 (resident voxel payload excluding container overhead)
+reference_region_size=16 culling_median_ms=68.793 culling_max_ms=73.021
+reference_region_size=32 culling_median_ms=68.269 culling_max_ms=68.699
+reference_region_size=64 culling_median_ms=71.837 culling_max_ms=73.757

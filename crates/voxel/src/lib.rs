@@ -1,19 +1,28 @@
-//! Deterministic finite voxel world and renderer-independent exposed-face meshes.
+//! Renderer-independent voxel generation, resident chunks and versioned mesh views.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
+use std::sync::Arc;
 
 mod catalog;
+mod generation;
+mod mesh;
 pub use catalog::{BlockDef, CatalogError, block_def, parse_block_catalog};
+pub use generation::{GeneratedChunk, generate_chunk};
+pub use mesh::{Face, MeshSnapshot};
 
 pub const CHUNK: i32 = 16;
 pub const MAX_BLOCK: u8 = 7;
+/// Terrain inside the valley is the original generator, including its structures.
 pub const GENERATOR_VERSION: u32 = 1;
+pub const STREAM_HEIGHT: i32 = 128;
 pub type Pos = [i32; 3];
 pub type ChunkPos = [i32; 3];
+/// Exclusive upper bounds. These constants describe the historical valley.
 pub const WORLD_MIN: Pos = [-64, 0, -64];
 pub const WORLD_MAX: Pos = [64, 64, 64];
 
-const CHUNK_VOLUME: usize = 16 * 16 * 16;
+const SIDE: usize = CHUNK as usize;
+const VOLUME: usize = SIDE * SIDE * SIDE;
 const DIRECTIONS: [Pos; 6] = [
     [1, 0, 0],
     [-1, 0, 0],
@@ -22,374 +31,449 @@ const DIRECTIONS: [Pos; 6] = [
     [0, 0, 1],
     [0, 0, -1],
 ];
-const CORNERS: [[[i32; 3]; 4]; 6] = [
-    [[1, 0, 0], [1, 1, 0], [1, 1, 1], [1, 0, 1]],
-    [[0, 0, 1], [0, 1, 1], [0, 1, 0], [0, 0, 0]],
-    [[0, 1, 1], [1, 1, 1], [1, 1, 0], [0, 1, 0]],
-    [[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]],
-    [[1, 0, 1], [1, 1, 1], [0, 1, 1], [0, 0, 1]],
-    [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]],
-];
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Face {
-    pub corners: [[f32; 3]; 4],
-    pub normal: [i32; 3],
-    pub block: u8,
+pub fn chunk_at(position: Pos) -> ChunkPos {
+    position.map(|v| v.div_euclid(CHUNK))
 }
 
-/// Dense 16³ chunks form the correctness and performance baseline.
-/// Original data allows sparse edits to normalize when a block is restored.
+fn local_index([x, y, z]: Pos) -> usize {
+    ((y.rem_euclid(CHUNK) * CHUNK + z.rem_euclid(CHUNK)) * CHUNK + x.rem_euclid(CHUNK)) as usize
+}
+
+fn position_at(chunk: ChunkPos, index: u16) -> Pos {
+    let i = i32::from(index);
+    let [x, y, z] = chunk.map(|v| v * CHUNK);
+    [
+        x + i % CHUNK,
+        y + i / (CHUNK * CHUNK),
+        z + (i / CHUNK) % CHUNK,
+    ]
+}
+
+fn stream_chunk([x, y, z]: ChunkPos) -> bool {
+    let horizontal = (i32::MIN / CHUNK)..=(i32::MAX / CHUNK);
+    horizontal.contains(&x) && (0..STREAM_HEIGHT / CHUNK).contains(&y) && horizontal.contains(&z)
+}
+
+fn neighbour(chunk: ChunkPos, direction: Pos) -> ChunkPos {
+    // Valid chunk coordinates are always at least one unit inside i32.
+    std::array::from_fn(|i| chunk[i] + direction[i])
+}
+
+#[derive(Clone)]
+enum Voxels {
+    Uniform(u8),
+    Dense(Box<[u8; VOLUME]>),
+}
+
+impl Voxels {
+    fn get(&self, index: usize) -> u8 {
+        match self {
+            Self::Uniform(block) => *block,
+            Self::Dense(cells) => cells[index],
+        }
+    }
+
+    fn set(&mut self, index: usize, block: u8) {
+        if let Self::Uniform(value) = self {
+            *self = Self::Dense(Box::new([*value; VOLUME]));
+        }
+        if let Self::Dense(cells) = self {
+            cells[index] = block;
+        }
+    }
+
+    fn payload_bytes(&self) -> usize {
+        match self {
+            Self::Uniform(_) => 1,
+            Self::Dense(_) => VOLUME,
+        }
+    }
+}
+
+struct Resident {
+    cells: Arc<Voxels>,
+    /// Local index -> (original generated value, current value).
+    differences: BTreeMap<u16, (u8, u8)>,
+    revision: u64,
+    mesh_revision: u64,
+    dirty: bool,
+}
+
+impl Resident {
+    fn replace(&mut self, local: usize, block: u8) {
+        let original = self
+            .differences
+            .get(&(local as u16))
+            .map_or_else(|| self.cells.get(local), |&(original, _)| original);
+        if original == block {
+            self.differences.remove(&(local as u16));
+        } else {
+            self.differences.insert(local as u16, (original, block));
+        }
+        Arc::make_mut(&mut self.cells).set(local, block);
+    }
+}
+
+/// A request is spent by installation or cancellation. A later request for the
+/// same coordinate has a different id, even after eviction.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct LoadTicket {
+    chunk: ChunkPos,
+    id: u64,
+}
+
+impl LoadTicket {
+    pub fn chunk(self) -> ChunkPos {
+        self.chunk
+    }
+    pub fn id(self) -> u64 {
+        self.id
+    }
+}
+
 pub struct World {
     seed: u64,
-    chunks: Vec<Vec<u8>>,
-    original: Vec<Vec<u8>>,
-    edits: BTreeMap<Pos, u8>,
+    valley: bool,
+    chunks: HashMap<ChunkPos, Resident>,
+    pending: HashMap<ChunkPos, u64>,
+    serial: u64,
 }
 
 impl World {
+    /// Historical finite fixture and v1 save reader. Runtime streaming starts
+    /// from `streamed` and only generates the chunks requested by the caller.
     pub fn new(seed: u64) -> Self {
-        let mut world = Self {
-            seed,
-            chunks: vec![vec![0; CHUNK_VOLUME]; 256],
-            original: Vec::new(),
-            edits: BTreeMap::new(),
-        };
-        world.generate();
-        world.original.clone_from(&world.chunks);
+        let mut world = Self::streamed(seed);
+        world.valley = true;
+        for y in 0..4 {
+            for z in -4..4 {
+                for x in -4..4 {
+                    let chunk = [x, y, z];
+                    let ticket = world.begin_load(chunk).expect("valley chunk");
+                    let data = generate_chunk(seed, chunk).expect("valley generation");
+                    assert!(world.install_chunk(ticket, data, &[]));
+                }
+            }
+        }
         world
+    }
+
+    pub fn streamed(seed: u64) -> Self {
+        Self {
+            seed,
+            valley: false,
+            chunks: HashMap::new(),
+            pending: HashMap::new(),
+            serial: 0,
+        }
     }
 
     pub fn seed(&self) -> u64 {
         self.seed
     }
 
-    pub fn contains([x, y, z]: Pos) -> bool {
-        (WORLD_MIN[0]..WORLD_MAX[0]).contains(&x)
-            && (WORLD_MIN[1]..WORLD_MAX[1]).contains(&y)
-            && (WORLD_MIN[2]..WORLD_MAX[2]).contains(&z)
+    /// Legacy footprint used to validate PVXD v1 records.
+    pub fn contains(p: Pos) -> bool {
+        (0..3).all(|i| (WORLD_MIN[i]..WORLD_MAX[i]).contains(&p[i]))
     }
 
+    pub fn in_bounds(&self, p: Pos) -> bool {
+        if self.valley {
+            Self::contains(p)
+        } else {
+            (0..STREAM_HEIGHT).contains(&p[1])
+        }
+    }
+
+    /// Containment bounds in block coordinates, with exclusive upper endpoints.
+    /// i64 can express the exclusive upper endpoint above i32::MAX.
+    pub fn block_bounds(&self) -> ([i64; 3], [i64; 3]) {
+        if self.valley {
+            (WORLD_MIN.map(i64::from), WORLD_MAX.map(i64::from))
+        } else {
+            (
+                [i64::from(i32::MIN), 0, i64::from(i32::MIN)],
+                [
+                    i64::from(i32::MAX) + 1,
+                    i64::from(STREAM_HEIGHT),
+                    i64::from(i32::MAX) + 1,
+                ],
+            )
+        }
+    }
+
+    pub fn contains_chunk(&self, chunk: ChunkPos) -> bool {
+        stream_chunk(chunk) && (!self.valley || Self::contains(chunk.map(|v| v * CHUNK)))
+    }
+
+    pub fn resident_len(&self) -> usize {
+        self.chunks.len()
+    }
+    pub fn is_resident(&self, chunk: ChunkPos) -> bool {
+        self.chunks.contains_key(&chunk)
+    }
+
+    /// Logical block and sparse-difference payload. Excludes allocation/index
+    /// overhead, worker-owned snapshots, queues and renderer memory.
+    pub fn resident_bytes(&self) -> usize {
+        self.chunks
+            .values()
+            .map(|c| c.cells.payload_bytes() + c.differences.len() * size_of::<(u16, (u8, u8))>())
+            .sum()
+    }
+
+    pub fn chunks(&self) -> Vec<ChunkPos> {
+        let mut chunks: Vec<_> = self.chunks.keys().copied().collect();
+        chunks.sort_unstable_by_key(|&[x, y, z]| (y, z, x));
+        chunks
+    }
+
+    fn next_revision(&mut self) -> u64 {
+        self.serial = self
+            .serial
+            .checked_add(1)
+            .expect("world revision exhausted");
+        self.serial
+    }
+
+    pub fn begin_load(&mut self, chunk: ChunkPos) -> Option<LoadTicket> {
+        if !self.contains_chunk(chunk)
+            || self.is_resident(chunk)
+            || self.pending.contains_key(&chunk)
+        {
+            return None;
+        }
+        let id = self.next_revision();
+        self.pending.insert(chunk, id);
+        Some(LoadTicket { chunk, id })
+    }
+
+    pub fn cancel_load(&mut self, ticket: LoadTicket) -> bool {
+        if self.pending.get(&ticket.chunk) != Some(&ticket.id) {
+            return false;
+        }
+        self.pending.remove(&ticket.chunk);
+        true
+    }
+
+    /// Publish an unedited generator result plus its persisted differences.
+    /// Invalid persisted data consumes its own ticket and publishes nothing.
+    pub fn install_chunk(
+        &mut self,
+        ticket: LoadTicket,
+        data: GeneratedChunk,
+        edits: &[(Pos, u8)],
+    ) -> bool {
+        if !self.cancel_load(ticket)
+            || data.chunk != ticket.chunk
+            || data.seed != self.seed
+            || edits.len() > VOLUME
+        {
+            return false;
+        }
+        let revision = self.next_revision();
+        let mut resident = Resident {
+            cells: Arc::new(data.cells),
+            differences: BTreeMap::new(),
+            revision,
+            mesh_revision: revision,
+            dirty: false,
+        };
+        for &(pos, block) in edits {
+            let index = local_index(pos);
+            if block > MAX_BLOCK
+                || chunk_at(pos) != ticket.chunk
+                || resident.differences.contains_key(&(index as u16))
+                || resident.cells.get(index) == block
+            {
+                return false;
+            }
+            resident.replace(index, block);
+        }
+        self.chunks.insert(ticket.chunk, resident);
+        self.invalidate_neighbours(ticket.chunk, revision);
+        true
+    }
+
+    fn invalidate_neighbours(&mut self, chunk: ChunkPos, revision: u64) {
+        for normal in DIRECTIONS {
+            if let Some(adjacent) = self.chunks.get_mut(&neighbour(chunk, normal)) {
+                adjacent.mesh_revision = revision;
+            }
+        }
+    }
+
+    pub fn chunk_revision(&self, chunk: ChunkPos) -> Option<u64> {
+        self.chunks.get(&chunk).map(|c| c.revision)
+    }
+
+    pub fn mesh_revision(&self, chunk: ChunkPos) -> Option<u64> {
+        self.chunks.get(&chunk).map(|c| c.mesh_revision)
+    }
+
+    pub fn chunk_dirty(&self, chunk: ChunkPos) -> bool {
+        self.chunks.get(&chunk).is_some_and(|c| c.dirty)
+    }
+
+    /// A delayed write acknowledgement never clears a newer change.
+    pub fn mark_saved(&mut self, chunk: ChunkPos, revision: u64) -> bool {
+        let Some(c) = self.chunks.get_mut(&chunk) else {
+            return false;
+        };
+        if c.revision != revision {
+            return false;
+        }
+        c.dirty = false;
+        true
+    }
+
+    pub fn evict_chunk(&mut self, chunk: ChunkPos) -> bool {
+        if !self.chunks.get(&chunk).is_some_and(|c| !c.dirty) {
+            return false;
+        }
+        self.chunks.remove(&chunk);
+        let revision = self.next_revision();
+        self.invalidate_neighbours(chunk, revision);
+        true
+    }
+
+    /// Some(0) is known air. Unknown and out-of-domain cells return None.
+    pub fn lookup(&self, position: Pos) -> Option<u8> {
+        self.chunks
+            .get(&chunk_at(position))
+            .map(|chunk| chunk.cells.get(local_index(position)))
+    }
+
+    /// Historical sampler for the finite valley. Collisions and interactions
+    /// use `lookup` to distinguish unloaded data from air.
     pub fn get(&self, position: Pos) -> u8 {
-        address(position).map_or(0, |(chunk, local)| self.chunks[chunk][local])
+        self.lookup(position).unwrap_or(0)
     }
 
-    /// Returns true only when a valid edit actually changes the world.
     pub fn set(&mut self, position: Pos, block: u8) -> bool {
         if block > MAX_BLOCK {
             return false;
         }
-        let Some((chunk, local)) = address(position) else {
+        let chunk = chunk_at(position);
+        let index = local_index(position);
+        let Some(resident) = self.chunks.get(&chunk) else {
             return false;
         };
-        if self.chunks[chunk][local] == block {
+        if resident.cells.get(index) == block {
             return false;
         }
-        self.chunks[chunk][local] = block;
-        if self.original[chunk][local] == block {
-            self.edits.remove(&position);
-        } else {
-            self.edits.insert(position, block);
+        let revision = self.next_revision();
+        let resident = self.chunks.get_mut(&chunk).expect("resident chunk");
+        resident.replace(index, block);
+        resident.revision = revision;
+        resident.mesh_revision = revision;
+        resident.dirty = true;
+        for face in touched_faces(position) {
+            if let Some(c) = self.chunks.get_mut(&neighbour(chunk, face)) {
+                c.mesh_revision = revision;
+            }
         }
         true
     }
 
-    pub fn chunks(&self) -> Vec<ChunkPos> {
-        let mut chunks = Vec::with_capacity(256);
-        for y in 0..4 {
-            for z in -4..4 {
-                for x in -4..4 {
-                    chunks.push([x, y, z]);
-                }
-            }
-        }
-        chunks
+    pub fn chunk_edits(&self, chunk: ChunkPos) -> Vec<(Pos, u8)> {
+        let Some(c) = self.chunks.get(&chunk) else {
+            return Vec::new();
+        };
+        let mut edits: Vec<_> = c
+            .differences
+            .iter()
+            .map(|(&i, &(_, block))| (position_at(chunk, i), block))
+            .collect();
+        edits.sort_unstable_by_key(|&(p, _)| p);
+        edits
     }
 
+    /// Canonical PVXD v1 order; streamed saves only need `chunk_edits`.
     pub fn edits(&self) -> Vec<(Pos, u8)> {
-        self.edits
+        let mut edits: Vec<_> = self
+            .chunks
             .iter()
-            .map(|(&position, &block)| (position, block))
-            .collect()
+            .flat_map(|(&chunk, c)| {
+                c.differences
+                    .iter()
+                    .map(move |(&i, &(_, block))| (position_at(chunk, i), block))
+            })
+            .collect();
+        edits.sort_unstable_by_key(|&(p, _)| p);
+        edits
     }
 
     pub fn solid_count(&self) -> usize {
         self.chunks
-            .iter()
-            .flatten()
-            .filter(|&&block| block != 0)
-            .count()
+            .values()
+            .map(|c| match c.cells.as_ref() {
+                Voxels::Uniform(0) => 0,
+                Voxels::Uniform(_) => VOLUME,
+                Voxels::Dense(bytes) => bytes.iter().filter(|&&b| b != 0).count(),
+            })
+            .sum()
     }
 
-    /// Includes neighbour chunks when culling, so internal seams have no faces.
+    pub fn dirty_chunks(&self, position: Pos) -> Vec<ChunkPos> {
+        affected(position, |c| self.contains_chunk(c))
+    }
+
+    pub fn mesh_snapshot(&self, chunk: ChunkPos) -> Option<MeshSnapshot> {
+        let c = self.chunks.get(&chunk)?;
+        Some(MeshSnapshot {
+            chunk,
+            revision: c.mesh_revision,
+            center: c.cells.clone(),
+            adjacent: DIRECTIONS.map(|d| {
+                self.chunks
+                    .get(&neighbour(chunk, d))
+                    .map(|n| n.cells.clone())
+            }),
+        })
+    }
+
     pub fn mesh(&self, chunk: ChunkPos) -> Vec<Face> {
-        if !valid_chunk(chunk) {
-            return Vec::new();
-        }
-        let origin = chunk.map(|coordinate| coordinate * CHUNK);
-        let mut faces = Vec::new();
-        for y in 0..CHUNK {
-            for z in 0..CHUNK {
-                for x in 0..CHUNK {
-                    let position = [origin[0] + x, origin[1] + y, origin[2] + z];
-                    let block = self.get(position);
-                    if block == 0 {
-                        continue;
-                    }
-                    for (side, normal) in DIRECTIONS.iter().enumerate() {
-                        let neighbour = std::array::from_fn(|axis| position[axis] + normal[axis]);
-                        if self.get(neighbour) == 0 {
-                            faces.push(Face {
-                                corners: CORNERS[side].map(|corner| {
-                                    std::array::from_fn(|axis| {
-                                        (position[axis] + corner[axis]) as f32
-                                    })
-                                }),
-                                normal: *normal,
-                                block,
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        faces
+        self.mesh_snapshot(chunk)
+            .map_or_else(Vec::new, |s| s.mesh())
     }
 
-    /// Merges coplanar exposed faces of the same material within one chunk.
-    /// Neighbour sampling is shared with the unit-face reference mesh.
     pub fn greedy_mesh(&self, chunk: ChunkPos) -> Vec<Face> {
-        if !valid_chunk(chunk) {
-            return Vec::new();
-        }
-        let origin = chunk.map(|coordinate| coordinate * CHUNK);
-        let (index, _) = address(origin).expect("validated chunk origin");
-        if self.chunks[index].iter().all(|&block| block == 0) {
-            return Vec::new();
-        }
-        let mut faces = Vec::new();
-        let mut mask = [0_u8; 256];
-        for (side, normal) in DIRECTIONS.iter().enumerate() {
-            let axis = side / 2;
-            let u = (axis + 1) % 3;
-            let v = (axis + 2) % 3;
-            for slice in 0..CHUNK {
-                for row in 0..CHUNK {
-                    for column in 0..CHUNK {
-                        let mut position = origin;
-                        position[axis] += slice;
-                        position[u] += column;
-                        position[v] += row;
-                        let block = self.get(position);
-                        let mut neighbour = position;
-                        neighbour[axis] += normal[axis];
-                        mask[(row * CHUNK + column) as usize] =
-                            if block != 0 && self.get(neighbour) == 0 {
-                                block
-                            } else {
-                                0
-                            };
-                    }
-                }
-                for row in 0..CHUNK {
-                    let mut column = 0;
-                    while column < CHUNK {
-                        let block = mask[(row * CHUNK + column) as usize];
-                        if block == 0 {
-                            column += 1;
-                            continue;
-                        }
-                        let mut width = 1;
-                        while column + width < CHUNK
-                            && mask[(row * CHUNK + column + width) as usize] == block
-                        {
-                            width += 1;
-                        }
-                        let mut height = 1;
-                        while row + height < CHUNK
-                            && (column..column + width).all(|offset| {
-                                mask[((row + height) * CHUNK + offset) as usize] == block
-                            })
-                        {
-                            height += 1;
-                        }
-                        for clear_row in row..row + height {
-                            for clear_column in column..column + width {
-                                mask[(clear_row * CHUNK + clear_column) as usize] = 0;
-                            }
-                        }
-                        let mut start = origin;
-                        start[axis] += slice + i32::from(normal[axis] > 0);
-                        start[u] += column;
-                        start[v] += row;
-                        let mut along_u = start;
-                        along_u[u] += width;
-                        let mut along_v = start;
-                        along_v[v] += height;
-                        let mut opposite = along_u;
-                        opposite[v] += height;
-                        let corners = if normal[axis] > 0 {
-                            [start, along_u, opposite, along_v]
-                        } else {
-                            [start, along_v, opposite, along_u]
-                        };
-                        faces.push(Face {
-                            corners: corners.map(|corner| corner.map(|value| value as f32)),
-                            normal: *normal,
-                            block,
-                        });
-                        column += width;
-                    }
-                }
-            }
-        }
-        faces
-    }
-
-    fn generate(&mut self) {
-        for z in -64..64 {
-            for x in -64..64 {
-                let height = self.height(x, z);
-                for y in 0..=height {
-                    let block = if y < height - 3 {
-                        3
-                    } else if y < height {
-                        2
-                    } else if height <= 8 {
-                        4
-                    } else {
-                        1
-                    };
-                    self.write_generated([x, y, z], block);
-                }
-            }
-        }
-
-        // Sparse umbrella trees keep the central walking route clear.
-        for grid_z in -4..=4 {
-            for grid_x in -4..=4 {
-                let random = hash(self.seed, grid_x, grid_z);
-                let x = grid_x * 13 + (random % 7) as i32 - 3;
-                let z = grid_z * 13 + ((random >> 8) % 7) as i32 - 3;
-                if x.abs() < 10 || !(-59..59).contains(&x) || !(-59..59).contains(&z) {
-                    continue;
-                }
-                let ground = self.height(x, z);
-                if !(9..=26).contains(&ground) || random.is_multiple_of(4) {
-                    continue;
-                }
-                let top = ground + 7 + ((random >> 16) % 3) as i32;
-                for y in ground + 1..=top {
-                    self.write_generated([x, y, z], 5);
-                }
-                for dy in -1_i32..=2 {
-                    for dz in -4_i32..=4 {
-                        for dx in -4_i32..=4 {
-                            let radius = 5 - dy.max(0);
-                            if dx.abs() + dz.abs() <= radius && (dx != 0 || dz != 0 || dy > 0) {
-                                self.write_generated([x + dx, top + dy, z + dz], 6);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // An original basalt gateway frames the valley's distant skyline.
-        for x in -27_i32..=-12 {
-            let distance = (x + 20).abs();
-            for z in 34..=37 {
-                for y in 12..=32 {
-                    let pillar = distance >= 5 && y < 30;
-                    let lintel = (28..=31).contains(&y) && distance <= 8;
-                    if pillar || lintel {
-                        self.write_generated([x, y, z], 3);
-                    }
-                }
-            }
-        }
-        for (cx, cz) in [(-15, 24), (23, 38), (-38, -24)] {
-            let base = self.height(cx, cz) + 1;
-            for dz in -2_i32..=2 {
-                for dx in -2_i32..=2 {
-                    let height = 8 - (dx.abs() + dz.abs()) * 2;
-                    for dy in 0..height {
-                        self.write_generated([cx + dx, base + dy, cz + dz], 7);
-                    }
-                }
-            }
-        }
-    }
-
-    fn height(&self, x: i32, z: i32) -> i32 {
-        let rolling = noise(self.seed, x, z, 16, 5) + noise(self.seed ^ 517, x, z, 7, 2);
-        let left_peak = (29 - ((x + 43).abs() + (z - 43).abs()) * 2 / 3).max(0);
-        let right_peak = (32 - ((x - 43).abs() + (z - 44).abs()) * 2 / 3).max(0);
-        let valley_wall = ((x.abs() - 23).max(0) * 2 / 5).min(15);
-        (8 + rolling + valley_wall + left_peak.max(right_peak)).min(47)
-    }
-
-    fn write_generated(&mut self, position: Pos, block: u8) {
-        if let Some((chunk, local)) = address(position) {
-            self.chunks[chunk][local] = block;
-        }
+        self.mesh_snapshot(chunk)
+            .map_or_else(Vec::new, |s| s.greedy_mesh())
     }
 }
 
-fn valid_chunk([x, y, z]: ChunkPos) -> bool {
-    (-4..4).contains(&x) && (0..4).contains(&y) && (-4..4).contains(&z)
+fn touched_faces(position: Pos) -> impl Iterator<Item = Pos> {
+    (0..3).filter_map(move |axis| {
+        let side = match position[axis].rem_euclid(CHUNK) {
+            0 => 1,
+            v if v == CHUNK - 1 => 0,
+            _ => return None,
+        };
+        Some(DIRECTIONS[axis * 2 + side])
+    })
 }
 
-fn address([x, y, z]: Pos) -> Option<(usize, usize)> {
-    if !World::contains([x, y, z]) {
-        return None;
-    }
-    let cx = (x + 64) / CHUNK;
-    let cy = y / CHUNK;
-    let cz = (z + 64) / CHUNK;
-    let chunk = ((cy * 8 + cz) * 8 + cx) as usize;
-    let local = ((y.rem_euclid(CHUNK) * CHUNK + z.rem_euclid(CHUNK)) * CHUNK + x.rem_euclid(CHUNK))
-        as usize;
-    Some((chunk, local))
-}
-
-/// Neighbours are needed only on touched faces, including negative coordinates.
-pub fn dirty_chunks(position: Pos) -> Vec<ChunkPos> {
-    if !World::contains(position) {
+fn affected(position: Pos, valid: impl Fn(ChunkPos) -> bool) -> Vec<ChunkPos> {
+    let chunk = chunk_at(position);
+    if !valid(chunk) {
         return Vec::new();
     }
-    let chunk = position.map(|coordinate| coordinate.div_euclid(CHUNK));
     let mut dirty = vec![chunk];
-    for axis in 0..3 {
-        let local = position[axis].rem_euclid(CHUNK);
-        if local == 0 || local == CHUNK - 1 {
-            let mut neighbour = chunk;
-            neighbour[axis] += if local == 0 { -1 } else { 1 };
-            if valid_chunk(neighbour) {
-                dirty.push(neighbour);
-            }
-        }
-    }
+    dirty.extend(
+        touched_faces(position)
+            .map(|d| neighbour(chunk, d))
+            .filter(|&c| valid(c)),
+    );
     dirty
 }
 
-fn hash(seed: u64, x: i32, z: i32) -> u64 {
-    let mut value = seed
-        ^ (x as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15)
-        ^ (z as u64).wrapping_mul(0xbf58_476d_1ce4_e5b9);
-    value = (value ^ (value >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
-    value = (value ^ (value >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
-    value ^ (value >> 31)
-}
-
-// Integer bilinear noise gives identical terrain across platforms.
-fn noise(seed: u64, x: i32, z: i32, scale: i32, amplitude: i32) -> i32 {
-    let gx = x.div_euclid(scale);
-    let gz = z.div_euclid(scale);
-    let tx = x.rem_euclid(scale);
-    let tz = z.rem_euclid(scale);
-    let sample = |dx, dz| (hash(seed, gx + dx, gz + dz) % 1024) as i32;
-    let top = sample(0, 0) * (scale - tx) + sample(1, 0) * tx;
-    let bottom = sample(0, 1) * (scale - tx) + sample(1, 1) * tx;
-    ((top * (scale - tz) + bottom * tz) * amplitude) / (scale * scale * 1024)
+/// Historical helper restricted to the finite valley. Streamed callers use
+/// `world.dirty_chunks(position)` with the bounds of their actual world.
+pub fn dirty_chunks(position: Pos) -> Vec<ChunkPos> {
+    affected(position, |c| {
+        stream_chunk(c) && World::contains(c.map(|v| v * CHUNK))
+    })
 }

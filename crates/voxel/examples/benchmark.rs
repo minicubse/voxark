@@ -76,8 +76,8 @@ fn main() {
         100.0 * (1.0 - last_faces as f64 / (solid * 6) as f64)
     );
     println!(
-        "voxel_payload_bytes={} (current + original, excludes Vec metadata and sparse edits)",
-        2 * 128 * 64 * 128
+        "voxel_payload_bytes={} (resident voxel payload excluding container overhead)",
+        World::new(42).resident_bytes()
     );
 
     // Same sampler and face builder for all region sizes. This isolates traversal

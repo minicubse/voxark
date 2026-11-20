@@ -9,16 +9,10 @@ pub const PLAYER_HEIGHT: f32 = 1.8;
 pub const PLAYER_RADIUS: f32 = 0.3;
 const EYE_HEIGHT: f32 = 1.62;
 const CONTACT_EPSILON: f32 = 0.0001;
-const LOWER: [f32; 3] = [
-    WORLD_MIN[0] as f32,
-    WORLD_MIN[1] as f32,
-    WORLD_MIN[2] as f32,
-];
-const UPPER: [f32; 3] = [
-    WORLD_MAX[0] as f32,
-    WORLD_MAX[1] as f32,
-    WORLD_MAX[2] as f32,
-];
+fn movement_bounds(world: &World) -> ([f32; 3], [f32; 3]) {
+    let (lo, hi) = world.block_bounds();
+    (lo.map(|v| v as f32), hi.map(|v| v as f32))
+}
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Input {
@@ -60,7 +54,7 @@ impl Player {
                     if !World::contains([x, WORLD_MIN[1] + 1, z]) {
                         continue;
                     }
-                    let top = WORLD_MAX[1] - PLAYER_HEIGHT.ceil() as i32;
+                    let top = world.block_bounds().1[1] as i32 - PLAYER_HEIGHT.ceil() as i32;
                     for y in ((WORLD_MIN[1] + 1)..=top).rev() {
                         if world.get([x, y - 1, z]) == 0 {
                             continue;
@@ -140,14 +134,15 @@ impl Player {
 
     fn collides(&self, world: &World, position: [f32; 3]) -> bool {
         let (minimum, maximum) = bounds(position);
-        if (0..3).any(|axis| minimum[axis] < LOWER[axis] || maximum[axis] > UPPER[axis]) {
+        let (lo, hi) = movement_bounds(world);
+        if (0..3).any(|axis| minimum[axis] < lo[axis] || maximum[axis] > hi[axis]) {
             return true;
         }
         let (minimum, maximum) = voxel_range(minimum, maximum);
         for x in minimum[0]..=maximum[0] {
             for y in minimum[1]..=maximum[1] {
                 for z in minimum[2]..=maximum[2] {
-                    if world.get([x, y, z]) != 0 {
+                    if world.lookup([x, y, z]) != Some(0) {
                         return true;
                     }
                 }
@@ -170,16 +165,17 @@ impl Player {
         } else {
             PLAYER_RADIUS
         };
+        let (lo, hi) = movement_bounds(world);
         let mut resolved = candidate[axis].clamp(
-            LOWER[axis] - minimum_offset + CONTACT_EPSILON,
-            UPPER[axis] - maximum_offset - CONTACT_EPSILON,
+            lo[axis] - minimum_offset + CONTACT_EPSILON,
+            hi[axis] - maximum_offset - CONTACT_EPSILON,
         );
         let (minimum, maximum) = voxel_range(minimum, maximum);
         for x in minimum[0]..=maximum[0] {
             for y in minimum[1]..=maximum[1] {
                 for z in minimum[2]..=maximum[2] {
                     let voxel = [x, y, z];
-                    if world.get(voxel) == 0 {
+                    if world.lookup(voxel) == Some(0) {
                         continue;
                     }
                     if positive {
@@ -263,9 +259,10 @@ pub fn raycast(world: &World, origin: [f32; 3], direction: [f32; 3], reach: f32)
     let mut enter = 0.0_f64;
     let mut leave = f64::from(reach);
     let mut normal = [0; 3];
+    let (lo, hi) = world.block_bounds();
     for axis in 0..3 {
-        let lower = f64::from(LOWER[axis]);
-        let upper = f64::from(UPPER[axis]);
+        let lower = lo[axis] as f64;
+        let upper = hi[axis] as f64;
         if direction[axis] == 0.0 {
             if origin[axis] < lower || origin[axis] >= upper {
                 return None;
@@ -289,7 +286,7 @@ pub fn raycast(world: &World, origin: [f32; 3], direction: [f32; 3], reach: f32)
     let mut cell = std::array::from_fn::<_, 3, _>(|axis| {
         let mut cell = point[axis].floor() as i32;
         if direction[axis] < 0.0 && point[axis] == point[axis].floor() {
-            cell -= 1;
+            cell = cell.saturating_sub(1);
         }
         cell
     });
@@ -321,15 +318,15 @@ pub fn raycast(world: &World, origin: [f32; 3], direction: [f32; 3], reach: f32)
         if step[axis] == 0 {
             return f64::INFINITY;
         }
-        let edge = cell[axis] + i32::from(step[axis] > 0);
-        (f64::from(edge) - origin[axis]) / direction[axis]
+        let edge = f64::from(cell[axis]) + f64::from(step[axis] > 0);
+        (edge - origin[axis]) / direction[axis]
     });
     let mut distance = enter;
-    while World::contains(cell) && distance <= leave {
-        if world.get(cell) != 0 {
+    while world.in_bounds(cell) && distance <= leave {
+        if world.lookup(cell)? != 0 {
             return Some(Hit {
                 block: cell,
-                adjacent: std::array::from_fn(|axis| cell[axis] + normal[axis]),
+                adjacent: std::array::from_fn(|axis| cell[axis].saturating_add(normal[axis])),
                 normal,
                 distance: distance as f32,
             });
@@ -339,7 +336,7 @@ pub fn raycast(world: &World, origin: [f32; 3], direction: [f32; 3], reach: f32)
         let mut found_normal = false;
         for axis in 0..3 {
             if (crossing[axis] - distance).abs() <= 1e-10 {
-                cell[axis] += step[axis];
+                cell[axis] = cell[axis].checked_add(step[axis])?;
                 crossing[axis] += delta[axis];
                 if !found_normal {
                     normal[axis] = -step[axis];
@@ -397,7 +394,8 @@ pub fn edit(
         return Err(EditError::InvalidPlayer);
     }
     let (minimum, maximum) = bounds(player.position);
-    if (0..3).any(|axis| minimum[axis] < LOWER[axis] || maximum[axis] > UPPER[axis]) {
+    let (lo, hi) = movement_bounds(world);
+    if (0..3).any(|axis| minimum[axis] < lo[axis] || maximum[axis] > hi[axis]) {
         return Err(EditError::InvalidPlayer);
     }
     if matches!(action, Edit::Place(block) if block == 0 || block > MAX_BLOCK) {
@@ -408,11 +406,11 @@ pub fn edit(
         Edit::Remove => (hit.block, 0),
         Edit::Place(block) => (hit.adjacent, block),
     };
-    if !World::contains(target) {
+    if !world.in_bounds(target) {
         return Err(EditError::OutOfBounds);
     }
     if block != 0 {
-        if world.get(target) != 0 {
+        if world.lookup(target) != Some(0) {
             return Err(EditError::Occupied);
         }
         let (minimum, maximum) = bounds(player.position);
