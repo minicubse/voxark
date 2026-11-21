@@ -1,5 +1,7 @@
 # Architecture du monde voxel
 
+Le serveur dédié, les règles de réplication et le journal transactionnel sont décrits dans le [guide du jalon 2](MULTIJOUEUR_2.md).
+
 | Crate | Responsabilité et dépendances |
 | --- | --- |
 | `primal-voxel` | Coordonnées entières, génération, stockage en chunks, différences et maillages. Indépendant de la fenêtre et du disque. |
@@ -32,7 +34,7 @@ Le lecteur limite la taille avant décodage. Il contrôle signature, versions, C
 
 Le client prend un verrou de fichier pour la session. Le fichier de verrouillage peut subsister après fermeture, le système libère le verrou à la fin du processus. Chaque écriture utilise un fichier temporaire dans le répertoire cible, synchronise ses données puis remplace le snapshot. Le CRC sert à détecter les dégâts accidentels. Seul le terrain est persistant dans cette tranche.
 
-## Frontière du futur serveur
+## Frontière prévue au jalon 1A
 
 Le client propose une direction et une action. La simulation calcule la cellule atteinte et examine portée, matériau et occupation. Un accumulateur fait avancer le jeu à pas fixe, par défaut 60 Hz. Pour le multijoueur, le serveur devra posséder l'état du joueur, ordonner les commandes par tick, diffuser les éditions acceptées et renvoyer l'état à la reconnexion. Le transport, l'identité réseau et la réplication restent à implémenter.
 

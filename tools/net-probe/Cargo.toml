@@ -1,0 +1,12 @@
+[package]
+name = "primal-net-probe"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[dependencies]
+primal-net = { path = "../../crates/net" }
+primal-voxel = { path = "../../crates/voxel" }
+primal-simulation = { path = "../../crates/simulation" }
+serde_json = "1"

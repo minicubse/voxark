@@ -1,0 +1,32 @@
+{
+  "date_utc": "2026-11-21T12:18:42.8942170Z",
+  "seed": 20261120,
+  "resolution": [
+    1280,
+    720
+  ],
+  "frames": 720,
+  "repetitions": 3,
+  "label": "final",
+  "cpu": [
+    {
+      "Name": "AMD Ryzen 7 7730U with Radeon Graphics         ",
+      "NumberOfCores": 8,
+      "NumberOfLogicalProcessors": 16
+    }
+  ],
+  "gpu": [
+    {
+      "Name": "AMD Radeon (TM) Graphics",
+      "DriverVersion": "31.0.21925.1001"
+    }
+  ],
+  "memory_bytes": 16516243456,
+  "os": "Microsoft Windows 11 Famille",
+  "server_sha256": "8A421B4A95B01A6E2B0A8FE7AA39D453B1A526B668CF1E19158B2C8843D5E627",
+  "client_sha256": "929AE32940F317954C6B548A5285510F9C8B5AF08C469043E794BD66EA2D6CE8",
+  "server": "C:\\Users\\lenai\\Documents\\Codex\\2026-11-20\\files-pasted-by-the-user-mission\\outputs\\PrimalVoxel-2-Windows-x64\\primal-server.exe",
+  "client": "C:\\Users\\lenai\\Documents\\Codex\\2026-11-20\\files-pasted-by-the-user-mission\\outputs\\PrimalVoxel-2-Windows-x64\\PrimalVoxel.exe",
+  "scratch": "C:\\Users\\lenai\\Documents\\Codex\\2026-11-20\\files-pasted-by-the-user-mission\\work\\graphics-e0aca034fbec4ba8a18696f2a72bbba8",
+  "method": "Two simultaneous real Macroquad clients over loopback UDP; opposing circular flights; 120 frames warmup; visible peer capture; polling RSS every 250 ms; CPU seconds / elapsed / logical processors."
+}

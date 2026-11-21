@@ -1,0 +1,38 @@
+[
+  {
+    "actual_hz": 59.99151120116503,
+    "cpu_ms": 265.625,
+    "event": "metrics",
+    "period_s": 2.000283,
+    "players": 2,
+    "received_bytes": 4953,
+    "received_messages": 202,
+    "resident": 896,
+    "samples": 120,
+    "sent_bytes": 10701,
+    "sent_messages": 1289,
+    "stream_p95_ms": 0.5218999999999999,
+    "tick": 120,
+    "tick_p50_ms": 0.4518,
+    "tick_p95_ms": 0.8482000000000001,
+    "tick_p99_ms": 1.0616
+  },
+  {
+    "actual_hz": 59.99365145832096,
+    "cpu_ms": 203.125,
+    "event": "metrics",
+    "period_s": 1.4834903,
+    "players": 2,
+    "received_bytes": 8803,
+    "received_messages": 355,
+    "resident": 968,
+    "samples": 89,
+    "sent_bytes": 20139,
+    "sent_messages": 2518,
+    "stream_p95_ms": 0.5684,
+    "tick": 209,
+    "tick_p50_ms": 0.4992,
+    "tick_p95_ms": 1.0083,
+    "tick_p99_ms": 1.2826
+  }
+]

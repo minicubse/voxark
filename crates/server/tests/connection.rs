@@ -27,6 +27,7 @@ fn client_receives_an_authoritative_spawn_chunk_over_udp() {
     let mut c =
         ClientTransport::connect("127.0.0.1:0".parse().unwrap(), addr, ConnectionId(42)).unwrap();
     let mut hello = false;
+    let mut rejected_versions = 0;
     let mut replica = None;
     let start = Instant::now();
     loop {
@@ -35,8 +36,12 @@ fn client_receives_an_authoritative_spawn_chunk_over_udp() {
             c.send(
                 Channel::Control,
                 encode(&ClientMsg::Hello {
-                    version: PROTOCOL_VERSION,
-                    generator: primal_voxel::GENERATOR_VERSION,
+                    version: if rejected_versions == 0 {
+                        PROTOCOL_VERSION + 1
+                    } else {
+                        PROTOCOL_VERSION
+                    },
+                    generator: primal_voxel::GENERATOR_VERSION + u32::from(rejected_versions == 1),
                     token: [8; 32],
                 })
                 .unwrap(),
@@ -46,7 +51,14 @@ fn client_receives_an_authoritative_spawn_chunk_over_udp() {
         }
         while let Some((_, b)) = c.recv() {
             let msg = decode(&b).unwrap();
+            if let ServerMsg::Error(ref reason) = msg {
+                assert!(reason.contains("Version incompatible"));
+                rejected_versions += 1;
+                assert!(rejected_versions <= 2);
+                hello = false;
+            }
             if let ServerMsg::Welcome { seed, .. } = msg {
+                assert_eq!(rejected_versions, 2);
                 replica = Some(Replica::new(seed));
                 c.send(Channel::Control, encode(&ClientMsg::Ready).unwrap())
                     .unwrap();

@@ -25,4 +25,4 @@ Les états constatés et les preuves exécutées sont dans PROJECT_STATUS.md. Le
 3. Tester d’abord les deux joueurs dans la même région. Vérifier qu’une édition concurrente produit le même état autoritaire chez les deux clients. Tester ensuite deux régions éloignées, une téléportation puis une déconnexion. Au retour, demander un instantané en cas de révision manquante.
 4. Critère de passage proposé : après acquittement, comparer blocs et révisions sur les deux clients et le serveur. Redémarrer le serveur, relire les éditions sur disque et rejouer un ancien message. Vérifier aussi la suspension du mouvement vers une zone inconnue et les plafonds de résidence sur les deux intérêts.
 
-Le jalon 1C exerce déjà le noyau avec deux intérêts à 1,9 million de blocs de distance. La convergence de deux clients réseau reste un critère du prochain jalon.
+Le jalon 1C exerce déjà le noyau avec deux intérêts à 1,9 million de blocs de distance. Le jalon 2 a depuis validé cette convergence avec des processus distincts, y compris après fermeture et redémarrage. [Validation et prochaine tâche](MULTIJOUEUR_2.md)

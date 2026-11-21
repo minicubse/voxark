@@ -1,0 +1,56 @@
+{
+  "accepted_edits": 0,
+  "actor_id": 2,
+  "changed_peer_poses": 58,
+  "connection_id": 6845465187252448437,
+  "elapsed_seconds": 6.2704486,
+  "first_geometry_ms": 226.42249999999999,
+  "fps_0_1_percent_low": 74.342,
+  "fps_1_percent_low": 87.542,
+  "fps_mean": 119.778,
+  "frame_max_ms": 13.4513,
+  "frame_mean_ms": 8.3488,
+  "frame_p50_ms": 8.5638,
+  "frame_p95_ms": 10.6063,
+  "frame_p99_9_ms": 13.4513,
+  "frame_p99_ms": 10.8178,
+  "frames": 720,
+  "max_peers": 1,
+  "max_visible_peers": 1,
+  "maximum_mesh_chunks": 114,
+  "maximum_quads": 20141,
+  "mesh_chunks": 114,
+  "mesher": "greedy",
+  "method": "macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction",
+  "mode": "authoritative multiplayer",
+  "peer_ids": [
+    1
+  ],
+  "peer_positions": [
+    [
+      1,
+      [
+        -0.6998999714851379,
+        10.000100135803223,
+        -2.3860108852386475
+      ]
+    ]
+  ],
+  "position": [
+    3.6999001502990723,
+    10.000100135803223,
+    7.216294288635254
+  ],
+  "rejected_edits": 0,
+  "render_quads": 20141,
+  "resolution": [
+    1280,
+    720
+  ],
+  "route": "clock-driven circular flight; opposing actor-id parity; authoritative positions; 120 warmup frames",
+  "rtt_mean_ms": 10.140711418055556,
+  "samples": 600,
+  "server": "127.0.0.1:47901",
+  "snapshots": 121,
+  "warmup_frames": 120
+}

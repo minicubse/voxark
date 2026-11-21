@@ -1,0 +1,10 @@
+{
+  "elapsed_seconds": 7.6149944,
+  "server_cpu_seconds": 0.640625,
+  "server_cpu_percent_machine": 0.525792408987195,
+  "server_peak_sampled_rss_bytes": 10608640,
+  "client_exit_codes": [
+    0,
+    0
+  ]
+}

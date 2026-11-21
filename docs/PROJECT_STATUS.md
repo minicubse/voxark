@@ -1,10 +1,14 @@
-# Primal Voxel — état du jalon 1C
+# Primal Voxel — jalon 2
+
+Le serveur Rust dédié, le client graphique Macroquad et le ZIP portable sont disponibles pour Windows x64. Des processus clients distincts ont validé les éditions concurrentes, les zones à 4,096 km, la reconnexion et la relecture des positions et du terrain après redémarrage. [Mode d’emploi et architecture réseau](MULTIJOUEUR_2.md) · [Mesures et limites](PERFORMANCE_2.md)
+
+La prochaine tâche est de reproduire la mesure serveur sur le bi-Xeon, puis de tester la réplication et la persistance d’une première créature autoritaire.
+
+## Historique du jalon 1C
 
 Le client Windows utilise le streaming prédictif avec Macroquad et le greedy meshing. Les sauvegardes régionales et l’import v1 conservent leurs formats. Les mesures comparatives sur Ryzen 7 7730U, les bornes et les cas où le sol apparaît encore en retard figurent dans le [rapport 1C](STREAMING_1C.md).
 
 Les 65 tests Rust passent, dont les 61 du jalon 1B. Sur la traversée de 4,22 km au rayon 2, la médiane passe de 244 à 4 images sans sol graphique sur 720. Les 60 passages comprennent trois répétitions pour chaque variante et chaque cas.
-
-Le prochain jalon est le premier serveur autoritaire sans fenêtre avec deux clients synchronisés. Le test actuel couvre deux positions distantes, un budget partagé, le départ des joueurs et la relecture de leurs éditions. Le transport et la réplication restent à développer. [Préparation du serveur](ROADMAP.md#premier-serveur-autoritaire)
 
 ## Historique du jalon 1B
 

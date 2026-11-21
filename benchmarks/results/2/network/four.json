@@ -1,0 +1,569 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "mutual_appearance",
+      "clients": 4,
+      "distinct_pids": [
+        15516,
+        13484,
+        13460,
+        22144
+      ]
+    },
+    {
+      "check": "movement_observed",
+      "group": 0
+    },
+    {
+      "check": "destruction_replicated",
+      "group": 0,
+      "target": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "check": "placement_replicated",
+      "group": 0
+    },
+    {
+      "check": "stale_and_out_of_reach_rejected",
+      "group": 0
+    },
+    {
+      "check": "concurrent_edit_single_winner",
+      "group": 0,
+      "outcomes": [
+        {
+          "accepted": true,
+          "event": "outcome",
+          "reason": "",
+          "seq": 108
+        },
+        {
+          "accepted": false,
+          "event": "outcome",
+          "reason": "Transaction d\u00e9j\u00e0 en cours",
+          "seq": 98
+        }
+      ]
+    },
+    {
+      "check": "separate_streaming_centres",
+      "group": 0,
+      "separation_m": 4096,
+      "home": [
+        0,
+        9,
+        0
+      ],
+      "distant": [
+        4096,
+        48,
+        0
+      ],
+      "home_owner": 1,
+      "distant_owner": 2
+    },
+    {
+      "check": "separate_streaming_centres_swapped",
+      "group": 0,
+      "home_owner": 2,
+      "distant_owner": 1
+    },
+    {
+      "check": "separate_streaming_return",
+      "group": 0
+    },
+    {
+      "check": "movement_observed",
+      "group": 1
+    },
+    {
+      "check": "destruction_replicated",
+      "group": 1,
+      "target": [
+        2048,
+        35,
+        -2048
+      ]
+    },
+    {
+      "check": "placement_replicated",
+      "group": 1
+    },
+    {
+      "check": "stale_and_out_of_reach_rejected",
+      "group": 1
+    },
+    {
+      "check": "concurrent_edit_single_winner",
+      "group": 1,
+      "outcomes": [
+        {
+          "accepted": true,
+          "event": "outcome",
+          "reason": "",
+          "seq": 218
+        },
+        {
+          "accepted": false,
+          "event": "outcome",
+          "reason": "R\u00e9vision p\u00e9rim\u00e9e",
+          "seq": 208
+        }
+      ]
+    },
+    {
+      "check": "separate_streaming_centres",
+      "group": 1,
+      "separation_m": 4096,
+      "home": [
+        2048,
+        35,
+        -2048
+      ],
+      "distant": [
+        6144,
+        33,
+        -2048
+      ],
+      "home_owner": 3,
+      "distant_owner": 4
+    },
+    {
+      "check": "separate_streaming_centres_swapped",
+      "group": 1,
+      "home_owner": 4,
+      "distant_owner": 3
+    },
+    {
+      "check": "separate_streaming_return",
+      "group": 1
+    },
+    {
+      "check": "reconnect_identity_and_world",
+      "id": 1
+    },
+    {
+      "check": "stop_after_disk_submission",
+      "shutdown_ms": 32.00000000651926
+    },
+    {
+      "check": "server_reboot_restored_actor_before_teleport",
+      "client": 0,
+      "expected": {
+        "flying": true,
+        "id": 1,
+        "pitch": -1.5707963705062866,
+        "position": [
+          0.5,
+          12.0,
+          0.5
+        ],
+        "yaw": 0.3499999940395355
+      },
+      "observed": {
+        "flying": true,
+        "id": 1,
+        "pitch": -1.5707963705062866,
+        "position": [
+          0.5,
+          12.0,
+          0.5
+        ],
+        "yaw": 0.3499999940395355
+      }
+    },
+    {
+      "check": "server_reboot_restored_actor_before_teleport",
+      "client": 1,
+      "expected": {
+        "flying": true,
+        "id": 2,
+        "pitch": -0.15000000596046448,
+        "position": [
+          0.5,
+          12.0,
+          0.5
+        ],
+        "yaw": 0.75
+      },
+      "observed": {
+        "flying": true,
+        "id": 2,
+        "pitch": -0.15000000596046448,
+        "position": [
+          0.5,
+          12.0,
+          0.5
+        ],
+        "yaw": 0.75
+      }
+    },
+    {
+      "check": "server_reboot_restored_actor_before_teleport",
+      "client": 2,
+      "expected": {
+        "flying": true,
+        "id": 3,
+        "pitch": -0.05000000074505806,
+        "position": [
+          2048.5,
+          38.0,
+          -2047.5
+        ],
+        "yaw": 1.149999976158142
+      },
+      "observed": {
+        "flying": true,
+        "id": 3,
+        "pitch": -0.05000000074505806,
+        "position": [
+          2048.5,
+          38.0,
+          -2047.5
+        ],
+        "yaw": 1.149999976158142
+      }
+    },
+    {
+      "check": "server_reboot_restored_actor_before_teleport",
+      "client": 3,
+      "expected": {
+        "flying": true,
+        "id": 4,
+        "pitch": 0.05000000074505806,
+        "position": [
+          2048.5,
+          38.0,
+          -2047.5
+        ],
+        "yaw": 1.5499999523162842
+      },
+      "observed": {
+        "flying": true,
+        "id": 4,
+        "pitch": 0.05000000074505806,
+        "position": [
+          2048.5,
+          38.0,
+          -2047.5
+        ],
+        "yaw": 1.5499999523162842
+      }
+    },
+    {
+      "check": "server_reboot_identity_and_edits",
+      "groups": 2
+    },
+    {
+      "check": "udp_traffic",
+      "dropped_datagrams": 0,
+      "received_datagrams": 10959,
+      "loss": 0,
+      "delay_ms": 0,
+      "relays": [
+        {
+          "client": 0,
+          "generation": 1,
+          "attempt": 0,
+          "duration_s": 8.156000000002678,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 1684,
+              "received_bytes": 53296,
+              "forwarded_datagrams": 1684,
+              "forwarded_bytes": 53296,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 6534.575772435324,
+              "received_datagrams_per_s": 206.47376164779882,
+              "forwarded_bytes_per_s": 6534.575772435324,
+              "forwarded_datagrams_per_s": 206.47376164779882
+            },
+            "server_to_client": {
+              "received_datagrams": 576,
+              "received_bytes": 37496,
+              "forwarded_datagrams": 576,
+              "forwarded_bytes": 37496,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 4597.351642960727,
+              "received_datagrams_per_s": 70.62285434033974,
+              "forwarded_bytes_per_s": 4597.351642960727,
+              "forwarded_datagrams_per_s": 70.62285434033974
+            }
+          }
+        },
+        {
+          "client": 1,
+          "generation": 1,
+          "attempt": 0,
+          "duration_s": 7.985000000000582,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 1851,
+              "received_bytes": 58523,
+              "forwarded_datagrams": 1851,
+              "forwarded_bytes": 58523,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 7329.1170945517515,
+              "received_datagrams_per_s": 231.80964308075957,
+              "forwarded_bytes_per_s": 7329.1170945517515,
+              "forwarded_datagrams_per_s": 231.80964308075957
+            },
+            "server_to_client": {
+              "received_datagrams": 641,
+              "received_bytes": 43765,
+              "forwarded_datagrams": 641,
+              "forwarded_bytes": 43765,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 5480.901690669607,
+              "received_datagrams_per_s": 80.27551659360718,
+              "forwarded_bytes_per_s": 5480.901690669607,
+              "forwarded_datagrams_per_s": 80.27551659360718
+            }
+          }
+        },
+        {
+          "client": 2,
+          "generation": 1,
+          "attempt": 0,
+          "duration_s": 7.813000000009197,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 1802,
+              "received_bytes": 57066,
+              "forwarded_datagrams": 1802,
+              "forwarded_bytes": 57066,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 7303.980545236506,
+              "received_datagrams_per_s": 230.64123896043503,
+              "forwarded_bytes_per_s": 7303.980545236506,
+              "forwarded_datagrams_per_s": 230.64123896043503
+            },
+            "server_to_client": {
+              "received_datagrams": 615,
+              "received_bytes": 43738,
+              "forwarded_datagrams": 615,
+              "forwarded_bytes": 43738,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 5598.105721227252,
+              "received_datagrams_per_s": 78.71496224232384,
+              "forwarded_bytes_per_s": 5598.105721227252,
+              "forwarded_datagrams_per_s": 78.71496224232384
+            }
+          }
+        },
+        {
+          "client": 3,
+          "generation": 1,
+          "attempt": 0,
+          "duration_s": 7.6560000000026776,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 1749,
+              "received_bytes": 55439,
+              "forwarded_datagrams": 1749,
+              "forwarded_bytes": 55439,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 7241.248693832368,
+              "received_datagrams_per_s": 228.44827586198906,
+              "forwarded_bytes_per_s": 7241.248693832368,
+              "forwarded_datagrams_per_s": 228.44827586198906
+            },
+            "server_to_client": {
+              "received_datagrams": 624,
+              "received_bytes": 48943,
+              "forwarded_datagrams": 624,
+              "forwarded_bytes": 48943,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 6392.763845347817,
+              "received_datagrams_per_s": 81.50470219432886,
+              "forwarded_bytes_per_s": 6392.763845347817,
+              "forwarded_datagrams_per_s": 81.50470219432886
+            }
+          }
+        },
+        {
+          "client": 0,
+          "generation": 1,
+          "attempt": 1,
+          "duration_s": 1.8439999999973224,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 177,
+              "received_bytes": 6455,
+              "forwarded_datagrams": 177,
+              "forwarded_bytes": 6455,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 3500.542299354324,
+              "received_datagrams_per_s": 95.9869848157576,
+              "forwarded_bytes_per_s": 3500.542299354324,
+              "forwarded_datagrams_per_s": 95.9869848157576
+            },
+            "server_to_client": {
+              "received_datagrams": 66,
+              "received_bytes": 4364,
+              "forwarded_datagrams": 66,
+              "forwarded_bytes": 4364,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 2366.594360090204,
+              "received_datagrams_per_s": 35.79175704994351,
+              "forwarded_bytes_per_s": 2366.594360090204,
+              "forwarded_datagrams_per_s": 35.79175704994351
+            }
+          }
+        },
+        {
+          "client": 0,
+          "generation": 2,
+          "attempt": 2,
+          "duration_s": 1.125,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 279,
+              "received_bytes": 9512,
+              "forwarded_datagrams": 279,
+              "forwarded_bytes": 9512,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 8455.111111111111,
+              "received_datagrams_per_s": 248.0,
+              "forwarded_bytes_per_s": 8455.111111111111,
+              "forwarded_datagrams_per_s": 248.0
+            },
+            "server_to_client": {
+              "received_datagrams": 106,
+              "received_bytes": 6583,
+              "forwarded_datagrams": 106,
+              "forwarded_bytes": 6583,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 5851.555555555556,
+              "received_datagrams_per_s": 94.22222222222223,
+              "forwarded_bytes_per_s": 5851.555555555556,
+              "forwarded_datagrams_per_s": 94.22222222222223
+            }
+          }
+        },
+        {
+          "client": 1,
+          "generation": 2,
+          "attempt": 2,
+          "duration_s": 0.9689999999973224,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 236,
+              "received_bytes": 8218,
+              "forwarded_datagrams": 236,
+              "forwarded_bytes": 8218,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 8480.908152758213,
+              "received_datagrams_per_s": 243.5500516002602,
+              "forwarded_bytes_per_s": 8480.908152758213,
+              "forwarded_datagrams_per_s": 243.5500516002602
+            },
+            "server_to_client": {
+              "received_datagrams": 90,
+              "received_bytes": 5752,
+              "forwarded_datagrams": 90,
+              "forwarded_bytes": 5752,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 5936.016511884308,
+              "received_datagrams_per_s": 92.87925696620091,
+              "forwarded_bytes_per_s": 5936.016511884308,
+              "forwarded_datagrams_per_s": 92.87925696620091
+            }
+          }
+        },
+        {
+          "client": 2,
+          "generation": 2,
+          "attempt": 2,
+          "duration_s": 0.7970000000059372,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 189,
+              "received_bytes": 6766,
+              "forwarded_datagrams": 189,
+              "forwarded_bytes": 6766,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 8489.335006210285,
+              "received_datagrams_per_s": 237.13927226924977,
+              "forwarded_bytes_per_s": 8489.335006210285,
+              "forwarded_datagrams_per_s": 237.13927226924977
+            },
+            "server_to_client": {
+              "received_datagrams": 72,
+              "received_bytes": 4947,
+              "forwarded_datagrams": 72,
+              "forwarded_bytes": 4947,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 6207.026348761791,
+              "received_datagrams_per_s": 90.33877038828562,
+              "forwarded_bytes_per_s": 6207.026348761791,
+              "forwarded_datagrams_per_s": 90.33877038828562
+            }
+          }
+        },
+        {
+          "client": 3,
+          "generation": 2,
+          "attempt": 2,
+          "duration_s": 0.625,
+          "udp_payload_only": true,
+          "directions": {
+            "client_to_server": {
+              "received_datagrams": 146,
+              "received_bytes": 5515,
+              "forwarded_datagrams": 146,
+              "forwarded_bytes": 5515,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 8824.0,
+              "received_datagrams_per_s": 233.6,
+              "forwarded_bytes_per_s": 8824.0,
+              "forwarded_datagrams_per_s": 233.6
+            },
+            "server_to_client": {
+              "received_datagrams": 56,
+              "received_bytes": 3925,
+              "forwarded_datagrams": 56,
+              "forwarded_bytes": 3925,
+              "dropped_datagrams": 0,
+              "dropped_bytes": 0,
+              "received_bytes_per_s": 6280.0,
+              "received_datagrams_per_s": 89.6,
+              "forwarded_bytes_per_s": 6280.0,
+              "forwarded_datagrams_per_s": 89.6
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+modified_cells,representation,message_bytes,encode_mean_us,decode_generate_install_mean_us
+0,sparse,7,0.065,1.063
+0,full,4104,5.545,18.896
+1,sparse,9,0.109,1.269
+1,full,4104,5.585,19.041
+100,sparse,207,0.646,7.191
+100,full,4104,5.628,24.292
+1400,sparse,4080,5.640,193.853
+1400,full,4104,5.282,183.341
+2048,sparse,6024,7.236,292.340
+2048,full,4104,5.336,303.879
+4096,sparse,12168,14.248,642.085
+4096,full,4104,5.133,610.213

@@ -165,6 +165,7 @@ async fn session(
     let mut own_id = None;
     let mut hello_sent = false;
     let mut own = None;
+    let mut displayed_position: Option<Vec3> = None;
     let mut remotes: BTreeMap<u64, Remote> = BTreeMap::new();
     let mut terrain = Terrain::default();
     let mut mesher = Mesher::new();
@@ -231,11 +232,15 @@ async fn session(
                         if Some(actor.id) == own_id {
                             if own.is_none() {
                                 flying = actor.flying;
+                                yaw = actor.yaw;
+                                pitch = actor.pitch;
                             }
                             own = Some(actor.clone());
                         } else {
                             present.insert(actor.id);
-                            peer_ids.insert(actor.id);
+                            if options.net_report.is_some() {
+                                peer_ids.insert(actor.id);
+                            }
                             if let Some(old) = remotes.get(&actor.id)
                                 && old.actor.position != actor.position
                             {
@@ -427,7 +432,14 @@ async fn session(
         crate::draw_sky();
         let mut visible_peers = 0;
         if let Some(actor) = &own {
-            let eye = Vec3::from_array(actor.position) + Vec3::Y * 1.62;
+            let authoritative = Vec3::from_array(actor.position);
+            let display = displayed_position.get_or_insert(authoritative);
+            if display.distance_squared(authoritative) > 16.0 {
+                *display = authoritative;
+            } else {
+                *display = display.lerp(authoritative, 1.0 - (-24.0 * dt).exp());
+            }
+            let eye = *display + Vec3::Y * 1.62;
             let distance = (options.stream.render_radius as f32 * 16.).max(32.);
             set_camera(&Camera3D {
                 position: eye,
@@ -477,7 +489,7 @@ async fn session(
         maximum_chunks = maximum_chunks.max(terrain.len());
         max_visible_peers = max_visible_peers.max(visible_peers);
         let rtt = transport.rtt().as_secs_f64() * 1000.;
-        if own.is_some() {
+        if options.net_report.is_some() && own.is_some() {
             rtt_samples.push(rtt);
         }
         draw_rectangle(
@@ -536,7 +548,7 @@ async fn session(
         if own.is_some() {
             frame += 1;
         }
-        if frame > 120 {
+        if options.net_report.is_some() && frame > 120 {
             metrics.record(get_frame_time());
         }
         if !captured_peer

@@ -1,0 +1,20 @@
+[
+  {
+    "actual_hz": 59.95244008194441,
+    "cpu_ms": 78.125,
+    "event": "metrics",
+    "period_s": 0.5671162,
+    "players": 2,
+    "received_bytes": 1074,
+    "received_messages": 46,
+    "resident": 696,
+    "samples": 34,
+    "sent_bytes": 1917,
+    "sent_messages": 197,
+    "stream_p95_ms": 0.4243,
+    "tick": 34,
+    "tick_p50_ms": 0.28430000000000005,
+    "tick_p95_ms": 0.6378999999999999,
+    "tick_p99_ms": 0.7083
+  }
+]

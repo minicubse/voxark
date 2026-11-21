@@ -26,7 +26,7 @@ Ces plafonds configurent les buffers Renet d'émission et de réception; ils ne 
 
 Le wrapper refuse les messages fiables de plus de 256 Kio et les non fiables de plus de 1100 octets. Le codec gameplay impose sa limite plus stricte. Les événements serveur sont exposés par une file de 128 entrées : il faut appeler `next_event` jusqu'à `None` à chaque tour. Un poll avec cette file pleine retourne `EventQueueFull` avant de lire de nouveaux datagrammes.
 
-L'ordre est garanti uniquement à l'intérieur d'un canal. Le gameplay place les uplinks fiables et les mises à jour `Chunk`/`Forget` sur **Control**, afin de conserver leur ordre lors d'une éviction suivie d'une revisite. Chunks/Edits restent disponibles pour des flux indépendants. Input et Snapshots sont remplaçables; le gameplay utilise les numéros de séquence/tick pour ignorer les données anciennes.
+Control transporte la connexion, la confirmation Ready et les résultats d’édition. Edits porte les commandes d’édition. Chunk et Forget partagent le canal Chunks, fiable et ordonné, y compris lors d’une revisite. Les entrées et les snapshots de joueurs utilisent Input et Snapshots. Les messages anciens y sont écartés par séquence ou par tick.
 
 ## API et identité
 
