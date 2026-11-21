@@ -9,6 +9,8 @@ primal-voxel = { path = "../voxel" }
 primal-simulation = { path = "../simulation" }
 primal-storage = { path = "../storage" }
 primal-streaming = { path = "../streaming" }
+primal-net = { path = "../net" }
+serde_json = "1"
 
 [lints]
 workspace = true

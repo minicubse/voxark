@@ -1,3 +1,4 @@
+mod metrics;
 mod room;
 use primal_storage::RegionStore;
 use primal_streaming::{StreamConfig, Streamer};
@@ -5,7 +6,8 @@ use primal_voxel::World;
 use serde::Deserialize;
 use serde_json::json;
 use std::{
-    env, fs, io,
+    env, fs,
+    io::{self, BufRead},
     net::SocketAddr,
     path::PathBuf,
     sync::{
@@ -75,22 +77,64 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let running = Arc::new(AtomicBool::new(true));
     let signal = running.clone();
     ctrlc::set_handler(move || signal.store(false, Ordering::Release))?;
+    let (commands, admin) = std::sync::mpsc::sync_channel(32);
+    thread::spawn(move || {
+        for line in io::stdin().lock().lines().map_while(Result::ok) {
+            if commands.send(line).is_err() {
+                break;
+            }
+        }
+    });
     let step = Duration::from_secs_f64(1. / f64::from(c.tick_hz));
     let mut next = Instant::now();
+    let mut metrics = metrics::Metrics::new();
     let mut tick = 0u64;
     println!(
         "{}",
         json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world})
     );
     while running.load(Ordering::Acquire) && c.ticks.is_none_or(|limit| tick < limit) {
-        room.tick(&mut stream, tick, step)?;
+        for cmd in admin.try_iter().take(16) {
+            let args: Vec<_> = cmd.split_whitespace().collect();
+            match args.as_slice() {
+                ["stop"] => running.store(false, Ordering::Release),
+                ["teleport", id, x, y, z] => {
+                    let ok = match (id.parse(), x.parse(), y.parse(), z.parse()) {
+                        (Ok(id), Ok(x), Ok(y), Ok(z)) => room.teleport(id, [x, y, z]),
+                        _ => false,
+                    };
+                    println!("{}", json!({"event":"teleport","ok":ok}));
+                }
+                _ => eprintln!(
+                    "{}",
+                    json!({"event":"error","message":"Commande console inconnue"})
+                ),
+            }
+        }
+        let began = Instant::now();
+        let streaming = room.tick(&mut stream, tick, step)?;
+        metrics.record(began.elapsed(), streaming);
         tick += 1;
         next += step;
         thread::sleep(next.saturating_duration_since(Instant::now()));
+        if metrics.len() >= 120 {
+            metrics.report(
+                tick,
+                stream.world().resident_len(),
+                room.players(),
+                room.traffic(),
+            );
+        }
         if next.elapsed() > step * 4 {
             next = Instant::now();
         }
     }
+    metrics.report(
+        tick,
+        stream.world().resident_len(),
+        room.players(),
+        room.traffic(),
+    );
     let deadline = Instant::now() + Duration::from_secs(15);
     while !stream.saves_idle() {
         let f = stream.tick_views(&[]);

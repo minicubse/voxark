@@ -75,6 +75,29 @@ impl Player {
         None
     }
 
+    /// Wait for actual cells, or find clear space above an edited arrival point.
+    pub fn arrival(world: &World, position: [f32; 3], flying: bool) -> Option<Self> {
+        if !finite(position) || !(1.0..=126.0).contains(&position[1]) {
+            return None;
+        }
+        let mut p = Self {
+            position,
+            velocity: [0.; 3],
+            grounded: false,
+            flying,
+        };
+        while p.position[1] <= 126.0 {
+            if !p.collision_data_ready(world) {
+                return None;
+            }
+            if !p.collides(world, p.position) {
+                return Some(p);
+            }
+            p.position[1] = p.position[1].floor() + 1.0001;
+        }
+        None
+    }
+
     pub fn eye(&self) -> [f32; 3] {
         [
             self.position[0],

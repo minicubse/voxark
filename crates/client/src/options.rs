@@ -22,6 +22,11 @@ impl Mesher {
 
 #[derive(Debug)]
 pub struct Options {
+    pub connect: Option<String>,
+    pub identity: PathBuf,
+    pub net_frames: Option<usize>,
+    pub net_report: Option<PathBuf>,
+    pub direct_solo: bool,
     pub world: PathBuf,
     pub smoke: bool,
     pub profile: Option<PathBuf>,
@@ -43,6 +48,11 @@ pub struct Options {
 impl Options {
     pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Self, String> {
         let mut options = Self {
+            connect: None,
+            identity: default_save_path().with_file_name("client.identity"),
+            net_frames: None,
+            net_report: None,
+            direct_solo: false,
             world: default_save_path(),
             smoke: false,
             frames: 480,
@@ -68,6 +78,10 @@ impl Options {
         let mut args = args.into_iter();
         while let Some(arg) = args.next() {
             match arg.as_str() {
+                "--connect" => options.connect = Some(value(&mut args, &arg)?),
+                "--identity" => options.identity = PathBuf::from(value(&mut args, &arg)?),
+                "--net-frames" => options.net_frames = Some(number(&mut args, &arg)?),
+                "--net-report" => options.net_report = Some(PathBuf::from(value(&mut args, &arg)?)),
                 "--edit-route" => options.edit_route = true,
                 "--profile" => options.profile = Some(PathBuf::from(value(&mut args, &arg)?)),
                 "--no-frustum" => options.frustum = false,
@@ -96,6 +110,7 @@ impl Options {
                 "--world" => {
                     options.world = PathBuf::from(value(&mut args, &arg)?);
                     explicit_world = true;
+                    options.direct_solo = true;
                 }
                 "--capture" => options.capture = Some(PathBuf::from(value(&mut args, &arg)?)),
                 "--metrics" => options.metrics = Some(PathBuf::from(value(&mut args, &arg)?)),
@@ -146,6 +161,17 @@ impl Options {
             .stream
             .validate()
             .map_err(|error| error.to_string())?;
+        if options.net_frames == Some(0) {
+            return Err("--net-frames exige au moins une image".into());
+        }
+        if options.connect.is_some() && options.smoke {
+            return Err("--connect et --smoke sont deux parcours distincts".into());
+        }
+        if options.connect.is_none()
+            && (options.net_frames.is_some() || options.net_report.is_some())
+        {
+            return Err("--net-frames et --net-report exigent --connect".into());
+        }
         if !options.frustum && !options.smoke {
             return Err("--no-frustum exige --smoke".into());
         }
@@ -197,12 +223,22 @@ impl Options {
         let regions = primal_storage::RegionStore::directory(&options.world);
         let mut lock = options.world.as_os_str().to_owned();
         lock.push(".lock");
-        for path in [&options.profile, &options.metrics, &options.capture]
-            .into_iter()
-            .flatten()
+        for path in [
+            &options.profile,
+            &options.metrics,
+            &options.capture,
+            &options.net_report,
+        ]
+        .into_iter()
+        .flatten()
         {
             if path.starts_with(&regions) || path.as_os_str() == lock {
                 return Err("La sortie demandée appartient à la sauvegarde régionale".into());
+            }
+            if path == &options.identity || path == &options.world {
+                return Err(
+                    "La sortie demandée doit être distincte du monde et de l'identité".into(),
+                );
             }
         }
         Ok(options)

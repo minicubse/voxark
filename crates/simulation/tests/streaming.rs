@@ -77,3 +77,16 @@ fn falling_waits_at_missing_layer_then_lands_on_real_persisted_support() {
     assert!((44.0..44.02).contains(&player.position[1]));
     assert!(player.grounded);
 }
+
+#[test]
+fn arrival_requires_loaded_clear_cells_and_resolves_an_occupied_destination() {
+    let mut w = primal_voxel::World::streamed(13);
+    let pos = [8.5, 115.1, 8.5];
+    assert!(primal_simulation::Player::arrival(&w, pos, false).is_none());
+    let c = [0, 7, 0];
+    let t = w.begin_load(c).unwrap();
+    w.install_chunk(t, primal_voxel::generate_chunk(13, c).unwrap(), &[]);
+    w.set([8, 115, 8], 7);
+    let p = primal_simulation::Player::arrival(&w, pos, false).unwrap();
+    assert!(p.position[1] > 116.0 && p.collision_data_ready(&w));
+}

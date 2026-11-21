@@ -6,6 +6,7 @@ use renet_netcode::{
     ServerConfig,
 };
 use std::{
+    collections::VecDeque,
     fmt,
     net::{SocketAddr, UdpSocket},
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -19,6 +20,14 @@ pub const MAX_MESSAGE_BYTES: usize = 256 * 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ConnectionId(pub u64);
+impl ConnectionId {
+    /// A transient identifier, generated independently from the persistent player token.
+    pub fn random() -> std::io::Result<Self> {
+        let mut bytes = [0; 8];
+        getrandom::fill(&mut bytes).map_err(|e| std::io::Error::other(e.to_string()))?;
+        Ok(Self(u64::from_le_bytes(bytes)))
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -101,6 +110,7 @@ pub enum TransportError {
     QueueFull(Channel),
     MessageTooLarge { bytes: usize, max: usize },
     InvalidMaxClients,
+    EventQueueFull,
 }
 impl fmt::Display for TransportError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -113,6 +123,7 @@ impl fmt::Display for TransportError {
                 write!(f, "message has {bytes} bytes (maximum {max})")
             }
             Self::InvalidMaxClients => write!(f, "max_clients must be in 1..=64"),
+            Self::EventQueueFull => write!(f, "drain server events before polling again"),
         }
     }
 }
@@ -252,6 +263,7 @@ pub struct ServerTransport {
     transport: NetcodeServerTransport,
     stats: TrafficStats,
     local_addr: SocketAddr,
+    events: VecDeque<ServerEvent>,
 }
 impl ServerTransport {
     pub fn bind(addr: SocketAddr, max_clients: usize) -> Result<Self, TransportError> {
@@ -272,23 +284,34 @@ impl ServerTransport {
             transport: NetcodeServerTransport::new(config, socket)?,
             stats: TrafficStats::default(),
             local_addr,
+            events: VecDeque::new(),
         })
     }
     pub fn poll(&mut self, dt: Duration) -> Result<(), TransportError> {
+        if self.events.len() >= 128 {
+            return Err(TransportError::EventQueueFull);
+        }
         self.server.update(dt);
         self.transport
             .update(dt, &mut self.server)
-            .map_err(transport)
+            .map_err(transport)?;
+        while self.events.len() < 128 {
+            let Some(event) = self.server.get_event() else {
+                break;
+            };
+            self.events.push_back(match event {
+                renet::ServerEvent::ClientConnected { client_id } => {
+                    ServerEvent::Connected(ConnectionId(client_id))
+                }
+                renet::ServerEvent::ClientDisconnected { client_id, reason } => {
+                    ServerEvent::Disconnected(ConnectionId(client_id), reason.to_string())
+                }
+            });
+        }
+        Ok(())
     }
     pub fn next_event(&mut self) -> Option<ServerEvent> {
-        self.server.get_event().map(|e| match e {
-            renet::ServerEvent::ClientConnected { client_id } => {
-                ServerEvent::Connected(ConnectionId(client_id))
-            }
-            renet::ServerEvent::ClientDisconnected { client_id, reason } => {
-                ServerEvent::Disconnected(ConnectionId(client_id), reason.to_string())
-            }
-        })
+        self.events.pop_front()
     }
     pub fn recv(&mut self) -> Option<(ConnectionId, Channel, Vec<u8>)> {
         for id in self.server.clients_id() {

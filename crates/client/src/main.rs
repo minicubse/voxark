@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod autosave;
 mod buffers;
+mod menu;
 mod metrics;
+mod online;
 mod options;
 mod profile;
 mod scenarios;
@@ -54,7 +56,13 @@ async fn main() {
         }
     };
     let cleanup_temporary_world = options.temporary_world && !options.world.exists();
-    let result = run(&options).await;
+    let result = if let Some(address) = &options.connect {
+        online::run(&options, address).await
+    } else if options.smoke || options.direct_solo {
+        run(&options).await
+    } else {
+        run_menu(&options).await
+    };
     if cleanup_temporary_world {
         // Options creates a unique private temp directory for this smoke invocation.
         if let Some(dir) = options.world.parent() {
@@ -63,7 +71,7 @@ async fn main() {
     }
     if let Err(error) = result {
         eprintln!("PRIMAL VOXEL ERROR {error}");
-        if options.smoke {
+        if options.smoke || options.net_frames.is_some() {
             std::process::exit(1);
         }
         loop {
@@ -90,6 +98,39 @@ async fn main() {
             }
             next_frame().await;
         }
+    }
+}
+
+async fn run_menu(options: &Options) -> Result<(), String> {
+    let mut error = None;
+    loop {
+        let result = match menu::choose(error.as_deref()).await {
+            menu::Choice::Quit => return Ok(()),
+            menu::Choice::Solo => run(options).await,
+            menu::Choice::Join(address) => online::run(options, &address).await,
+            menu::Choice::Host(address) => {
+                match menu::HostedServer::start(&address, &options.world) {
+                    Ok(mut server) => {
+                        // Startup includes the region store and socket; yield frames while it boots.
+                        let start = get_time();
+                        while get_time() - start < 0.8 {
+                            clear_background(FOG_COLOR);
+                            draw_text("Démarrage du serveur…", 40., 70., 28., WHITE);
+                            next_frame().await;
+                        }
+                        let played = online::run(options, &address).await;
+                        let stopped = server.stop();
+                        played.and(stopped)
+                    }
+                    Err(error) => Err(error),
+                }
+            }
+        };
+        error = result.err();
+        if is_quit_requested() {
+            return Ok(());
+        }
+        next_frame().await;
     }
 }
 

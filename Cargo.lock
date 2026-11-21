@@ -598,10 +598,12 @@ name = "primal-client"
 version = "0.1.0"
 dependencies = [
  "macroquad",
+ "primal-net",
  "primal-simulation",
  "primal-storage",
  "primal-streaming",
  "primal-voxel",
+ "serde_json",
 ]
 
 [[package]]
@@ -621,6 +623,7 @@ dependencies = [
 name = "primal-server"
 version = "0.1.0"
 dependencies = [
+ "cpu-time",
  "ctrlc",
  "primal-net",
  "primal-simulation",
