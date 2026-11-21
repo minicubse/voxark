@@ -215,6 +215,7 @@ pub struct Streamer<P> {
     fairness_cursor: usize,
     ticks: u64,
     ready_mesh: Vec<Done<P>>,
+    build_meshes: bool,
 }
 impl<P: Send + 'static> Streamer<P> {
     pub fn new(
@@ -244,6 +245,7 @@ impl<P: Send + 'static> Streamer<P> {
             fairness_cursor: 0,
             ticks: 0,
             ready_mesh: Vec::new(),
+            build_meshes: true,
         })
     }
     pub fn world(&self) -> &World {
@@ -570,7 +572,8 @@ impl<P: Send + 'static> Streamer<P> {
                 }
                 continue;
             }
-            if self.plan.render_rank(c).is_some()
+            if self.build_meshes
+                && self.plan.render_rank(c).is_some()
                 && mesh_jobs < self.config.prepared_bytes / MESH_RESERVATION
                 && !self.active(c, 1)
                 && !self.errors.contains(&(c, 1))
@@ -615,5 +618,18 @@ impl Kind {
             Self::Mesh(_) => 1,
             Self::Save(_) => 2,
         }
+    }
+}
+
+impl Streamer<()> {
+    /// Run the same streaming plan and storage workers without scheduling geometry.
+    pub fn headless(
+        world: World,
+        store: impl ChunkStore,
+        config: StreamConfig,
+    ) -> io::Result<Self> {
+        let mut streamer = Self::new(world, store, config, MeshKind::Greedy, |_| ((), 0))?;
+        streamer.build_meshes = false;
+        Ok(streamer)
     }
 }
