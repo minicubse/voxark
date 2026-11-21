@@ -1,3 +1,4 @@
+mod room;
 use primal_storage::RegionStore;
 use primal_streaming::{StreamConfig, Streamer};
 use primal_voxel::World;
@@ -68,6 +69,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         store,
         StreamConfig::default(),
     )?;
+    let net = primal_net::ServerTransport::bind(c.bind, c.max_players)?;
+    let address = net.local_addr();
+    let mut room = room::Room::new(net);
     let running = Arc::new(AtomicBool::new(true));
     let signal = running.clone();
     ctrlc::set_handler(move || signal.store(false, Ordering::Release))?;
@@ -76,13 +80,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut tick = 0u64;
     println!(
         "{}",
-        json!({"event":"started","tick_hz":c.tick_hz,"world":c.world})
+        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world})
     );
     while running.load(Ordering::Acquire) && c.ticks.is_none_or(|limit| tick < limit) {
-        let frame = stream.tick_views(&[]);
-        if let Some(error) = frame.errors.first() {
-            return Err(io::Error::other(error.clone()).into());
-        }
+        room.tick(&mut stream, tick, step)?;
         tick += 1;
         next += step;
         thread::sleep(next.saturating_duration_since(Instant::now()));
