@@ -50,3 +50,30 @@ fn ray_and_validated_edit_cannot_cross_an_unknown_chunk() {
         Ok([3200, 120, -1599])
     );
 }
+
+#[test]
+fn falling_waits_at_missing_layer_then_lands_on_real_persisted_support() {
+    let mut world = World::streamed(42);
+    let high = [0, 3, 0];
+    let below = [0, 2, 0];
+    load(&mut world, high);
+    let mut player = Player {
+        position: [6.5, 51., 6.5],
+        velocity: [0., -35., 0.],
+        grounded: false,
+        flying: false,
+    };
+    for _ in 0..100 {
+        player.step(&world, Input::default(), FIXED_DT);
+    }
+    assert!((48.0..48.02).contains(&player.position[1]));
+    assert!(!player.collision_data_ready(&world));
+    let t = world.begin_load(below).unwrap();
+    assert!(world.install_chunk(t, generate_chunk(42, below).unwrap(), &[([6, 43, 6], 3)]));
+    assert!(player.collision_data_ready(&world));
+    for _ in 0..100 {
+        player.step(&world, Input::default(), FIXED_DT);
+    }
+    assert!((44.0..44.02).contains(&player.position[1]));
+    assert!(player.grounded);
+}

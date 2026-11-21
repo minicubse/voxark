@@ -8,7 +8,7 @@ mod catalog;
 mod generation;
 mod mesh;
 pub use catalog::{BlockDef, CatalogError, block_def, parse_block_catalog};
-pub use generation::{GeneratedChunk, generate_chunk};
+pub use generation::{GeneratedChunk, generate_chunk, surface_hint};
 pub use mesh::{Face, MeshSnapshot};
 
 pub const CHUNK: i32 = 16;

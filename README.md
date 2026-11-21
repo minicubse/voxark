@@ -1,6 +1,6 @@
 # Primal Voxel — Vallée originelle
 
-Version 1B pour Windows x64. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
+Version 1C pour Windows x64. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
 
 ## Jouer
 
@@ -59,3 +59,7 @@ cargo run --locked --release -p primal-voxel --example compare_meshers
 Les scénarios disponibles sont `valley`, `region512`, `region1024`, `traverse`, `teleport` et `edits`. `--help` détaille les limites de workers, mémoire, publications et temps du fil principal. Le mode `--valley-only` conserve le domaine historique pour comparer deux exécutables sur la même géométrie.
 
 Le [statut du projet](docs/PROJECT_STATUS.md) donne les vérifications et la prochaine tâche. Les [mesures](docs/PERFORMANCE.md), les [limites](docs/KNOWN_ISSUES.md) et les [décisions moteur](docs/DECISIONS.md) sont suivies dans ce dépôt.
+
+## Parcours de streaming 1C
+
+Les scénarios `walk`, `sprint`, `fly`, `traverse`, `teleport`, `return`, `moving-edits` et `long-flight` utilisent des mondes temporaires. Exemple : `PrimalVoxel.exe --scenario traverse --frames 840 --preload-radius 2`. Le [rapport 1C](docs/STREAMING_1C.md) décrit la comparaison A/B et renvoie aux mesures brutes.

@@ -1,5 +1,7 @@
 # Mesures du 20 novembre 2026
 
+Les résultats du [streaming prédictif 1C](STREAMING_1C.md) comparent trois répétitions alternées par cas. Les mesures antérieures ci-dessous conservent leur définition historique du sol prêt.
+
 Windows 11 build 26200, Ryzen 7 7730U, Radeon intégrée, pilote 31.0.21925.1001, 15,38 Gio de RAM utilisable et écran 60 Hz. Build release, Rust 1.100.0, Macroquad 0.4.16, Miniquad 0.4.11. Cible client initiale : 60 FPS stables à 720p, 30 FPS à 1080p, mémoire inférieure à 6 Go.
 
 ## Parcours graphique

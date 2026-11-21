@@ -212,6 +212,9 @@ pub struct Streamer<P> {
     deferred: HashMap<ChunkPos, u64>,
     errors: HashSet<(ChunkPos, u8)>,
     stats: Stats,
+    fairness_cursor: usize,
+    ticks: u64,
+    ready_mesh: Vec<Done<P>>,
 }
 impl<P: Send + 'static> Streamer<P> {
     pub fn new(
@@ -238,6 +241,9 @@ impl<P: Send + 'static> Streamer<P> {
             deferred: HashMap::new(),
             errors: HashSet::new(),
             stats: Stats::default(),
+            fairness_cursor: 0,
+            ticks: 0,
+            ready_mesh: Vec::new(),
         })
     }
     pub fn world(&self) -> &World {
@@ -272,6 +278,21 @@ impl<P: Send + 'static> Streamer<P> {
     }
     pub fn visible_revision(&self, c: ChunkPos) -> Option<u64> {
         self.meshes.get(&c).map(|v| v.0)
+    }
+    fn halo_resident(&self, c: ChunkPos) -> bool {
+        for axis in 0..3 {
+            for step in [-1, 1] {
+                let mut n = c;
+                n[axis] += step;
+                if self.plan.wants(n)
+                    && !self.world.is_resident(n)
+                    && !self.errors.contains(&(n, 0))
+                {
+                    return false;
+                }
+            }
+        }
+        true
     }
     fn active(&self, c: ChunkPos, k: u8) -> bool {
         self.jobs
@@ -404,13 +425,20 @@ impl<P: Send + 'static> Streamer<P> {
         }
     }
     pub fn tick(&mut self, view: View) -> Frame<P> {
+        self.tick_views(&[view])
+    }
+    /// One authoritative tick for all interest positions (empty releases clean residents).
+    pub fn tick_views(&mut self, views: &[View]) -> Frame<P> {
+        let sample_origin = views
+            .first()
+            .map_or([0; 3], |v| primal_voxel::chunk_at(v.block));
         let start = Instant::now();
         let mut out = Frame::default();
-        if self.plan.update(view, &self.config, &self.world) {
+        if self.plan.update_views(views, &self.config, &self.world) {
             self.deferred.clear();
         }
         out.timings.push(Timing {
-            chunk: view.block,
+            chunk: sample_origin,
             stage: Stage::Select,
             duration: start.elapsed(),
         });
@@ -432,21 +460,44 @@ impl<P: Send + 'static> Streamer<P> {
             }
         }
         out.timings.push(Timing {
-            chunk: view.block,
+            chunk: sample_origin,
             stage: Stage::Cancel,
             duration: cancel.elapsed(),
         });
         let publish = Instant::now();
+        // Separate load/save completions from upload credits. Deferred meshes keep their job credit.
+        while let Ok(done) = self.pool.rx.try_recv() {
+            if self
+                .jobs
+                .get(&done.id)
+                .is_some_and(|j| matches!(j.kind, Kind::Mesh(_)))
+            {
+                self.ready_mesh.push(done);
+            } else {
+                self.accept(done, &mut out);
+            }
+            if start.elapsed() >= self.config.main_budget {
+                break;
+            }
+        }
+        self.ready_mesh.sort_unstable_by_key(|d| {
+            std::cmp::Reverse(
+                self.jobs
+                    .get(&d.id)
+                    .and_then(|j| self.plan.render_rank(j.chunk))
+                    .unwrap_or(usize::MAX),
+            )
+        });
         while out.uploads.len() < self.config.uploads_per_tick
-            && start.elapsed() < self.config.main_budget
+            && let Some(d) = self.ready_mesh.pop()
         {
-            match self.pool.rx.try_recv() {
-                Ok(d) => self.accept(d, &mut out),
-                Err(_) => break,
+            self.accept(d, &mut out);
+            if start.elapsed() >= self.config.main_budget {
+                break;
             }
         }
         out.timings.push(Timing {
-            chunk: view.block,
+            chunk: sample_origin,
             stage: Stage::Publish,
             duration: publish.elapsed(),
         });
@@ -470,7 +521,7 @@ impl<P: Send + 'static> Streamer<P> {
             }
         }
         out.timings.push(Timing {
-            chunk: view.block,
+            chunk: sample_origin,
             stage: Stage::Evict,
             duration: evict.elapsed(),
         });
@@ -486,8 +537,20 @@ impl<P: Send + 'static> Streamer<P> {
             .values()
             .filter(|j| matches!(j.kind, Kind::Mesh(_)))
             .count();
-        for i in 0..self.plan.order.len() {
-            if self.jobs.len() >= self.config.max_jobs || start.elapsed() >= self.config.main_budget
+        self.ticks = self.ticks.wrapping_add(1);
+        let count = self.plan.order.len();
+        // Reserve one admission every eighth tick for the tail of a stable interest area.
+        // Emergency capacity (single job) remains for the body until the centre is resident.
+        let fair =
+            self.ticks.is_multiple_of(8) && count > 0 && self.world.is_resident(self.plan.order[0]);
+        let start_cursor = self.fairness_cursor % count.max(1);
+        let mut background =
+            (0..if fair { count } else { 0 }).map(|offset| (start_cursor + offset) % count);
+        let mut foreground = 0..count;
+        let mut admitted = false;
+        while let Some(i) = background.next().or_else(|| foreground.next()) {
+            if self.jobs.len() >= self.config.max_jobs
+                || (admitted && start.elapsed() >= self.config.main_budget)
             {
                 break;
             }
@@ -498,6 +561,11 @@ impl<P: Send + 'static> Streamer<P> {
                     && let Some(t) = self.world.begin_load(c)
                 {
                     self.dispatch(c, Kind::Load(t), Work::Load);
+                    if !admitted && fair {
+                        self.fairness_cursor = i + 1;
+                        background.nth(count);
+                    }
+                    admitted = true;
                     loads += 1;
                 }
                 continue;
@@ -508,15 +576,23 @@ impl<P: Send + 'static> Streamer<P> {
                 && !self.errors.contains(&(c, 1))
             {
                 let rev = self.world.mesh_revision(c).unwrap();
-                if self.visible_revision(c) != Some(rev) && self.deferred.get(&c) != Some(&rev) {
+                if self.visible_revision(c) != Some(rev)
+                    && self.deferred.get(&c) != Some(&rev)
+                    && (i < 12 || self.world.chunk_dirty(c) || self.halo_resident(c))
+                {
                     let snapshot = self.world.mesh_snapshot(c).unwrap();
                     self.dispatch(c, Kind::Mesh(rev), Work::Mesh(snapshot));
+                    if !admitted && fair {
+                        self.fairness_cursor = i + 1;
+                        background.nth(count);
+                    }
+                    admitted = true;
                     mesh_jobs += 1;
                 }
             }
         }
         out.timings.push(Timing {
-            chunk: view.block,
+            chunk: sample_origin,
             stage: Stage::Dispatch,
             duration: dispatch.elapsed(),
         });

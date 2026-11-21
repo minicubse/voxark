@@ -1,0 +1,23 @@
+SMOKE remove/save/load verified at [0, 9, 1]
+SMOKE place/save/load verified at [0, 9, 1]
+STREAM scenario=traverse checkpoints=1 missing_ground_frames=136 stats=Stats { stale_loads: 2, stale_meshes: 767, peak_resident: 715, peak_jobs: 24, peak_mesh_bytes: 6889672, peak_waiting: 24, evictions: 5228, cancelled_cpu_ns: 0, unavailable_cpu_samples: 0 } outstanding_edits=0
+PIPELINE missing_data=21 missing_mesh=240 longest_strict=15 first_usable_ms=19.702 longest_missing=12 collision_missing=0 travel_blocks=4222.08 disk_verified=0
+SMOKE PASS frames=840 elapsed_s=7.184
+{
+  "resolution": [1280, 720],
+  "mesher": "greedy",
+  "samples": 720,
+  "warmup_frames": 120,
+  "frame_mean_ms": 8.3433,
+  "fps_mean": 119.857,
+  "fps_1_percent_low": 94.350,
+  "fps_0_1_percent_low": 75.955,
+  "frame_p50_ms": 8.3191,
+  "frame_p95_ms": 9.3822,
+  "frame_p99_ms": 9.9778,
+  "frame_p99_9_ms": 13.1657,
+  "frame_max_ms": 13.1657,
+  "mesh_chunks": 253,
+  "render_quads": 35602,
+  "method": "macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction"
+}

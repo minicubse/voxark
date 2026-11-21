@@ -166,6 +166,11 @@ fn distance_to_valley(x: i64, z: i64) -> i64 {
     (-64 - x).max(x - 63).max(-64 - z).max(z - 63).max(0)
 }
 
+/// Ground height before structures and edits. Scheduling hint only; gameplay reads resident cells.
+pub fn surface_hint(seed: u64, x: i32, z: i32) -> i32 {
+    height(seed, i64::from(x), i64::from(z)) as i32
+}
+
 fn height(seed: u64, x: i64, z: i64) -> i64 {
     let rolling = noise(seed, x, z, 16, 5) + noise(seed ^ 517, x, z, 7, 2);
     let left_peak = (29 - ((x + 43).abs() + (z - 43).abs()) * 2 / 3).max(0);

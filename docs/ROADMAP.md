@@ -18,4 +18,11 @@ Les états constatés et les preuves exécutées sont dans PROJECT_STATUS.md. Le
 | 9 — Couverture | Détail progressif des deux matrices, exceptions par mécanique | Chaque ligne clôturée possède source, implémentation et preuve |
 | 10 — Finition | Stress tests, profils Low, interface, animation, son et distribution | Objectifs CPU/GPU/mémoire vérifiés sur matériel cible |
 
-Après 1B, réduire les frames où le sol arrive en retard sur le trajet de 4,22 km. Comparer les politiques de préchargement à contenu, vitesse et budgets identiques. Reporter l’essai de backend au moment où une mesure isolera un coût du rendu susceptible de le justifier.
+## Premier serveur autoritaire
+
+1. Exécuter la simulation à pas fixe dans un processus sans fenêtre. Fournir à chaque tick la liste des positions et vitesses validées. Prioriser collisions et sauvegardes sous le budget global. Permettre au serveur de désactiver la préparation des maillages graphiques.
+2. Connecter deux clients. Le serveur attribue les identités, valide déplacements et interactions, puis envoie les instantanés de chunks suivis des changements de révision. Identifier les commandes par joueur et numéro de séquence pour appliquer une retransmission une seule fois.
+3. Tester d’abord les deux joueurs dans la même région. Vérifier qu’une édition concurrente produit le même état autoritaire chez les deux clients. Tester ensuite deux régions éloignées, une téléportation puis une déconnexion. Au retour, demander un instantané en cas de révision manquante.
+4. Critère de passage proposé : après acquittement, comparer blocs et révisions sur les deux clients et le serveur. Redémarrer le serveur, relire les éditions sur disque et rejouer un ancien message. Vérifier aussi la suspension du mouvement vers une zone inconnue et les plafonds de résidence sur les deux intérêts.
+
+Le jalon 1C exerce déjà le noyau avec deux intérêts à 1,9 million de blocs de distance. La convergence de deux clients réseau reste un critère du prochain jalon.

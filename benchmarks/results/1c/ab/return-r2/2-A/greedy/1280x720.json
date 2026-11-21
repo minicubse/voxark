@@ -1,0 +1,18 @@
+{
+  "resolution": [1280, 720],
+  "mesher": "greedy",
+  "samples": 600,
+  "warmup_frames": 120,
+  "frame_mean_ms": 8.3596,
+  "fps_mean": 119.623,
+  "fps_1_percent_low": 80.420,
+  "fps_0_1_percent_low": 64.753,
+  "frame_p50_ms": 8.2817,
+  "frame_p95_ms": 9.9719,
+  "frame_p99_ms": 10.3762,
+  "frame_p99_9_ms": 15.4433,
+  "frame_max_ms": 15.4433,
+  "mesh_chunks": 272,
+  "render_quads": 42056,
+  "method": "macroquad frame interval including presentation; deterministic camera route; 120 warmup frames; percentile nearest rank; lows reciprocal mean slowest fraction"
+}

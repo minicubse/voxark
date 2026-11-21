@@ -1,4 +1,12 @@
-# Primal Voxel — état du jalon 1B
+# Primal Voxel — état du jalon 1C
+
+Le client Windows utilise le streaming prédictif avec Macroquad et le greedy meshing. Les sauvegardes régionales et l’import v1 conservent leurs formats. Les mesures comparatives sur Ryzen 7 7730U, les bornes et les cas où le sol apparaît encore en retard figurent dans le [rapport 1C](STREAMING_1C.md).
+
+Les 65 tests Rust passent, dont les 61 du jalon 1B. Sur la traversée de 4,22 km au rayon 2, la médiane passe de 244 à 4 images sans sol graphique sur 720. Les 60 passages comprennent trois répétitions pour chaque variante et chaque cas.
+
+Le prochain jalon est le premier serveur autoritaire sans fenêtre avec deux clients synchronisés. Le test actuel couvre deux positions distantes, un budget partagé, le départ des joueurs et la relecture de leurs éditions. Le transport et la réplication restent à développer. [Préparation du serveur](ROADMAP.md#premier-serveur-autoritaire)
+
+## Historique du jalon 1B
 
 Le client Windows x64 permet de quitter à pied ou en vol la vallée historique. Les chunks chargés, leur maillage et les sauvegardes suivent le joueur. Les commandes, les collisions et les sept matériaux de la première version sont conservés. Le client utilise Macroquad. Le monde et les workers sont utilisables sans fenêtre.
 
@@ -13,7 +21,3 @@ Le client Windows x64 permet de quitter à pied ou en vol la vallée historique.
 ## Contrôles
 
 Le formatage, la compilation du workspace, Clippy sur toutes les cibles avec avertissements interdits, la construction release et les 61 tests Rust ont réussi. Les 34 tests historiques sont inclus. Les scénarios de corruption et d’arrêt brutal utilisent aussi des sous-processus. Le client Windows est testé par des entrées de fenêtre, avec relecture indépendante de la sauvegarde. Les mesures sont propres au Ryzen 7 7730U avec Radeon intégrée. Les budgets de streaming et le pic mémoire du processus sont deux mesures distinctes.
-
-## Prochaine action
-
-Le compteur de sol disponible pendant les vols rapides met en évidence des retards que les FPS moyens masquent. Mesurer la priorité du terrain sous la trajectoire future à nombre de workers et mémoire identiques. La position du joueur, le serveur réseau, les créatures et la survie restent des étapes ultérieures. [Limites](KNOWN_ISSUES.md) · [Feuille de route](ROADMAP.md)

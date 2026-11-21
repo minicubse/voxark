@@ -1,8 +1,10 @@
-# Limites vérifiées du jalon 1B
+# Limites vérifiées
 
+- Le [rapport 1C](STREAMING_1C.md) distingue les absences de données, de maillage et de collisions. La sonde vérifie le chunk de surface sous la position suivie ; les trous ailleurs à l’écran et la complétude de toute la scène restent hors de cette mesure.
 - Le streaming a une capacité finie. À grande vitesse, une partie du terrain arrive après la caméra. Les collisions bloquent la progression du personnage dans un chunk absent. Les parcours scriptés peuvent déplacer la caméra plus rapidement et comptabilisent le retard à la colonne survolée. Voir le [rapport](PERFORMANCE.md).
 - Les adresses de stockage utilisent i32. La hauteur jouable va de 0 à 127. La physique, les sommets et la caméra utilisent f32. La précision sub-bloc décroît aux très grandes distances. Les tests distinguent stockage aux extrêmes i32, déplacement graphique à 65 536 et persistance à un million de blocs.
 - Les budgets limitent les chunks, les travaux et la géométrie préparée ou conservée. Le temps du fil principal est un budget coopératif. Une opération de planification ou de collecte en cours peut le dépasser. Le working set du processus inclut aussi Macroquad, le pilote, les allocations et les buffers pour le dessin. Il varie entre les répétitions.
 - Le temps relevé autour de la soumission inclut le culling et les appels CPU à Macroquad. Les chronos GPU et la consommation de VRAM dédiée restent indisponibles dans ce banc.
 - Un fichier régional endommagé est signalé. Le client peut continuer à montrer les autres zones. Une sauvegarde échouée conserve les modifications en mémoire, et F5 permet un nouvel essai. L’import laisse le fichier v1 en place. La récupération après panne électrique réelle et un historique de sauvegardes v2 restent à valider.
 - À chaque ouverture, le joueur réapparaît près du centre. Seul le terrain est persistant. Les montures, le réseau, les créatures et les systèmes de survie restent des travaux ultérieurs.
+- Le test de fenêtre a parfois dépassé son délai lors d’un clic gauche ou droit. Trois relances consécutives du script d’origine ont ensuite validé capture, F5, destruction, réouverture et pose sur l’exécutable distribué. La cause de cette intermittence reste indéterminée. Les mesures A/B et les tests Rust utilisent des contrôles distincts.
