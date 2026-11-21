@@ -128,8 +128,12 @@ pub async fn run(options: &Options, address: &str) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .as_nanos() as u64
         ^ u64::from(std::process::id());
-    let mut transport =
-        ClientTransport::connect(bind, server, ConnectionId(nonce)).map_err(|e| e.to_string())?;
+    let mut transport = ClientTransport::connect(
+        bind,
+        server,
+        ConnectionId::random().map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     let token = primal_net::identity(&options.identity).map_err(|e| format!("Identité : {e}"))?;
     let result = session(options, address, &mut transport, nonce, token).await;
     let _ = send(&mut transport, Channel::Control, &ClientMsg::Bye);
@@ -186,6 +190,7 @@ async fn session(
     let mut maximum_chunks = 0;
     let mut rtt_samples = Vec::new();
     let mut ready_at = None;
+    let mut captured_peer = false;
     let fog = terrain::fog_material().ok();
     loop {
         let now = Instant::now();
@@ -534,6 +539,15 @@ async fn session(
         if frame > 120 {
             metrics.record(get_frame_time());
         }
+        if !captured_peer
+            && visible_peers > 0
+            && frame >= 120
+            && let Some(path) = &options.capture
+        {
+            let stem = path.file_stem().unwrap_or_default().to_string_lossy();
+            crate::capture(&path.with_file_name(format!("{stem}-peer.png")))?;
+            captured_peer = true;
+        }
         if options.net_frames.is_some_and(|limit| frame >= limit) {
             if let Some(path) = &options.capture {
                 crate::capture(path)?;
@@ -557,6 +571,12 @@ async fn session(
         report["actor_id"] = serde_json::json!(own_id);
         report["position"] = serde_json::json!(own.as_ref().map(|a| a.position));
         report["peer_ids"] = serde_json::json!(peer_ids);
+        report["peer_positions"] = serde_json::json!(
+            remotes
+                .values()
+                .map(|r| (&r.actor.id, r.actor.position))
+                .collect::<Vec<_>>()
+        );
         report["max_peers"] = max_peers.into();
         report["max_visible_peers"] = max_visible_peers.into();
         report["changed_peer_poses"] = changed_peer_poses.into();

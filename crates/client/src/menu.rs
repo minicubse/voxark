@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 use std::{
-    io::Write,
+    io::{Read, Write},
     path::Path,
     process::{Child, Command, Stdio},
 };
@@ -105,7 +105,7 @@ impl HostedServer {
             .arg(world)
             .stdin(Stdio::piped())
             .stdout(Stdio::null())
-            .stderr(Stdio::null());
+            .stderr(Stdio::piped());
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;
@@ -116,7 +116,20 @@ impl HostedServer {
             .map(Self)
             .map_err(|e| format!("Démarrage du serveur : {e}"))
     }
+    pub fn check_running(&mut self) -> Result<(), String> {
+        if let Some(status) = self.0.try_wait().map_err(|e| e.to_string())? {
+            let mut reason = String::new();
+            if let Some(mut stderr) = self.0.stderr.take() {
+                let _ = stderr.read_to_string(&mut reason);
+            }
+            return Err(format!("Serveur arrêté ({status}) : {reason}"));
+        }
+        Ok(())
+    }
     pub fn stop(&mut self) -> Result<(), String> {
+        if self.0.try_wait().map_err(|e| e.to_string())?.is_some() {
+            return Ok(());
+        }
         if let Some(mut stdin) = self.0.stdin.take() {
             stdin.write_all(b"stop\n").map_err(|e| e.to_string())?;
         }

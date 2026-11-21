@@ -1,3 +1,5 @@
+use crate::disk::Disk;
+use primal_ledger::{PlayerState, PlayerUpdate};
 use primal_net::{Actor, direction};
 use primal_net::{
     Channel, ChunkData, ClientMsg, ConnectionId, PROTOCOL_VERSION, ServerEvent, ServerMsg,
@@ -6,6 +8,7 @@ use primal_net::{
 use primal_simulation::{Input, Player};
 use primal_streaming::{Streamer, View};
 use primal_voxel::{ChunkPos, GENERATOR_VERSION, World, chunk_at};
+use std::sync::mpsc::{Receiver, TryRecvError};
 use std::{
     collections::{HashMap, HashSet},
     io,
@@ -52,21 +55,44 @@ impl Peer {
         }
     }
 }
+struct Admission {
+    token: [u8; 32],
+    result: Receiver<io::Result<PlayerState>>,
+}
+struct Pending {
+    token: [u8; 32],
+    seq: u64,
+    target: [i32; 3],
+    block: u8,
+}
 pub struct Room {
     net: ServerTransport,
     peers: HashMap<ConnectionId, Peer>,
-    next_id: u64,
+    disk: Disk,
+    admissions: HashMap<ConnectionId, Admission>,
+    pending: HashMap<ChunkPos, Pending>,
+    profiles: HashMap<[u8; 32], PlayerState>,
+    unsaved: HashMap<[u8; 32], PlayerState>,
     hello_deadlines: HashMap<ConnectionId, u64>,
     revisions: HashMap<ChunkPos, u64>,
 }
 impl Room {
-    pub fn new(net: ServerTransport) -> Self {
+    pub fn new(
+        net: ServerTransport,
+        disk: Disk,
+        revisions: HashMap<ChunkPos, u64>,
+        profiles: HashMap<[u8; 32], PlayerState>,
+    ) -> Self {
         Self {
             net,
             peers: HashMap::new(),
-            next_id: 1,
+            disk,
+            admissions: HashMap::new(),
+            pending: HashMap::new(),
+            profiles,
+            unsaved: HashMap::new(),
             hello_deadlines: HashMap::new(),
-            revisions: HashMap::new(),
+            revisions,
         }
     }
     fn message(
@@ -85,11 +111,12 @@ impl Room {
                     generator,
                     token,
                 },
-            ) if !self.peers.contains_key(&id) => {
+            ) if !self.peers.contains_key(&id) && !self.admissions.contains_key(&id) => {
                 if version != PROTOCOL_VERSION
                     || generator != GENERATOR_VERSION
                     || token == [0; 32]
                     || self.peers.values().any(|p| p.token == token)
+                    || self.admissions.values().any(|p| p.token == token)
                 {
                     let _ = self.net.send(
                         id,
@@ -101,37 +128,24 @@ impl Room {
                     );
                     return;
                 }
-                let actor_id = self.next_id;
-                self.next_id += 1;
-                let welcome = ServerMsg::Welcome {
-                    id: actor_id,
-                    seed: world.seed(),
+                let initial = PlayerState {
+                    id: 1,
+                    position: [0.5, 16., 0.5],
+                    yaw: -0.35,
+                    pitch: -0.12,
+                    flying: false,
                 };
-                if self
-                    .net
-                    .send(id, Channel::Control, encode(&welcome).unwrap())
-                    .is_ok()
-                {
-                    self.hello_deadlines.remove(&id);
-                    self.peers.insert(
-                        id,
-                        Peer {
-                            id: actor_id,
-                            token,
-                            ready: false,
-                            player: None,
-                            sent: HashMap::new(),
-                            arrival: None,
-                            input: Input::default(),
-                            last_input: 0,
-                            sequence: 0,
-                            edit_sequence: 0,
-                            next_edit: 0,
-                            yaw: -0.35,
-                            pitch: -0.12,
-                            flying: false,
-                        },
-                    );
+                match self.disk.register(token, initial) {
+                    Ok(result) => {
+                        self.admissions.insert(id, Admission { token, result });
+                    }
+                    Err(_) => {
+                        let _ = self.net.send(
+                            id,
+                            Channel::Control,
+                            encode(&ServerMsg::Error("Stockage occupé, réessayez".into())).unwrap(),
+                        );
+                    }
                 }
             }
             (Channel::Control, ClientMsg::Ready) => {
@@ -189,17 +203,8 @@ impl Room {
                     pitch,
                 };
                 let result = self.edit(id, request, world, tick);
-                let response = ServerMsg::Outcome {
-                    seq,
-                    accepted: result.is_ok(),
-                    reason: result.err().unwrap_or_default().into(),
-                };
-                if self
-                    .net
-                    .send(id, Channel::Control, encode(&response).unwrap())
-                    .is_err()
-                {
-                    self.net.disconnect(id);
+                if let Err(reason) = result {
+                    self.outcome(id, seq, false, reason);
                 }
             }
             (Channel::Control, ClientMsg::Bye) => self.net.disconnect(id),
@@ -251,11 +256,190 @@ impl Room {
         {
             return Err("Joueur dans le bloc");
         }
-        if !world.set(target, block) {
-            return Err("Cellule inchangée");
+        if self.pending.contains_key(&c) {
+            return Err("Transaction déjà en cours");
         }
-        self.revisions.insert(c, req.revision + 1);
+        let token = self.peers[&id].token;
+        let base = primal_voxel::generate_chunk(world.seed(), c)
+            .and_then(|g| g.get(target))
+            .ok_or("Chunk indisponible")?;
+        let mut edits = world.chunk_edits(c);
+        edits.retain(|(p, _)| *p != target);
+        if base != block {
+            edits.push((target, block));
+            edits.sort_unstable_by_key(|v| v.0);
+        }
+        self.disk
+            .submit_edit(token, req.seq, c, req.revision, edits)
+            .map_err(|_| "Sauvegarde occupée")?;
+        self.pending.insert(
+            c,
+            Pending {
+                token,
+                seq: req.seq,
+                target,
+                block,
+            },
+        );
+        println!(
+            "{}",
+            serde_json::json!({"event":"save_queued","seq":req.seq,"chunk":c})
+        );
         Ok(())
+    }
+    fn outcome(&mut self, id: ConnectionId, seq: u64, accepted: bool, reason: &str) {
+        let msg = ServerMsg::Outcome {
+            seq,
+            accepted,
+            reason: reason.into(),
+        };
+        if self
+            .net
+            .send(id, Channel::Control, encode(&msg).unwrap())
+            .is_err()
+        {
+            self.net.disconnect(id);
+        }
+    }
+    fn poll_disk(&mut self, world: &mut World) -> io::Result<()> {
+        while let Some(done) = self.disk.poll() {
+            let done = done?;
+            let pending = self
+                .pending
+                .remove(&done.chunk)
+                .ok_or_else(|| io::Error::other("Accusé sans transaction"))?;
+            if pending.token != done.token || pending.seq != done.seq {
+                return Err(io::Error::other("Identité de transaction incohérente"));
+            }
+            if !done.rejected && !done.duplicate {
+                if !world.set(pending.target, pending.block) {
+                    return Err(io::Error::other("Chunk épinglé incohérent après commit"));
+                }
+                world.mark_saved(done.chunk, world.chunk_revision(done.chunk).unwrap());
+                self.revisions.insert(done.chunk, done.revision);
+            }
+            if let Some(id) = self
+                .peers
+                .iter()
+                .find_map(|(&id, p)| (p.token == done.token).then_some(id))
+            {
+                self.outcome(
+                    id,
+                    done.seq,
+                    !done.rejected,
+                    if done.rejected {
+                        "Identifiant déjà utilisé ou révision périmée"
+                    } else {
+                        ""
+                    },
+                );
+            }
+        }
+        let mut completed = vec![];
+        for (&id, a) in &self.admissions {
+            match a.result.try_recv() {
+                Ok(result) => completed.push((id, result?)),
+                Err(TryRecvError::Empty) => (),
+                Err(TryRecvError::Disconnected) => {
+                    return Err(io::Error::other("Inscription interrompue"));
+                }
+            }
+        }
+        for (id, stored) in completed {
+            let token = self.admissions.remove(&id).unwrap().token;
+            let previous = self.profiles.get(&token);
+            let resumed = previous.is_some();
+            let state = previous.cloned().unwrap_or(stored);
+            if self
+                .net
+                .send(
+                    id,
+                    Channel::Control,
+                    encode(&ServerMsg::Welcome {
+                        id: state.id,
+                        seed: world.seed(),
+                    })?,
+                )
+                .is_err()
+            {
+                continue;
+            }
+            self.hello_deadlines.remove(&id);
+            self.peers.insert(
+                id,
+                Peer {
+                    id: state.id,
+                    token,
+                    ready: false,
+                    player: None,
+                    sent: HashMap::new(),
+                    arrival: resumed.then_some(state.position),
+                    input: Input::default(),
+                    last_input: 0,
+                    sequence: 0,
+                    edit_sequence: 0,
+                    next_edit: 0,
+                    yaw: state.yaw,
+                    pitch: state.pitch,
+                    flying: state.flying,
+                },
+            );
+            self.profiles.insert(token, state);
+        }
+        Ok(())
+    }
+    fn remember(&mut self, id: ConnectionId) {
+        let Some(p) = self.peers.get(&id) else { return };
+        let Some(pos) = p.player.as_ref().map(|p| p.position).or(p.arrival) else {
+            return;
+        };
+        let state = PlayerState {
+            id: p.id,
+            position: pos,
+            yaw: p.yaw,
+            pitch: p.pitch,
+            flying: p.flying,
+        };
+        if self.profiles.get(&p.token) != Some(&state) {
+            self.profiles.insert(p.token, state.clone());
+            self.unsaved.insert(p.token, state);
+        }
+    }
+    fn checkpoints(&mut self) -> io::Result<()> {
+        if self.unsaved.is_empty() {
+            return Ok(());
+        }
+        let states = self
+            .unsaved
+            .iter()
+            .map(|(&token, s)| PlayerUpdate {
+                token,
+                state: s.clone(),
+            })
+            .collect();
+        match self.disk.save_players(states) {
+            Ok(()) => {
+                self.unsaved.clear();
+                Ok(())
+            }
+            Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+    pub fn finish(mut self, world: &mut World) -> io::Result<()> {
+        for id in self.peers.keys().copied().collect::<Vec<_>>() {
+            self.remember(id);
+        }
+        let start = std::time::Instant::now();
+        while !self.unsaved.is_empty() || !self.pending.is_empty() {
+            self.poll_disk(world)?;
+            self.checkpoints()?;
+            if start.elapsed() > Duration::from_secs(30) {
+                return Err(io::Error::other("Délai de vidage du disque"));
+            }
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        self.disk.finish()
     }
     pub fn tick(
         &mut self,
@@ -263,6 +447,7 @@ impl Room {
         tick: u64,
         dt: Duration,
     ) -> io::Result<Duration> {
+        self.poll_disk(stream.world_mut())?;
         self.net.poll(dt).map_err(io::Error::other)?;
         while let Some(event) = self.net.next_event() {
             match event {
@@ -270,6 +455,8 @@ impl Room {
                     self.hello_deadlines.insert(id, tick + 300);
                 }
                 ServerEvent::Disconnected(id, _) => {
+                    self.remember(id);
+                    self.admissions.remove(&id);
                     self.peers.remove(&id);
                     self.hello_deadlines.remove(&id);
                 }
@@ -300,7 +487,8 @@ impl Room {
         let mut ids: Vec<_> = self.peers.keys().copied().collect();
         ids.sort_by_key(|id| id.0);
         let views: Vec<_> = ids.iter().map(|id| self.peers[id].view()).collect();
-        let f = stream.tick_views(&views);
+        let pins: Vec<_> = self.pending.keys().copied().collect();
+        let f = stream.tick_views_pinned(&views, &pins);
         if let Some(e) = f.errors.first() {
             return Err(io::Error::other(e.clone()));
         }
@@ -321,7 +509,16 @@ impl Room {
                 if tick.saturating_sub(p.last_input) > 15 {
                     p.input = Input::default();
                 }
+                let old = player.clone();
                 player.step(world, p.input, dt.as_secs_f32());
+                if self
+                    .pending
+                    .values()
+                    .any(|e| e.block != 0 && player.overlaps_cell(e.target))
+                {
+                    *player = old;
+                }
+
                 p.input.jump = false;
             }
             if p.ready && tick.is_multiple_of(3) {
@@ -353,6 +550,12 @@ impl Room {
                 }
             }
         }
+        if tick.is_multiple_of(60) {
+            for id in self.peers.keys().copied().collect::<Vec<_>>() {
+                self.remember(id);
+            }
+        }
+        self.checkpoints()?;
         self.net.flush().map_err(io::Error::other)?;
         Ok(streaming)
     }

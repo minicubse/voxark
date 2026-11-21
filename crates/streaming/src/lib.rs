@@ -431,6 +431,11 @@ impl<P: Send + 'static> Streamer<P> {
     }
     /// One authoritative tick for all interest positions (empty releases clean residents).
     pub fn tick_views(&mut self, views: &[View]) -> Frame<P> {
+        self.tick_views_pinned(views, &[])
+    }
+    /// Keep already resident chunks alive until an external atomic write has completed.
+    /// Pins consume the same global resident budget.
+    pub fn tick_views_pinned(&mut self, views: &[View], pins: &[ChunkPos]) -> Frame<P> {
         let sample_origin = views
             .first()
             .map_or([0; 3], |v| primal_voxel::chunk_at(v.block));
@@ -509,7 +514,7 @@ impl<P: Send + 'static> Streamer<P> {
             if self.plan.render_rank(c).is_none() {
                 self.discard_mesh(c, &mut out);
             }
-            if !self.plan.wants(c) && self.world.evict_chunk(c) {
+            if !self.plan.wants(c) && !pins.contains(&c) && self.world.evict_chunk(c) {
                 self.stats.evictions += 1;
                 self.errors.retain(|&(p, _)| p != c);
             }

@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+primal-ledger = { path = "../ledger" }
 primal-net = { path = "../net" }
 primal-voxel = { path = "../voxel" }
 primal-storage = { path = "../storage" }

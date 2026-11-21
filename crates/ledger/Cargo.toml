@@ -1,0 +1,16 @@
+[package]
+name = "primal-ledger"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+primal-storage = { path = "../storage" }
+primal-voxel = { path = "../voxel" }
+redb = "3.1"
+sha2 = "0.10"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true

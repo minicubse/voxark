@@ -274,7 +274,7 @@ fn default_save_path() -> PathBuf {
 }
 
 pub fn help() -> &'static str {
-    "Primal Voxel\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy|binary --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route --valley-only --no-frustum\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
+    "Primal Voxel\nSans argument : menu Solo / Héberger / Rejoindre\n--connect IP:PORT --identity CHEMIN --net-frames N --net-report RAPPORT.json\n--world CHEMIN --resolution 1280x720 --mesher faces|greedy|binary --tick-rate 60\n--smoke --frames 480 --capture IMAGE.png --metrics MESURES.json --profile ETAPES.csv --edit-route --valley-only --no-frustum\n--scenario valley|region512|region1024|traverse|teleport|edits\n--load-radius N --render-radius N --simulation-radius N --preload-radius N (en chunks)\n--max-chunks N --resident-mib N --prepared-mib N --mesh-cache-mib N\n--workers N --max-jobs N --uploads N --main-budget-us N"
 }
 
 #[cfg(test)]
@@ -308,6 +308,38 @@ mod tests {
         .unwrap();
         assert_eq!(options.world, PathBuf::from("test.pvx"));
         assert_eq!((options.width, options.height), (1920, 1080));
+    }
+
+    #[test]
+    fn multiplayer_route_keeps_identity_and_outputs_distinct() {
+        let options = parse(&[
+            "--connect",
+            "127.0.0.1:47620",
+            "--identity",
+            "a.identity",
+            "--net-frames",
+            "720",
+            "--net-report",
+            "a.json",
+        ])
+        .unwrap();
+        assert_eq!(options.net_frames, Some(720));
+        assert_eq!(options.identity, PathBuf::from("a.identity"));
+        assert_eq!(options.connect.as_deref(), Some("127.0.0.1:47620"));
+        assert!(parse(&["--net-frames", "720"]).is_err());
+        assert!(parse(&["--connect", "127.0.0.1:47620", "--net-frames", "0"]).is_err());
+        assert!(parse(&["--connect", "127.0.0.1:47620", "--smoke"]).is_err());
+        assert!(
+            parse(&[
+                "--connect",
+                "127.0.0.1:47620",
+                "--identity",
+                "a",
+                "--net-report",
+                "a"
+            ])
+            .is_err()
+        );
     }
 
     #[test]

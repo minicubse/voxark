@@ -118,7 +118,10 @@ async fn run_menu(options: &Options) -> Result<(), String> {
                             draw_text("Démarrage du serveur…", 40., 70., 28., WHITE);
                             next_frame().await;
                         }
-                        let played = online::run(options, &address).await;
+                        let played = match server.check_running() {
+                            Ok(()) => online::run(options, &address).await,
+                            Err(error) => Err(error),
+                        };
                         let stopped = server.stop();
                         played.and(stopped)
                     }

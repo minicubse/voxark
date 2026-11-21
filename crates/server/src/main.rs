@@ -1,3 +1,4 @@
+mod disk;
 mod metrics;
 mod room;
 use primal_storage::RegionStore;
@@ -66,6 +67,7 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let c = config()?;
     let store = RegionStore::open(&c.world, c.seed)?;
+    let (disk, revisions, profiles) = disk::Disk::open(&c.world, store.clone())?;
     let mut stream = Streamer::headless(
         World::streamed(store.seed()),
         store,
@@ -73,7 +75,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     let net = primal_net::ServerTransport::bind(c.bind, c.max_players)?;
     let address = net.local_addr();
-    let mut room = room::Room::new(net);
+    let mut room = room::Room::new(net, disk, revisions, profiles);
     let running = Arc::new(AtomicBool::new(true));
     let signal = running.clone();
     ctrlc::set_handler(move || signal.store(false, Ordering::Release))?;
@@ -135,6 +137,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         room.players(),
         room.traffic(),
     );
+    room.finish(stream.world_mut())?;
     let deadline = Instant::now() + Duration::from_secs(15);
     while !stream.saves_idle() {
         let f = stream.tick_views(&[]);
