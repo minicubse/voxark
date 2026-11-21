@@ -98,6 +98,11 @@ impl Player {
         None
     }
 
+    pub fn overlaps_cell(&self, cell: Pos) -> bool {
+        let (lo, hi) = bounds(self.position);
+        (0..3).all(|a| lo[a] < cell[a] as f32 + 1. && hi[a] > cell[a] as f32)
+    }
+
     pub fn eye(&self) -> [f32; 3] {
         [
             self.position[0],
@@ -425,6 +430,20 @@ pub fn edit(
     direction: [f32; 3],
     action: Edit,
 ) -> Result<Pos, EditError> {
+    let (target, block) = resolve_edit(world, player, direction, action)?;
+    if !world.set(target, block) {
+        return Err(EditError::Unchanged);
+    }
+    Ok(target)
+}
+
+/// Resolve an intention without mutating the world, for a transactional authority.
+pub fn resolve_edit(
+    world: &World,
+    player: &Player,
+    direction: [f32; 3],
+    action: Edit,
+) -> Result<(Pos, u8), EditError> {
     if !finite(player.position) {
         return Err(EditError::InvalidPlayer);
     }
@@ -448,17 +467,11 @@ pub fn edit(
         if world.lookup(target) != Some(0) {
             return Err(EditError::Occupied);
         }
-        let (minimum, maximum) = bounds(player.position);
-        if (0..3).all(|axis| {
-            minimum[axis] < target[axis] as f32 + 1.0 && maximum[axis] > target[axis] as f32
-        }) {
+        if player.overlaps_cell(target) {
             return Err(EditError::PlayerOverlap);
         }
     }
-    if !world.set(target, block) {
-        return Err(EditError::Unchanged);
-    }
-    Ok(target)
+    Ok((target, block))
 }
 
 #[cfg(test)]

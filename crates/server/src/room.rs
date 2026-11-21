@@ -12,6 +12,14 @@ use std::{
     time::Duration,
 };
 
+struct EditRequest {
+    seq: u64,
+    target: [i32; 3],
+    revision: u64,
+    material: u8,
+    yaw: f32,
+    pitch: f32,
+}
 struct Peer {
     id: u64,
     token: [u8; 32],
@@ -22,6 +30,8 @@ struct Peer {
     input: Input,
     last_input: u64,
     sequence: u64,
+    edit_sequence: u64,
+    next_edit: u64,
     yaw: f32,
     pitch: f32,
     flying: bool,
@@ -64,7 +74,7 @@ impl Room {
         id: ConnectionId,
         channel: Channel,
         msg: ClientMsg,
-        world: &World,
+        world: &mut World,
         tick: u64,
     ) {
         match (channel, msg) {
@@ -115,6 +125,8 @@ impl Room {
                             input: Input::default(),
                             last_input: 0,
                             sequence: 0,
+                            edit_sequence: 0,
+                            next_edit: 0,
                             yaw: -0.35,
                             pitch: -0.12,
                             flying: false,
@@ -157,9 +169,93 @@ impl Room {
                     p.pitch = pitch;
                 }
             }
+            (
+                Channel::Edits,
+                ClientMsg::Edit {
+                    seq,
+                    target,
+                    revision,
+                    material,
+                    yaw,
+                    pitch,
+                },
+            ) => {
+                let request = EditRequest {
+                    seq,
+                    target,
+                    revision,
+                    material,
+                    yaw,
+                    pitch,
+                };
+                let result = self.edit(id, request, world, tick);
+                let response = ServerMsg::Outcome {
+                    seq,
+                    accepted: result.is_ok(),
+                    reason: result.err().unwrap_or_default().into(),
+                };
+                if self
+                    .net
+                    .send(id, Channel::Control, encode(&response).unwrap())
+                    .is_err()
+                {
+                    self.net.disconnect(id);
+                }
+            }
             (Channel::Control, ClientMsg::Bye) => self.net.disconnect(id),
             _ => {}
         }
+    }
+    fn edit(
+        &mut self,
+        id: ConnectionId,
+        req: EditRequest,
+        world: &mut World,
+        tick: u64,
+    ) -> Result<(), &'static str> {
+        let p = self.peers.get_mut(&id).ok_or("Connexion requise")?;
+        if !p.ready || req.seq <= p.edit_sequence {
+            return Err("Commande ancienne");
+        }
+        p.edit_sequence = req.seq;
+        if tick < p.next_edit {
+            return Err("Interactions trop rapides");
+        }
+        p.next_edit = tick + 2;
+        let c = chunk_at(req.target);
+        if p.sent.get(&c) != Some(&req.revision)
+            || self.revisions.get(&c).copied().unwrap_or(0) != req.revision
+        {
+            return Err("Révision périmée");
+        }
+        if !valid_angles(req.yaw, req.pitch) {
+            return Err("Orientation invalide");
+        }
+        let actor = p.player.as_ref().ok_or("Apparition en cours")?;
+        let action = if req.material == 0 {
+            primal_simulation::Edit::Remove
+        } else {
+            primal_simulation::Edit::Place(req.material)
+        };
+        let (target, block) =
+            primal_simulation::resolve_edit(world, actor, direction(req.yaw, req.pitch), action)
+                .map_err(|_| "Interaction hors portée ou interdite")?;
+        if target != req.target {
+            return Err("La cellule visée a changé");
+        }
+        if block != 0
+            && self
+                .peers
+                .values()
+                .any(|p| p.player.as_ref().is_some_and(|a| a.overlaps_cell(target)))
+        {
+            return Err("Joueur dans le bloc");
+        }
+        if !world.set(target, block) {
+            return Err("Cellule inchangée");
+        }
+        self.revisions.insert(c, req.revision + 1);
+        Ok(())
     }
     pub fn tick(
         &mut self,
@@ -196,7 +292,7 @@ impl Room {
                 continue;
             }
             match decode(&bytes) {
-                Ok(msg) => self.message(id, ch, msg, stream.world(), tick),
+                Ok(msg) => self.message(id, ch, msg, stream.world_mut(), tick),
                 Err(_) => self.net.disconnect(id),
             }
         }
