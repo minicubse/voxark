@@ -1,4 +1,10 @@
-# Primal Voxel — jalon 3B
+# Primal Voxel — jalon 3C
+
+Le preset optionnel **forest-modern** est jouable avec le serveur autoritaire, le client Bevy et le client de référence Macroquad. Les 111 tests Rust passent. Trois passages du binaire livré donnent une médiane de 161 FPS à 720p, 108 FPS en 1 % low, et un pic maximal de 853 Mio. Le paquet Windows ouvre une partie persistante avec **Jouer-Foret.cmd**. La visite en caméra libre reproduit les cadrages du benchmark.
+
+[Guide de jeu et réglages](FORET_3C.md) · [Mesures, captures et validation multijoueur](PERFORMANCE_3C.md)
+
+## Jalon 3B
 
 Deux clients graphiques partagent le serveur autoritaire version 1. Les 91 tests Rust passent. Les essais sur fenêtres Windows vérifient les quatre éditions croisées, les deux reconnexions, le redémarrage du serveur et les deux avatars. Le ZIP comprend les trois exécutables. À 720p, sur le trajet réseau mobile, les médianes sont de 293 FPS pour Bevy et 596 FPS pour Macroquad. Le pic observé pour Bevy est de 549 Mio.
 

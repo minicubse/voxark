@@ -165,7 +165,7 @@ async fn run(options: &Options) -> Result<(), String> {
         options::Mesher::Faces => MeshKind::Faces,
     };
     let mut stream = Streamer::new(
-        if options.valley_only {
+        if options.valley_only && store.preset() == primal_voxel::Preset::Historical {
             World::valley_streamed(store.seed())
         } else {
             World::with_preset(store.seed(), store.preset())

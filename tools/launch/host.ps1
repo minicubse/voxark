@@ -1,5 +1,9 @@
-param([ValidateRange(1024,65535)][int]$Port = 47620, [string]$Config = 'server.json')
+param([ValidateRange(1024,65535)][int]$Port = 47620, [string]$Config = 'server.json', [switch]$Bevy)
 . (Join-Path $PSScriptRoot 'common.ps1')
+if ($Bevy) {
+    $ClientExe = Join-Path $PackageRoot 'PrimalVoxel-Bevy.exe'
+    $env:WGPU_BACKEND = 'vulkan'
+}
 if (!(Test-Path -LiteralPath $ServerExe)) { throw "Serveur absent : $ServerExe" }
 if (!(Test-Path -LiteralPath $ClientExe)) { throw "Client absent : $ClientExe" }
 $info = New-Object System.Diagnostics.ProcessStartInfo
@@ -17,7 +21,8 @@ try {
     if (!$started) { throw 'Démarrage serveur impossible.' }
     Start-Sleep -Milliseconds 500
     if ($server.HasExited) { throw "Le serveur a quitté avec le code $($server.ExitCode)." }
-    Start-PrimalClient -ClientArguments @('--connect', "127.0.0.1:$Port", '--identity', 'profiles/player.token')
+    $identity = if ($Bevy) { 'profiles/forest-bevy.token' } else { 'profiles/player.token' }
+    Start-PrimalClient -ClientArguments @('--connect', "127.0.0.1:$Port", '--identity', $identity)
 }
 finally {
     if ($started -and !$server.HasExited) {

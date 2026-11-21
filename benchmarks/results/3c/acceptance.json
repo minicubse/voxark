@@ -1,0 +1,283 @@
+[
+  {
+    "action": "remove_trunk",
+    "client": "Macroquad",
+    "cell": [
+      -17,
+      28,
+      2
+    ],
+    "old": 5,
+    "value": 0,
+    "revision": 1,
+    "meshed_ms": {
+      "Macroquad": 166.5,
+      "Bevy": 155.63
+    }
+  },
+  {
+    "action": "remove_leaf",
+    "client": "Bevy",
+    "cell": [
+      -17,
+      37,
+      15
+    ],
+    "old": 6,
+    "value": 0,
+    "revision": 1,
+    "meshed_ms": {
+      "Macroquad": 130.45,
+      "Bevy": 114.98
+    }
+  },
+  {
+    "action": "published_flora_support",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "present": true
+  },
+  {
+    "action": "remove_decoration_support",
+    "client": "Macroquad",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "old": 1,
+    "value": 0,
+    "revision": 1,
+    "meshed_ms": {
+      "Macroquad": 104.99,
+      "Bevy": 93.19
+    }
+  },
+  {
+    "action": "published_flora_support",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "present": false
+  },
+  {
+    "action": "place_incompatible_stone",
+    "client": "Bevy",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "old": 0,
+    "value": 3,
+    "revision": 2,
+    "meshed_ms": {
+      "Macroquad": 142.26,
+      "Bevy": 130.61
+    }
+  },
+  {
+    "action": "published_flora_support",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "present": false
+  },
+  {
+    "action": "remove_incompatible_stone",
+    "client": "Bevy",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "old": 3,
+    "value": 0,
+    "revision": 3,
+    "meshed_ms": {
+      "Macroquad": 149.16,
+      "Bevy": 136.46
+    }
+  },
+  {
+    "action": "restore_decoration_support",
+    "client": "Bevy",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "old": 0,
+    "value": 1,
+    "revision": 4,
+    "meshed_ms": {
+      "Macroquad": 136.9,
+      "Bevy": 124.01
+    }
+  },
+  {
+    "action": "published_flora_support",
+    "cell": [
+      2,
+      24,
+      4
+    ],
+    "present": true
+  },
+  {
+    "action": "decoration_disappears_and_returns",
+    "client": "Bevy",
+    "removed_pixels": 693,
+    "restored_pixels": 693,
+    "difference_after_restore": 0
+  },
+  {
+    "action": "concurrent_cross_region_placements",
+    "clients": {
+      "macro": "Macroquad",
+      "bevy": "Bevy"
+    },
+    "cells": {
+      "macro": [
+        4101,
+        64,
+        5
+      ],
+      "bevy": [
+        -4091,
+        55,
+        5
+      ]
+    },
+    "revisions": {
+      "macro": 1,
+      "bevy": 1
+    }
+  },
+  {
+    "action": "cross_region_read",
+    "client": "Macroquad",
+    "cell": [
+      -4091,
+      55,
+      5
+    ],
+    "value": 7,
+    "revision": 1
+  },
+  {
+    "action": "cross_region_read",
+    "client": "Bevy",
+    "cell": [
+      4101,
+      64,
+      5
+    ],
+    "value": 4,
+    "revision": 1
+  },
+  {
+    "action": "reconnect",
+    "client": "Macroquad",
+    "actor": 1,
+    "feet": [
+      -4088.5,
+      55.08,
+      7.5
+    ],
+    "cell": [
+      -4091,
+      55,
+      5
+    ],
+    "value": 7,
+    "revision": 1
+  },
+  {
+    "action": "reconnect",
+    "client": "Bevy",
+    "actor": 2,
+    "feet": [
+      4099.5,
+      64.08,
+      7.5
+    ],
+    "cell": [
+      4101,
+      64,
+      5
+    ],
+    "value": 4,
+    "revision": 1
+  },
+  {
+    "action": "server_restart",
+    "preset": "forest-modern",
+    "regions": [
+      "r.-1.0.0.pvr",
+      "r.-64.0.0.pvr",
+      "r.64.1.0.pvr"
+    ],
+    "players": [
+      {
+        "client": "Macroquad",
+        "actor": 1,
+        "feet": [
+          -4088.5,
+          55.08,
+          7.5
+        ],
+        "cell": [
+          -4091,
+          55,
+          5
+        ],
+        "value": 7,
+        "revision": 1
+      },
+      {
+        "client": "Bevy",
+        "actor": 2,
+        "feet": [
+          4099.5,
+          64.08,
+          7.5
+        ],
+        "cell": [
+          4101,
+          64,
+          5
+        ],
+        "value": 4,
+        "revision": 1
+      }
+    ]
+  },
+  {
+    "action": "forest_edits_after_restart",
+    "cells": [
+      [
+        -17,
+        28,
+        2
+      ],
+      [
+        -17,
+        37,
+        15
+      ],
+      [
+        2,
+        24,
+        4
+      ]
+    ]
+  }
+]

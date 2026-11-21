@@ -253,7 +253,7 @@ impl Terrain {
                 && delta.dot(right).abs() <= z * horiz + radius * (1. + horiz * horiz).sqrt()
                 && delta.dot(up).abs() <= z * vertical + radius * (1. + vertical * vertical).sqrt();
             let d = delta.length();
-            let lod = if !visible || d > veg_distance + 8. {
+            let lod = if !visible || veg_distance <= 0. || d > veg_distance + 8. {
                 2
             } else if d < veg_distance * 0.62 + 4. {
                 0

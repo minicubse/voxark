@@ -1,6 +1,10 @@
-# Primal Voxel — Vallée originelle
+# Primal Voxel — Forêt moderne et Vallée originelle
 
-La distribution Windows x64 du jalon 3 propose deux clients compatibles avec le même serveur. Lancez **Jouer-Bevy.cmd** pour la caméra libre Bevy, ou **Jouer.cmd** pour le menu Macroquad. Le menu propose solo, hébergement local et connexion à un serveur dédié. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
+**Pour jouer à la forêt**, extrayez le ZIP 3C puis ouvrez **Jouer-Foret.cmd**. Le client Bevy rejoint le serveur local, qui sauvegarde vos constructions et vos destructions. **Serveur-Foret.cmd** permet aux deux clients de rejoindre le même monde sur le port 47621.
+
+[Guide de la forêt](docs/FORET_3C.md) · [Captures comparatives et benchmarks 720p](docs/PERFORMANCE_3C.md)
+
+La distribution Windows x64 propose deux clients compatibles avec le même serveur. Lancez **Jouer-Bevy.cmd** pour la caméra libre Bevy, ou **Jouer.cmd** pour le menu Macroquad. Le menu propose solo, hébergement local et connexion à un serveur dédié. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
 
 [Jouer avec Bevy et Macroquad](docs/MULTIJOUEUR_3.md) · [Comparaison des renderers sur Ryzen](docs/PERFORMANCE_3.md) · [Lancer une partie multijoueur ou un serveur](docs/MULTIJOUEUR_2.md) · [Résultats des essais à deux et quatre joueurs](docs/PERFORMANCE_2.md)
 

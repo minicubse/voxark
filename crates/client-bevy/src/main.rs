@@ -205,6 +205,7 @@ struct Bench {
 fn main() -> AppExit {
     let mut o = Options::parse();
     let mut app = App::new();
+    let mut camera_seed = 20_261_120;
     if let Some(address) = &o.connect {
         let token = primal_net::identity(&o.identity).expect("Identité réseau");
         app.insert_resource(network::Online(Mutex::new(network::Session::new(
@@ -226,6 +227,7 @@ fn main() -> AppExit {
         let preset = store.preset();
         o.preset = Some(preset);
         let seed = store.seed();
+        camera_seed = seed;
         let cfg = StreamConfig {
             load_radius: o.radius + 1,
             render_radius: o.radius,
@@ -257,7 +259,7 @@ fn main() -> AppExit {
         if o.preset == Some(primal_voxel::Preset::ForestModern) {
             [
                 0.5,
-                primal_voxel::surface_for(primal_voxel::Preset::ForestModern, 20_261_120, 0, 0)
+                primal_voxel::surface_for(primal_voxel::Preset::ForestModern, camera_seed, 0, 0)
                     as f64
                     + 3.,
                 0.5,

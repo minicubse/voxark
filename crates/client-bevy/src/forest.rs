@@ -141,7 +141,13 @@ pub fn prepare(snapshot: &MeshSnapshot, style: Style, lit: bool, seed: u64) -> (
         }
         geom.mesh.insert_indices(bevy::mesh::Indices::U32(indices));
     }
-    geom.flora = crate::flora::build(&faces, snapshot.chunk(), seed, style.density);
+    geom.flora = crate::flora::build(
+        &faces,
+        snapshot.chunk(),
+        seed,
+        style.density,
+        primal_streaming::MESH_RESERVATION.saturating_sub(geom.bytes),
+    );
     geom.bytes += geom.flora.bytes;
     geom.build_us = timer.elapsed().as_secs_f64() * 1e6;
     let bytes = geom.bytes + geom.flora.supports.capacity() * 3;

@@ -131,6 +131,15 @@ def collect_notices(repo, destination, baseline):
         shutil.copy2(package["manifest_path"], out / "Cargo.toml")
         declaration = {k: package.get(k) for k in ("name", "version", "license", "authors", "repository", "source")}
         write(out / "DECLARATION.json", json.dumps(declaration, ensure_ascii=False, indent=2) + "\n")
+    tables = next(Path(p["manifest_path"]).parent for p in packages if p["name"] == "bevy_core_pipeline")
+    lut_dir = licences / "Bevy-tonemapping"
+    lut_dir.mkdir(exist_ok=True)
+    shutil.copy2(tables / "src/tonemapping/luts/info.txt", lut_dir / "PROVENANCE.txt")
+    for name in ("LICENSE-MIT", "LICENSE-APACHE"):
+        base = "https://raw.githubusercontent.com/h3r2tic/tony-mc-mapface/909e51c8a74251fd828770248476cb084081e08c/"
+        notice = lut_dir / ("Tony-" + name)
+        if not notice.exists():
+            notice.write_bytes(fetch(base + name))
     native_headers(destination)
     write(licences / "cargo-tree-windows.txt", tree)
     write(licences / "PACKAGES.json", json.dumps(
@@ -147,10 +156,13 @@ def collect_notices(repo, destination, baseline):
     return len(packages)
 
 
-NOTICE = """PRIMAL VOXEL 3 — WINDOWS x64
+NOTICE = """PRIMAL VOXEL 3C — WINDOWS x64
 
 Décompressez entièrement ce dossier dans un emplacement inscriptible.
-Jouer-Bevy.cmd ouvre le nouveau client Bevy en solo, avec le backend Vulkan.
+Jouer-Foret.cmd ouvre la forêt jouable avec Bevy et son serveur autoritaire local.
+Fermez le client pour sauvegarder et arrêter le serveur. Le monde est dans worlds/foret.pvx.regions.
+Serveur-Foret.cmd lance seulement le serveur de forêt (port 47621). Les deux clients peuvent le rejoindre.
+Visiter-Foret.cmd ouvre la caméra libre de visite. Jouer-Bevy.cmd ouvre la vallée historique en caméra libre.
 PrimalVoxel-Bevy.exe est le même client; le lanceur fixe le dossier courant.
 Jouer.cmd ouvre le client historique Macroquad, avec menu Solo / Héberger / Rejoindre.
 PrimalVoxel.exe et primal-server.exe conservent le multijoueur LAN du jalon 2.
@@ -161,6 +173,8 @@ nécessaire. Le pilote graphique Windows doit fournir Vulkan; mettez à jour le
 pilote officiel du GPU si le client ne trouve aucun adaptateur compatible.
 Le lanceur choisit Vulkan pour ne pas dépendre de dxcompiler.dll/dxil.dll.
 Les shaders Bevy sont intégrés à l'exécutable. Les mondes restent locaux au PC.
+Le guide et les mesures sont dans docs/FORET_3C.md et docs/PERFORMANCE_3C.md.
+Les captures PNG du jeu sont dans benchmarks/results/3c/.
 
 Pour rejoindre le serveur local avec Bevy, démarrer le serveur puis lancer
 Jouer-Bevy.cmd --connect 127.0.0.1:47620 --identity joueur-bevy.identity
@@ -212,7 +226,7 @@ def pe_imports(path):
 def main():
     repo = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=repo.parent / "PrimalVoxel-3-Windows-x64")
+    parser.add_argument("--out", type=Path, default=repo.parent / "PrimalVoxel-3C-Windows-x64")
     parser.add_argument("--baseline-notices", type=Path, default=repo.parent / "PrimalVoxel-1C-Windows-x64/LICENCES")
     parser.add_argument("--client", type=Path, help="Validated Macroquad client")
     parser.add_argument("--bevy-client", type=Path, help="Validated Bevy client")
@@ -240,11 +254,22 @@ def main():
         write(args.out / f"{name}.cmd", '@echo off\n'
               f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\\launch\\{script}.ps1" %*\n'
               'if errorlevel 1 pause\n')
+    def launcher(name, script, fixed):
+        write(args.out / (name + ".cmd"), '@echo off\n'
+              f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\\launch\\{script}.ps1" {fixed} %*\n'
+              'if errorlevel 1 pause\n')
+    launcher("Jouer-Foret", "host", "-Bevy -Config serveur-foret.json -Port 47621")
+    launcher("Serveur-Foret", "server", "-Config serveur-foret.json")
+    launcher("Visiter-Foret", "bevy", "--preset forest-modern --view 0.5,27.8,0.5,-1.66,0.08")
     config = {"world": "worlds/host.pvx", "bind": "0.0.0.0:47620", "seed": 20261120,
               "tick_hz": 60, "max_players": 8}
     if not (args.out / "server.json").exists():
         write(args.out / "server.json", json.dumps(config, indent=2) + "\n")
     write(args.out / "server.example.json", json.dumps(config, indent=2) + "\n")
+    forest = dict(config, world="worlds/foret.pvx", bind="0.0.0.0:47621", preset="forest-modern")
+    write(args.out / "serveur-foret.example.json", json.dumps(forest, indent=2) + "\n")
+    if not (args.out / "serveur-foret.json").exists():
+        shutil.copy2(args.out / "serveur-foret.example.json", args.out / "serveur-foret.json")
     write(args.out / "LISEZMOI.txt", NOTICE)
     write(args.out / "LISEZMOI-MULTIJOUEUR.txt", mp.NOTICE)
     if args.prepare_only:
@@ -255,16 +280,27 @@ def main():
     write(args.out / "WINDOWS-IMPORTS.json", json.dumps(imports, indent=2) + "\n")
     managed = [args.out / name for name in (*binaries, "LISEZMOI.txt", "LISEZMOI-MULTIJOUEUR.txt",
                                             "server.example.json", "WINDOWS-IMPORTS.json")]
+    managed.append(args.out / "serveur-foret.example.json")
+    extras = [repo / "docs" / name for name in ("FORET_3C.md", "PERFORMANCE_3C.md", "MULTIJOUEUR_2.md")]
+    extras += [repo / "tools" / name for name in ("benchmark-forest.py", "test-mixed-renderers.py")]
+    extras += sorted(f for f in (repo / "benchmarks/results/3c").rglob("*") if f.is_file())
+    for source in extras:
+        target = args.out / source.relative_to(repo)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        managed.append(target)
     managed += list(args.out.glob("*.cmd"))
     managed += [p for folder in ("LICENCES", "tools/launch") for p in (args.out / folder).rglob("*") if p.is_file()]
     hashes = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(args.out).as_posix()}" for p in sorted(managed)]
     # server.json in the archive is always the default, never a played configuration.
     hashes.append(f"{hashlib.sha256((args.out / 'server.example.json').read_bytes()).hexdigest()}  server.json")
+    hashes.append(f"{hashlib.sha256((args.out / 'serveur-foret.example.json').read_bytes()).hexdigest()}  serveur-foret.json")
     write(args.out / "SHA256SUMS.txt", "\n".join(hashes) + "\n")
     archive = args.out.with_suffix(".zip")
     with ZipFile(archive, "w", ZIP_DEFLATED, strict_timestamps=False) as bundle:
         for file in [*sorted(managed), args.out / "SHA256SUMS.txt"]:
             bundle.write(file, file.relative_to(args.out).as_posix())
+        bundle.writestr("serveur-foret.json", (args.out / "serveur-foret.example.json").read_bytes())
         bundle.writestr("server.json", (args.out / "server.example.json").read_bytes())
     with ZipFile(archive) as bundle:
         if bundle.testzip() is not None:

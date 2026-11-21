@@ -197,7 +197,11 @@ fn paint(b: &mut Batch, center: Vec3, r: u64, kind: u32, sparse: bool) {
         }
     }
 }
-pub fn build(faces: &[Face], chunk: ChunkPos, seed: u64, density: f32) -> Flora {
+pub fn build(faces: &[Face], chunk: ChunkPos, seed: u64, density: f32, budget: usize) -> Flora {
+    // The largest fern has 45 near quads and 15 far quads. Keep the chunk publishable
+    // even when a player stacks many decorated floors into a single chunk.
+    const QUAD_BYTES: usize = 4 * 40 + 6 * 4;
+    let max_quads = budget.saturating_sub(16 * 16 * 16 * 3) / QUAD_BYTES;
     let mut result = Flora::default();
     if density <= 0. {
         return result;
@@ -240,6 +244,9 @@ pub fn build(faces: &[Face], chunk: ChunkPos, seed: u64, density: f32) -> Flora 
                         _ => 0,
                     }
                 };
+                if (near.idx.len() + far.idx.len()) / 6 + 60 > max_quads {
+                    continue;
+                }
                 paint(&mut near, center, r, kind, false);
                 result.supports.push(pos.map(|v| v as u8));
                 if r & 3 == 0 {
@@ -268,14 +275,21 @@ mod tests {
             normal: [0, 1, 0],
             block: 1,
         };
-        let a = build(&[f], [0, 0, 0], 42, 1.);
-        let b = build(&[f], [0, 0, 0], 42, 1.);
+        let a = build(&[f], [0, 0, 0], 42, 1., usize::MAX);
+        let b = build(&[f], [0, 0, 0], 42, 1., usize::MAX);
         assert_eq!(a.supports, b.supports);
         assert!(a.supports.len() > 30 && a.far_count < a.supports.len() && a.far_tri < a.near_tri);
+        let limited = build(&[f; 16], [0, 0, 0], 42, 1., 48 * 1024);
+        assert!(!limited.supports.is_empty());
+        assert!(limited.bytes + limited.supports.capacity() * 3 <= 48 * 1024);
         f.block = 3;
-        assert!(build(&[f], [0, 0, 0], 42, 1.).supports.is_empty());
+        assert!(
+            build(&[f], [0, 0, 0], 42, 1., usize::MAX)
+                .supports
+                .is_empty()
+        );
         f.block = 1;
         f.normal = [0, -1, 0];
-        assert_eq!(build(&[f], [0, 0, 0], 42, 1.).near_tri, 0);
+        assert_eq!(build(&[f], [0, 0, 0], 42, 1., usize::MAX).near_tri, 0);
     }
 }

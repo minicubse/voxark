@@ -330,7 +330,8 @@ impl Chunk {
                         + (by - y).pow(2) * xx * zz
                         + (bz - z).pow(2) * xx * yy;
                     if distance <= edge
-                        && (distance * 5 < edge * 4 || hash(key ^ by as u64, bx, bz) % 5 != 0)
+                        && (distance * 5 < edge * 4
+                            || !hash(key ^ by as u64, bx, bz).is_multiple_of(5))
                     {
                         self.place([bx, by, bz], LEAVES);
                     }

@@ -1,5 +1,7 @@
 # Limites vérifiées
 
+- En forêt, le rayon Low charge un voisinage de 64 blocs. Depuis les hauteurs, le brouillard atténue le bord du terrain et réduit le contraste à l’horizon. Les couronnes ont des silhouettes différentes mais partagent le même matériau de feuillage. Les frametimes, les images et les limites de mesure figurent dans le [rapport 3C](PERFORMANCE_3C.md).
+
 - Le [rapport 1C](STREAMING_1C.md) distingue les absences de données, de maillage et de collisions. La sonde vérifie le chunk de surface sous la position suivie ; les trous ailleurs à l’écran et la complétude de toute la scène restent hors de cette mesure.
 - Le streaming a une capacité finie. À grande vitesse, une partie du terrain arrive après la caméra. Les collisions bloquent la progression du personnage dans un chunk absent. Les parcours scriptés peuvent déplacer la caméra plus rapidement et comptabilisent le retard à la colonne survolée. Voir le [rapport](PERFORMANCE.md).
 - Les adresses de stockage utilisent i32. La hauteur jouable va de 0 à 127. La physique, les sommets et la caméra utilisent f32. La précision sub-bloc décroît aux très grandes distances. Les tests distinguent stockage aux extrêmes i32, déplacement graphique à 65 536 et persistance à un million de blocs.

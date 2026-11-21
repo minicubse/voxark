@@ -36,7 +36,7 @@ pub(super) async fn local(o: &Options) -> Result<(), String> {
     let mut cfg = o.stream.clone();
     cfg.uploads_per_tick = 6;
     let mut stream = Streamer::new(
-        primal_voxel::World::streamed(crate::SEED),
+        primal_voxel::World::with_preset(store.seed(), store.preset()),
         store,
         cfg,
         MeshKind::Greedy,

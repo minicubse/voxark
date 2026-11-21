@@ -10,6 +10,7 @@ use bevy::{
 };
 #[derive(Component)]
 pub struct ForestSun;
+const HORIZON: Vec3 = Vec3::new(0.74, 0.82, 0.80);
 const SOLAR: Vec3 = Vec3::new(0.48, 0.65, -0.59);
 fn sky(images: &mut Assets<Image>) -> Handle<Image> {
     const W: u32 = 96;
@@ -29,8 +30,8 @@ fn sky(images: &mut Assets<Image>) -> Handle<Image> {
                 }
                 .normalize();
                 let h = d.y.max(0.).sqrt();
-                let sun = d.dot(SOLAR.normalize()).max(0.);
-                let horizon = Vec3::new(0.79, 0.84, 0.79);
+                let sun = (d * Vec3::new(1., 1., -1.)).dot(SOLAR.normalize()).max(0.);
+                let horizon = HORIZON;
                 let zenith = Vec3::new(0.33, 0.56, 0.74);
                 let color = horizon
                     .lerp(zenith, h)
@@ -122,7 +123,8 @@ pub fn sync(
         cmds.entity(*cam).insert((
             Skybox {
                 image: Some(sky(&mut images)),
-                brightness: 2200.,
+                // The fog is applied in exposed scene-linear space. Match its horizon.
+                brightness: 1. / bevy::camera::Exposure::default().exposure(),
                 ..default()
             },
             profile.tone,
@@ -131,14 +133,13 @@ pub fn sync(
     }
     if profile.fog {
         cmds.entity(*cam).insert(DistanceFog {
-            color: Color::srgb(0.72, 0.80, 0.77),
-            directional_light_color: Color::srgb(0.98, 0.86, 0.66),
+            color: Color::srgb(HORIZON.x, HORIZON.y, HORIZON.z),
+            directional_light_color: Color::srgba(0.98, 0.86, 0.66, 0.16),
             directional_light_exponent: 12.,
             falloff: FogFalloff::Linear {
                 start: (o.radius * 16) as f32 * 0.39,
-                end: (o.radius * 16) as f32 * 1.10,
+                end: (o.radius * 16) as f32 * 0.91,
             },
-            ..default()
         });
     }
 }
