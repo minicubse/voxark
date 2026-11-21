@@ -81,6 +81,7 @@ impl Job {
             Work::Mesh(snapshot) => {
                 let started = Instant::now();
                 let faces = match kind {
+                    MeshKind::GreedyLocal => snapshot.greedy_mesh_local(),
                     MeshKind::Greedy => snapshot.greedy_mesh(),
                     MeshKind::Binary => snapshot.binary_greedy_mesh(),
                     MeshKind::Faces => snapshot.mesh(),

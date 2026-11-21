@@ -1,3 +1,8 @@
 # Use the compiler and import libraries shipped in Rust's windows-gnu toolchain.
 [target.x86_64-pc-windows-gnu]
 rustflags = ["-C", "link-self-contained=yes"]
+linker = "x86_64-w64-mingw32-clang.exe"
+
+[env]
+# Use the LLVM-MinGW import libraries. LLD does not read winapi 0.3's GNU INPUT scripts.
+WINAPI_NO_BUNDLED_LIBRARIES = "1"

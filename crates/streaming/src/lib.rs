@@ -44,6 +44,7 @@ impl ChunkStore for RegionStore {
 }
 #[derive(Clone, Copy)]
 pub enum MeshKind {
+    GreedyLocal,
     Binary,
     Greedy,
     Faces,

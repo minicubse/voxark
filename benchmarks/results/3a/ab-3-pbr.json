@@ -1,0 +1,37 @@
+{
+  "adapter": "AMD Radeon (TM) Graphics",
+  "backend": "Vulkan",
+  "device_type": "IntegratedGpu",
+  "empty_frames": 0,
+  "evictions": 0,
+  "final_eye": [
+    0.5,
+    18.0,
+    0.5
+  ],
+  "fps_1low": 227.47583069298886,
+  "fps_avg": 376.44647351707886,
+  "frames": 640,
+  "material": "pbr",
+  "mesh_publications": 0,
+  "meshes_retired": 3,
+  "p95_ms": 3.427,
+  "p999_ms": 4.8725000000000005,
+  "p99_ms": 4.1406,
+  "peak_jobs": 24,
+  "peak_meshes": 193,
+  "peak_resident": 968,
+  "publication_cpu_us": 389.700000000003,
+  "published_bytes": 0,
+  "quads": 11249,
+  "rebases": 0,
+  "render_radius": 4,
+  "renderer": "bevy",
+  "resolution": [
+    1280,
+    720
+  ],
+  "route": "fixed",
+  "triangles": 22498,
+  "visible_chunks": 66
+}

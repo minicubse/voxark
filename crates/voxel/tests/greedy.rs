@@ -137,3 +137,26 @@ fn binary_matches_exposed_faces_and_reused_buffer_clears_between_chunks() {
         }
     }
 }
+
+#[test]
+fn distant_chunk_local_quad_keeps_unit_edges_and_outward_winding() {
+    let mut world = World::streamed(42);
+    let pos = [-1_500_000_001, 121, 1_500_000_001];
+    let chunk = primal_voxel::chunk_at(pos);
+    let ticket = world.begin_load(chunk).unwrap();
+    let base = primal_voxel::generate_chunk(42, chunk).unwrap();
+    assert!(world.install_chunk(ticket, base, &[]));
+    assert!(world.set(pos, 4));
+    let snapshot = world.mesh_snapshot(chunk).unwrap();
+    let faces = snapshot.greedy_mesh_local();
+    let units = unit_faces(&faces);
+    assert_eq!(units.len(), 6);
+    let xyz = pos.map(|v| v.rem_euclid(16));
+    for (mut p, n, block) in units {
+        assert_eq!(block, 4);
+        for j in 0..3 {
+            p[j] -= n[j].max(0);
+        }
+        assert_eq!(p, xyz);
+    }
+}

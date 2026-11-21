@@ -1,3 +1,7 @@
+## Jalon 3A — renderer Bevy validé en solo
+
+Le client Bevy 0.20.1 et le client Macroquad rendent les mêmes 11 249 quads en 720p. Le contrôle de la caméra et les parcours lointains ont été exercés sur la Radeon. Les 90 tests du workspace en release passent. La prochaine étape est l’intégration multijoueur Bevy. [Mesures et limites 3A](RENDU_3A.md)
+
 # Primal Voxel — jalon 2
 
 Le serveur Rust dédié, le client graphique Macroquad et le ZIP portable sont disponibles pour Windows x64. Des processus clients distincts ont validé les éditions concurrentes, les zones à 4,096 km, la reconnexion et la relecture des positions et du terrain après redémarrage. [Mode d’emploi et architecture réseau](MULTIJOUEUR_2.md) · [Mesures et limites](PERFORMANCE_2.md)

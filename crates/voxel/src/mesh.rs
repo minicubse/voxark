@@ -113,11 +113,17 @@ impl MeshSnapshot {
     }
 
     pub fn greedy_mesh(&self) -> Vec<Face> {
+        self.greedy_at(self.chunk.map(|v| i64::from(v) * i64::from(CHUNK)))
+    }
+    /// Chunk-local vertices keep unit edges representable at distant world coordinates.
+    pub fn greedy_mesh_local(&self) -> Vec<Face> {
+        self.greedy_at([0; 3])
+    }
+    fn greedy_at(&self, origin: [i64; 3]) -> Vec<Face> {
         if matches!(self.center.as_ref(), Voxels::Uniform(0)) {
             return Vec::new();
         }
         let grid = self.padded_blocks();
-        let origin = self.chunk.map(|v| i64::from(v) * i64::from(CHUNK));
         let mut faces = Vec::new();
         let mut mask = [0; SIDE * SIDE];
         for (side, normal) in DIRECTIONS.into_iter().enumerate() {

@@ -1,0 +1,13 @@
+2026-11-21T13:02:19.265652Z  INFO bevy_render::renderer: AdapterInfo { name: "AMD Radeon (TM) Graphics", vendor: 4098, device: 5607, device_type: IntegratedGpu, device_pci_bus_id: "", driver: "AMD proprietary driver", driver_info: "23.19 (AMD proprietary shader compiler)", backend: Vulkan, subgroup_min_size: 64, subgroup_max_size: 64, transient_saves_memory: Some(false), limit_bucket: None }
+2026-11-21T13:02:19.314525Z  INFO bevy_pbr::cluster: GPU clustering is supported on this device.
+2026-11-21T13:02:19.314626Z  INFO bevy_render::batching::gpu_preprocessing: GPU preprocessing is fully supported on this device.
+2026-11-21T13:02:19.315338Z  INFO bevy_winit::system: Creating new window Primal Voxel — Bevy (63v0)
+GPU=AMD Radeon (TM) Graphics backend=Vulkan type=IntegratedGpu
+Capture eye=[0.5, 18.0, 0.5] forward=[0.65909046, -0.31456655, 0.68311614]
+2026-11-21T13:02:22.360646Z  INFO bevy_render::view::window::screenshot: Screenshot saved to C:\Users\lenai\Documents\Codex\2026-11-20\files-pasted-by-the-user-mission\work\3a\last-camera.png
+Capture eye=[2.0136569815942433, 16.7206019051373, 5.89029186964035] forward=[-0.029562738, -0.16918248, 0.9851413]
+2026-11-21T13:02:23.294610Z  INFO bevy_render::view::window::screenshot: Screenshot saved to C:\Users\lenai\Documents\Codex\2026-11-20\files-pasted-by-the-user-mission\work\3a\last-camera.png
+Capture eye=[2.0136569815942433, 16.7206019051373, 5.89029186964035] forward=[-0.18680559, -0.21578933, 0.95840424]
+2026-11-21T13:02:23.940319Z  INFO bevy_render::view::window::screenshot: Screenshot saved to C:\Users\lenai\Documents\Codex\2026-11-20\files-pasted-by-the-user-mission\work\3a\last-camera.png
+2026-11-21T13:02:24.386680Z  INFO bevy_window::system: No windows are open, exiting
+2026-11-21T13:02:24.386745Z  INFO bevy_winit::system: Closing window 63v0

@@ -22,6 +22,8 @@ impl Mesher {
 
 #[derive(Debug)]
 pub struct Options {
+    pub compare: bool,
+    pub compare_drift: bool,
     pub connect: Option<String>,
     pub identity: PathBuf,
     pub net_frames: Option<usize>,
@@ -48,6 +50,8 @@ pub struct Options {
 impl Options {
     pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Self, String> {
         let mut options = Self {
+            compare: false,
+            compare_drift: false,
             connect: None,
             identity: default_save_path().with_file_name("client.identity"),
             net_frames: None,
@@ -78,6 +82,14 @@ impl Options {
         let mut args = args.into_iter();
         while let Some(arg) = args.next() {
             match arg.as_str() {
+                "--compare" => options.compare = true,
+                "--compare-route" => {
+                    options.compare_drift = match value(&mut args, &arg)?.as_str() {
+                        "fixed" => false,
+                        "drift" => true,
+                        _ => return Err("--compare-route attend fixed ou drift".into()),
+                    }
+                }
                 "--connect" => options.connect = Some(value(&mut args, &arg)?),
                 "--identity" => options.identity = PathBuf::from(value(&mut args, &arg)?),
                 "--net-frames" => options.net_frames = Some(number(&mut args, &arg)?),
@@ -163,6 +175,12 @@ impl Options {
             .map_err(|error| error.to_string())?;
         if options.net_frames == Some(0) {
             return Err("--net-frames exige au moins une image".into());
+        }
+        if options.compare && options.connect.is_some() {
+            return Err("--compare utilise le monde local".into());
+        }
+        if options.compare_drift && !options.compare {
+            return Err("--compare-route exige --compare".into());
         }
         if options.connect.is_some() && options.smoke {
             return Err("--connect et --smoke sont deux parcours distincts".into());
@@ -279,6 +297,32 @@ pub fn help() -> &'static str {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn comparison_accepts_a_deterministic_local_route() {
+        assert!(parse(&["--compare"]).is_ok());
+        assert!(parse(&["--compare-route", "drift"]).is_err());
+        assert!(parse(&["--compare", "--connect", "127.0.0.1:47620"]).is_err());
+        assert!(
+            parse(&[
+                "--compare",
+                "--compare-route",
+                "drift",
+                "--connect",
+                "127.0.0.1:47620"
+            ])
+            .is_err()
+        );
+        assert!(
+            parse(&[
+                "--compare",
+                "--compare-route",
+                "random",
+                "--connect",
+                "127.0.0.1:47620"
+            ])
+            .is_err()
+        );
+    }
     use super::*;
 
     fn parse(args: &[&str]) -> Result<Options, String> {

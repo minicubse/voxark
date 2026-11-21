@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod autosave;
 mod buffers;
+mod compare;
 mod menu;
 mod metrics;
 mod online;
@@ -34,6 +35,10 @@ fn window_conf() -> macroquad::conf::Conf {
             window_height: options.as_ref().map_or(720, |options| options.height),
             sample_count: 1,
             high_dpi: false,
+            platform: miniquad::conf::Platform {
+                swap_interval: options.as_ref().filter(|o| o.compare).map(|_| 0),
+                ..Default::default()
+            },
             ..Default::default()
         },
         draw_call_vertex_capacity: 32_768,
@@ -58,6 +63,8 @@ async fn main() {
     let cleanup_temporary_world = options.temporary_world && !options.world.exists();
     let result = if let Some(address) = &options.connect {
         online::run(&options, address).await
+    } else if options.compare {
+        compare::local(&options).await
     } else if options.smoke || options.direct_solo {
         run(&options).await
     } else {

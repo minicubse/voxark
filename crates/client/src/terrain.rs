@@ -4,7 +4,16 @@ use macroquad::prelude::*;
 #[cfg(test)]
 use primal_voxel::Face;
 use primal_voxel::{CHUNK, ChunkPos};
+use std::cell::Cell;
 use std::collections::BTreeMap;
+
+#[derive(Default, Clone, Copy, Debug)]
+pub struct DrawStats {
+    pub chunks: usize,
+    pub quads: usize,
+    pub submissions: usize,
+    pub bytes: usize,
+}
 
 #[cfg(test)]
 const FACES_PER_MESH: usize = 2048;
@@ -15,6 +24,7 @@ pub const VERTICAL_FOV: f32 = 65.0_f32.to_radians();
 pub struct Terrain {
     chunks: BTreeMap<ChunkPos, Vec<Mesh>>,
     pub faces: usize,
+    pub last_draw: Cell<DrawStats>,
 }
 
 impl Terrain {
@@ -39,6 +49,7 @@ impl Terrain {
 
     pub fn draw(&self, eye: Vec3, front: Vec3, distance: f32, frustum: bool) -> usize {
         let mut visible = 0;
+        let mut stats = DrawStats::default();
         let right = front.cross(Vec3::Y).normalize();
         let up = right.cross(front).normalize();
         let vertical_tangent = (VERTICAL_FOV * 0.5).tan();
@@ -70,9 +81,15 @@ impl Terrain {
             }
             for mesh in meshes {
                 draw_mesh(mesh);
+                stats.submissions += 1;
+                stats.quads += mesh.indices.len() / 6;
+                stats.bytes += mesh.vertices.len() * size_of::<Vertex>()
+                    + mesh.indices.len() * size_of::<u16>();
             }
             visible += 1;
         }
+        stats.chunks = visible;
+        self.last_draw.set(stats);
         visible
     }
 }
