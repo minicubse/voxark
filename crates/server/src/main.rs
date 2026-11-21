@@ -3,8 +3,8 @@ mod metrics;
 mod room;
 use primal_storage::RegionStore;
 use primal_streaming::{StreamConfig, Streamer};
-use primal_voxel::World;
-use serde::Deserialize;
+use primal_voxel::{Preset, World};
+use serde::{Deserialize, Deserializer};
 use serde_json::json;
 use std::{
     env, fs,
@@ -25,6 +25,8 @@ struct Config {
     world: PathBuf,
     bind: SocketAddr,
     seed: u64,
+    #[serde(deserialize_with = "deserialize_preset")]
+    preset: Option<Preset>,
     tick_hz: u32,
     max_players: usize,
     ticks: Option<u64>,
@@ -35,12 +37,22 @@ impl Default for Config {
             world: "server-world.pvx".into(),
             bind: "127.0.0.1:47620".parse().unwrap(),
             seed: 20_261_120,
+            preset: None,
             tick_hz: 60,
             max_players: 8,
             ticks: None,
         }
     }
 }
+
+fn deserialize_preset<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Preset>, D::Error> {
+    Option::<String>::deserialize(deserializer)?
+        .map(|value| value.parse().map_err(serde::de::Error::custom))
+        .transpose()
+}
+
 fn config() -> Result<Config, Box<dyn std::error::Error>> {
     let mut c = Config::default();
     let mut args = env::args().skip(1);
@@ -52,6 +64,7 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
             "--config" => c = serde_json::from_slice(&fs::read(value)?)?,
             "--world" => c.world = value.into(),
             "--bind" => c.bind = value.parse()?,
+            "--preset" => c.preset = Some(value.parse()?),
             "--ticks" => c.ticks = Some(value.parse()?),
             "--max-players" => c.max_players = value.parse()?,
             "--tick-hz" => c.tick_hz = value.parse()?,
@@ -66,10 +79,11 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let c = config()?;
-    let store = RegionStore::open(&c.world, c.seed)?;
+    let store = RegionStore::open_with_preset(&c.world, c.seed, c.preset)?;
+    let preset = store.preset();
     let (disk, revisions, profiles) = disk::Disk::open(&c.world, store.clone())?;
     let mut stream = Streamer::headless(
-        World::streamed(store.seed()),
+        World::with_preset(store.seed(), preset),
         store,
         StreamConfig::default(),
     )?;
@@ -93,7 +107,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut tick = 0u64;
     println!(
         "{}",
-        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world})
+        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world,"preset":preset.as_str()})
     );
     while running.load(Ordering::Acquire) && c.ticks.is_none_or(|limit| tick < limit) {
         for cmd in admin.try_iter().take(16) {

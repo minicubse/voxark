@@ -1,8 +1,54 @@
-use super::{CHUNK, ChunkPos, Pos, VOLUME, Voxels, chunk_at, local_index, stream_chunk};
+use super::{
+    CHUNK, ChunkPos, GENERATOR_VERSION, Pos, VOLUME, Voxels, chunk_at, forest, local_index,
+    stream_chunk,
+};
+
+/// Selects the authoritative terrain and structure generator.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Preset {
+    #[default]
+    Historical,
+    ForestModern,
+}
+
+impl Preset {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Historical => "historical",
+            Self::ForestModern => "forest-modern",
+        }
+    }
+
+    pub const fn generator_version(self) -> u32 {
+        match self {
+            Self::Historical => GENERATOR_VERSION,
+            Self::ForestModern => 2,
+        }
+    }
+}
+
+impl std::fmt::Display for Preset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::str::FromStr for Preset {
+    type Err = &'static str;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "historical" => Ok(Self::Historical),
+            "forest-modern" => Ok(Self::ForestModern),
+            _ => Err("expected historical or forest-modern"),
+        }
+    }
+}
 
 /// Immutable generator result. A worker can construct it without borrowing a world.
 pub struct GeneratedChunk {
     pub(super) seed: u64,
+    pub(super) preset: Preset,
     pub(super) chunk: ChunkPos,
     pub(super) cells: Voxels,
 }
@@ -114,6 +160,25 @@ impl Builder {
     }
 }
 
+/// Generate one chunk independently of which chunks are loaded.
+pub fn generate_for(preset: Preset, seed: u64, chunk: ChunkPos) -> Option<GeneratedChunk> {
+    match preset {
+        Preset::Historical => generate_chunk(seed, chunk),
+        Preset::ForestModern => {
+            if !stream_chunk(chunk) {
+                return None;
+            }
+            let origin = chunk.map(|v| i64::from(v) * i64::from(CHUNK));
+            Some(GeneratedChunk {
+                seed,
+                preset,
+                chunk,
+                cells: forest::generate(seed, origin),
+            })
+        }
+    }
+}
+
 /// Generate exactly one 16³ region. Work and allocation are independent of the
 /// distance from the origin and of the number of chunks already explored.
 pub fn generate_chunk(seed: u64, chunk: ChunkPos) -> Option<GeneratedChunk> {
@@ -126,6 +191,7 @@ pub fn generate_chunk(seed: u64, chunk: ChunkPos) -> Option<GeneratedChunk> {
     if y0 >= 96 || (in_valley && y0 >= 64) {
         return Some(GeneratedChunk {
             seed,
+            preset: Preset::Historical,
             chunk,
             cells: Voxels::Uniform(0),
         });
@@ -159,7 +225,12 @@ pub fn generate_chunk(seed: u64, chunk: ChunkPos) -> Option<GeneratedChunk> {
     } else {
         Voxels::Dense(builder.cells)
     };
-    Some(GeneratedChunk { seed, chunk, cells })
+    Some(GeneratedChunk {
+        seed,
+        preset: Preset::Historical,
+        chunk,
+        cells,
+    })
 }
 
 fn distance_to_valley(x: i64, z: i64) -> i64 {
@@ -169,6 +240,14 @@ fn distance_to_valley(x: i64, z: i64) -> i64 {
 /// Ground height before structures and edits. Scheduling hint only; gameplay reads resident cells.
 pub fn surface_hint(seed: u64, x: i32, z: i32) -> i32 {
     height(seed, i64::from(x), i64::from(z)) as i32
+}
+
+/// Ground height before structures and edits for a selected preset.
+pub fn surface_for(preset: Preset, seed: u64, x: i32, z: i32) -> i32 {
+    match preset {
+        Preset::Historical => surface_hint(seed, x, z),
+        Preset::ForestModern => forest::height(seed, i64::from(x), i64::from(z)) as i32,
+    }
 }
 
 fn height(seed: u64, x: i64, z: i64) -> i64 {
@@ -188,7 +267,7 @@ fn height(seed: u64, x: i64, z: i64) -> i64 {
     (historic * (64 - blend) + hills * blend) / 64
 }
 
-fn hash(seed: u64, x: i64, z: i64) -> u64 {
+pub(super) fn hash(seed: u64, x: i64, z: i64) -> u64 {
     let mut value = seed
         ^ (x as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15)
         ^ (z as u64).wrapping_mul(0xbf58_476d_1ce4_e5b9);

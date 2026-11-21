@@ -1,5 +1,5 @@
 use primal_storage::RegionStore;
-use primal_voxel::CHUNK;
+use primal_voxel::{CHUNK, Preset};
 use std::fs;
 use std::io::ErrorKind;
 use std::sync::{Arc, Barrier};
@@ -28,6 +28,50 @@ fn migration_preserves_source_seed_and_latest_regional_edits() {
     assert_eq!(store.seed(), 915);
     assert!(store.load_chunk([0, 3, 0]).unwrap().is_empty());
     assert_eq!(fs::read(&path).unwrap(), LEGACY);
+}
+
+#[test]
+fn a_legacy_world_cannot_be_opened_as_forest() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("vallee.pvx");
+    fs::write(&path, LEGACY).unwrap();
+    assert_eq!(
+        RegionStore::open_with_preset(&path, 26, Some(Preset::ForestModern))
+            .err()
+            .unwrap()
+            .kind(),
+        ErrorKind::InvalidInput
+    );
+    assert!(!RegionStore::directory(&path).exists());
+    assert_eq!(fs::read(&path).unwrap(), LEGACY);
+    let store = RegionStore::open(&path, 26).unwrap();
+    assert_eq!(store.preset(), Preset::Historical);
+    assert_eq!(store.load_chunk([0, 3, 0]).unwrap(), [([0, 63, 0], 2)]);
+}
+
+#[test]
+fn forest_manifest_preserves_seed_and_preset_and_refuses_unknown_preset() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("forest.pvx");
+    let store = RegionStore::open_with_preset(&path, 26, Some(Preset::ForestModern)).unwrap();
+    let edits = [([-7, 50, 10], 5)];
+    store.save_chunk([-1, 3, 0], &edits).unwrap();
+    drop(store);
+    let store = RegionStore::open(&path, 99).unwrap();
+    assert_eq!(store.preset(), Preset::ForestModern);
+    assert_eq!(store.seed(), 26);
+    assert_eq!(store.load_chunk([-1, 3, 0]).unwrap(), edits);
+    drop(store);
+    let manifest = RegionStore::directory(&path).join("world.pvxd");
+    let mut bytes = fs::read(&manifest).unwrap();
+    bytes[16] = 255;
+    replace_crc(&mut bytes);
+    fs::write(&manifest, &bytes).unwrap();
+    assert_eq!(
+        RegionStore::open(&path, 99).err().unwrap().kind(),
+        ErrorKind::InvalidData
+    );
+    assert_eq!(fs::read(manifest).unwrap(), bytes);
 }
 
 #[test]

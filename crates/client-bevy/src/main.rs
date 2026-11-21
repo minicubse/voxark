@@ -1,3 +1,4 @@
+mod forest;
 mod network;
 mod terrain;
 
@@ -32,6 +33,9 @@ struct Options {
     capture: Option<PathBuf>,
     route: String,
     pbr: bool,
+    preset: Option<primal_voxel::Preset>,
+    style: forest::Style,
+    view: Option<[f64; 5]>,
     world: Option<PathBuf>,
     connect: Option<String>,
     identity: PathBuf,
@@ -48,6 +52,9 @@ impl Options {
             capture: None,
             route: "fixed".into(),
             pbr: false,
+            preset: None,
+            style: forest::Style::default(),
+            view: None,
             world: None,
             connect: None,
             identity: "bevy.identity".into(),
@@ -78,6 +85,25 @@ impl Options {
                 "--frames" | "--net-frames" => o.frames = val.parse().unwrap(),
                 "--report" | "--net-report" => o.report = Some(val.into()),
                 "--capture" => o.capture = Some(val.into()),
+                "--preset" => {
+                    o.preset = Some(match val.as_str() {
+                        "historical" => primal_voxel::Preset::Historical,
+                        "forest-modern" => primal_voxel::Preset::ForestModern,
+                        _ => panic!("Preset inconnu"),
+                    })
+                }
+                "--palette" => o.style.palette = switch(&val),
+                "--variation" => o.style.variation = switch(&val),
+                "--culling" => o.style.cull = switch(&val),
+                "--view" => {
+                    o.view = Some(
+                        val.split(',')
+                            .map(|v| v.parse::<f64>().expect("coordonnée de caméra"))
+                            .collect::<Vec<_>>()
+                            .try_into()
+                            .expect("x,y,z,yaw,pitch"),
+                    )
+                }
                 "--world" => o.world = Some(val.into()),
                 "--route" | "--compare-route" => {
                     assert!(matches!(
@@ -99,6 +125,13 @@ impl Options {
             "--world est réservé au solo"
         );
         o
+    }
+}
+fn switch(value: &str) -> bool {
+    match value {
+        "on" => true,
+        "off" => false,
+        _ => panic!("Option attend on ou off"),
     }
 }
 #[derive(Resource)]
@@ -123,7 +156,11 @@ impl CameraRig {
     }
 }
 #[derive(Resource)]
-struct Surface(Handle<StandardMaterial>);
+struct Surface {
+    historic: Handle<StandardMaterial>,
+    forest: Handle<StandardMaterial>,
+    grain: Option<Handle<forest::ForestMaterial>>,
+}
 #[derive(Resource)]
 struct Bench {
     last: Instant,
@@ -140,7 +177,7 @@ struct Bench {
     shot: bool,
 }
 fn main() -> AppExit {
-    let o = Options::parse();
+    let mut o = Options::parse();
     let mut app = App::new();
     if let Some(address) = &o.connect {
         let token = primal_net::identity(&o.identity).expect("Identité réseau");
@@ -149,6 +186,8 @@ fn main() -> AppExit {
             token,
             o.input_hz,
             o.playtest,
+            o.style,
+            o.pbr,
         ))));
     } else {
         let dir = o.world.is_none().then(|| tempfile::tempdir().unwrap());
@@ -156,20 +195,27 @@ fn main() -> AppExit {
             .world
             .clone()
             .unwrap_or_else(|| dir.as_ref().unwrap().path().join("world.pvx"));
-        let store = RegionStore::open(&path, 20_261_120).expect("ouverture du monde");
+        let store =
+            RegionStore::open_with_preset(&path, 20_261_120, o.preset).expect("ouverture du monde");
+        let preset = store.preset();
+        o.preset = Some(preset);
+        let seed = store.seed();
         let cfg = StreamConfig {
             load_radius: o.radius + 1,
             render_radius: o.radius,
             uploads_per_tick: 6,
             ..default()
         };
-        let local_stream = Streamer::new(
-            primal_voxel::World::streamed(store.seed()),
-            store,
-            cfg,
-            MeshKind::GreedyLocal,
-            terrain::prepare,
-        )
+        let world = primal_voxel::World::with_preset(seed, preset);
+        let style = o.style;
+        let lit = o.pbr;
+        let local_stream = if preset == primal_voxel::Preset::ForestModern {
+            Streamer::new_with_snapshot(world, store, cfg, move |s| {
+                forest::prepare(s, style, lit, seed)
+            })
+        } else {
+            Streamer::new(world, store, cfg, MeshKind::GreedyLocal, terrain::prepare)
+        }
         .unwrap();
         app.insert_resource(LocalWorld {
             stream: Mutex::new(local_stream),
@@ -181,6 +227,21 @@ fn main() -> AppExit {
     } else {
         DVec3::new(0.5, 18., 0.5)
     };
+    let [x, y, z, yaw, pitch] = o.view.unwrap_or_else(|| {
+        if o.preset == Some(primal_voxel::Preset::ForestModern) {
+            [
+                0.5,
+                primal_voxel::surface_for(primal_voxel::Preset::ForestModern, 20_261_120, 0, 0)
+                    as f64
+                    + 3.,
+                0.5,
+                0.78,
+                -0.10,
+            ]
+        } else {
+            [eye.x, eye.y, eye.z, 0.78, -0.32]
+        }
+    });
     let now = Instant::now();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
@@ -191,12 +252,13 @@ fn main() -> AppExit {
         }),
         ..default()
     }))
+    .add_plugins(forest::ForestPlugin)
     .insert_resource(WinitSettings::continuous())
     .insert_resource(o)
     .insert_resource(CameraRig {
-        eye,
-        yaw: 0.78,
-        pitch: -0.32,
+        eye: DVec3::new(x, y, z),
+        yaw: yaw as f32,
+        pitch: pitch as f32,
         velocity: Vec3::ZERO,
     })
     .init_resource::<Terrain>()
@@ -233,6 +295,7 @@ fn main() -> AppExit {
 fn setup(
     mut cmds: Commands,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut extended: ResMut<Assets<forest::ForestMaterial>>,
     o: Res<Options>,
     gpu: Res<RenderAdapterInfo>,
 ) {
@@ -254,11 +317,28 @@ fn setup(
             .any(|s| name.contains(s)),
         "Rendu logiciel refusé"
     );
-    cmds.insert_resource(Surface(materials.add(StandardMaterial {
+    let base = StandardMaterial {
         unlit: !o.pbr,
-        cull_mode: None,
+        cull_mode: o
+            .style
+            .cull
+            .then_some(bevy::render::render_resource::Face::Back),
         ..default()
-    })));
+    };
+    cmds.insert_resource(Surface {
+        historic: materials.add(StandardMaterial {
+            unlit: !o.pbr,
+            cull_mode: None,
+            ..default()
+        }),
+        forest: materials.add(base.clone()),
+        grain: (o.style.palette && o.style.variation).then(|| {
+            extended.add(forest::ForestMaterial {
+                base,
+                extension: default(),
+            })
+        }),
+    });
     cmds.spawn((
         Camera3d::default(),
         Projection::Perspective(PerspectiveProjection {
@@ -379,7 +459,7 @@ fn publish(
     window: Single<&Window>,
 ) {
     terrain.rebase(rig.eye, &mut cmds);
-    terrain.publish(&mut cmds, &mut meshes, &material.0);
+    terrain.publish(&mut cmds, &mut meshes, &material);
     let local = (rig.eye - DVec3::from_array(terrain.origin.map(|x| f64::from(x) * 16.))).as_vec3();
     let front = rig.front();
     **cam = Transform::from_translation(local).looking_to(front, Vec3::Y);

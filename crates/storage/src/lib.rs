@@ -115,6 +115,12 @@ fn decode(bytes: &[u8]) -> io::Result<World> {
 
 /// Writes a complete staging file beside its destination, then atomically replaces the snapshot.
 pub fn save(path: &Path, world: &World) -> io::Result<()> {
+    if world.preset() != primal_voxel::Preset::Historical {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Le format historique PVXD v1 ne représente pas ce preset",
+        ));
+    }
     save_snapshot(path, world.seed(), &world.edits())
 }
 

@@ -1,4 +1,5 @@
-use primal_net::*;
+use primal_net::{link::Link, *};
+use primal_voxel::{CHUNK, Preset, generate_for};
 use std::{
     io::{BufRead, BufReader},
     process::{Command, Stdio},
@@ -75,5 +76,72 @@ fn client_receives_an_authoritative_spawn_chunk_over_udp() {
         thread::sleep(Duration::from_millis(10));
     }
     c.disconnect();
+    assert!(server.wait().unwrap().success());
+}
+
+#[test]
+fn forest_welcome_and_full_chunks_replicate_over_protocol_v1() {
+    let tmp = tempfile::tempdir().unwrap();
+    let mut server = Command::new(env!("CARGO_BIN_EXE_primal-server"))
+        .arg("--world")
+        .arg(tmp.path().join("forest.pvx"))
+        .args([
+            "--preset",
+            "forest-modern",
+            "--bind",
+            "127.0.0.1:0",
+            "--ticks",
+            "240",
+        ])
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut started = String::new();
+    BufReader::new(server.stdout.as_mut().unwrap())
+        .read_line(&mut started)
+        .unwrap();
+    let started: serde_json::Value = serde_json::from_str(&started).unwrap();
+    let addr = started["address"].as_str().unwrap();
+    let link = Link::open(addr, [10; 32], 60).unwrap();
+    let mut welcome = None;
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        let msg = link
+            .events
+            .recv_timeout(deadline.saturating_duration_since(Instant::now()))
+            .expect("le serveur doit répliquer la forêt");
+        match msg {
+            ServerMsg::Welcome { seed, .. } => {
+                assert!(link.forest_modern());
+                welcome = Some((seed, Replica::new(seed)));
+            }
+            ServerMsg::Chunk {
+                chunk, ref data, ..
+            } => {
+                assert!(matches!(data, ChunkData::Full(_)));
+                let (seed, replica) = welcome.as_mut().unwrap();
+                replica.apply(&msg).unwrap();
+                let forest = generate_for(Preset::ForestModern, *seed, chunk).unwrap();
+                let origin = chunk.map(|axis| axis * CHUNK);
+                let mut structure = false;
+                for x in 0..CHUNK {
+                    for y in 0..CHUNK {
+                        for z in 0..CHUNK {
+                            let position = [origin[0] + x, origin[1] + y, origin[2] + z];
+                            let block = forest.get(position);
+                            assert_eq!(replica.world.lookup(position), block);
+                            structure |= matches!(block, Some(5 | 6));
+                        }
+                    }
+                }
+                if structure {
+                    break;
+                }
+            }
+            ServerMsg::Error(error) => panic!("{error}"),
+            _ => {}
+        }
+    }
+    drop(link);
     assert!(server.wait().unwrap().success());
 }

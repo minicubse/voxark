@@ -1,5 +1,5 @@
-use super::{CHECKSUM, GENERATOR, MAX_FILE, WorldLock, decode, directory_for, invalid};
-use primal_voxel::{CHUNK, ChunkPos, MAX_BLOCK, Pos, World};
+use super::{CHECKSUM, MAX_FILE, WorldLock, decode, directory_for, invalid};
+use primal_voxel::{CHUNK, ChunkPos, MAX_BLOCK, Pos, Preset};
 use std::collections::{BTreeMap, hash_map::DefaultHasher};
 use std::fs::{self, File};
 use std::hash::{Hash, Hasher};
@@ -8,9 +8,13 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use tempfile::{Builder, NamedTempFile};
 
-const VERSION: u16 = 2;
+const REGION_VERSION: u16 = 2;
+const HISTORICAL_MANIFEST_VERSION: u16 = 2;
+const PRESET_MANIFEST_VERSION: u16 = 3;
 const MANIFEST: &str = "world.pvxd";
-const MANIFEST_BYTES: usize = 16 + CHECKSUM;
+const MANIFEST_HEADER: usize = 16;
+const MANIFEST_BYTES: usize = MANIFEST_HEADER + 1 + CHECKSUM;
+const FOREST_MODERN_ID: u8 = 1;
 const REGION_HEADER: usize = 32;
 const CHUNKS_PER_EDGE: i32 = 4;
 const CHUNK_CELLS: u32 = (CHUNK * CHUNK * CHUNK) as u32;
@@ -26,6 +30,7 @@ pub struct RegionStore(Arc<Session>);
 struct Session {
     directory: PathBuf,
     seed: u64,
+    preset: Preset,
     _world_lock: WorldLock,
     // Fixed stripes bound bookkeeping irrespective of the number of regions visited.
     locks: [RwLock<()>; LOCK_COUNT],
@@ -34,16 +39,29 @@ struct Session {
 impl RegionStore {
     /// `path` is the original --world path. A v1 source remains available byte-for-byte.
     pub fn open(path: &Path, default_seed: u64) -> io::Result<Self> {
+        Self::open_with_preset(path, default_seed, None)
+    }
+
+    /// A fresh world defaults to the historical preset. Reopening uses the saved preset
+    /// and rejects an explicit request for a different one.
+    pub fn open_with_preset(
+        path: &Path,
+        default_seed: u64,
+        requested: Option<Preset>,
+    ) -> io::Result<Self> {
         let world_lock = WorldLock::acquire(path)?;
         let directory = Self::directory(path);
-        let seed = if directory.try_exists()? {
-            read_manifest(&directory)?
+        let (seed, preset) = if directory.try_exists()? {
+            let (seed, preset) = read_manifest(&directory)?;
+            ensure_preset(requested, preset)?;
+            (seed, preset)
         } else {
-            initialize(path, &directory, default_seed)?
+            initialize(path, &directory, default_seed, requested)?
         };
         Ok(Self(Arc::new(Session {
             directory,
             seed,
+            preset,
             _world_lock: world_lock,
             locks: std::array::from_fn(|_| RwLock::new(())),
         })))
@@ -58,6 +76,10 @@ impl RegionStore {
 
     pub fn seed(&self) -> u64 {
         self.0.seed
+    }
+
+    pub fn preset(&self) -> Preset {
+        self.0.preset
     }
 
     /// Returns absolute positions, sorted lexicographically. An untouched chunk has no deltas.
@@ -105,7 +127,10 @@ impl RegionStore {
             fs::remove_file(path)?;
             sync_directory(&self.0.directory)
         } else {
-            commit_file(&path, &region_bytes(self.seed(), region, &records))
+            commit_file(
+                &path,
+                &region_bytes(self.seed(), self.preset(), region, &records),
+            )
         }
     }
 
@@ -120,6 +145,10 @@ impl RegionStore {
             Err(err) => return Err(err),
         };
         let payload = checked_payload(&bytes, b"PVRG", REGION_HEADER)?;
+        if payload[4..6] != REGION_VERSION.to_le_bytes() {
+            return Err(invalid("Version de région inconnue"));
+        }
+        check_generator(payload, self.preset())?;
         if payload[8..16] != self.seed().to_le_bytes() {
             return Err(invalid("Seed de région incompatible"));
         }
@@ -246,35 +275,75 @@ fn read_bounded(file: File, limit: usize) -> io::Result<Vec<u8>> {
 
 fn checked_payload<'a>(bytes: &'a [u8], magic: &[u8; 4], header: usize) -> io::Result<&'a [u8]> {
     if bytes.len() < header + CHECKSUM || &bytes[..4] != magic {
-        return Err(invalid("Signature ou taille PVXD v2 invalide"));
+        return Err(invalid("Signature ou taille PVXD invalide"));
     }
     let (payload, crc) = bytes.split_at(bytes.len() - CHECKSUM);
     if crc32fast::hash(payload).to_le_bytes() != crc {
-        return Err(invalid("Somme de contrôle PVXD v2 incorrecte"));
-    }
-    if payload[4..6] != VERSION.to_le_bytes() || payload[6..8] != GENERATOR.to_le_bytes() {
-        return Err(invalid("Version PVXD ou de générateur inconnue"));
+        return Err(invalid("Somme de contrôle PVXD incorrecte"));
     }
     Ok(payload)
 }
 
-fn read_manifest(directory: &Path) -> io::Result<u64> {
-    let bytes = read_bounded(File::open(directory.join(MANIFEST))?, MANIFEST_BYTES)?;
-    let payload = checked_payload(&bytes, b"PVXD", 16)?;
-    Ok(u64::from_le_bytes(payload[8..16].try_into().unwrap()))
+fn generator_version(preset: Preset) -> u16 {
+    u16::try_from(preset.generator_version()).expect("La version entre dans l'en-tête PVXD")
 }
 
-fn prefix(magic: &[u8; 4], seed: u64, capacity: usize) -> Vec<u8> {
+fn check_generator(payload: &[u8], preset: Preset) -> io::Result<()> {
+    if payload[6..8] != generator_version(preset).to_le_bytes() {
+        return Err(invalid("Version de générateur incompatible"));
+    }
+    Ok(())
+}
+
+fn read_manifest(directory: &Path) -> io::Result<(u64, Preset)> {
+    let bytes = read_bounded(File::open(directory.join(MANIFEST))?, MANIFEST_BYTES)?;
+    let payload = checked_payload(&bytes, b"PVXD", MANIFEST_HEADER)?;
+    let version = u16::from_le_bytes(payload[4..6].try_into().unwrap());
+    let preset = match (version, &payload[MANIFEST_HEADER..]) {
+        (HISTORICAL_MANIFEST_VERSION, []) => Preset::Historical,
+        (PRESET_MANIFEST_VERSION, [FOREST_MODERN_ID]) => Preset::ForestModern,
+        _ => return Err(invalid("Version ou preset PVXD inconnu")),
+    };
+    check_generator(payload, preset)?;
+    Ok((
+        u64::from_le_bytes(payload[8..16].try_into().unwrap()),
+        preset,
+    ))
+}
+
+fn ensure_preset(requested: Option<Preset>, actual: Preset) -> io::Result<()> {
+    if let Some(requested) = requested
+        && requested != actual
+    {
+        return Err(io::Error::new(
+            ErrorKind::InvalidInput,
+            format!(
+                "Preset demandé {} incompatible avec le monde {}",
+                requested.as_str(),
+                actual.as_str()
+            ),
+        ));
+    }
+    Ok(())
+}
+
+fn prefix(magic: &[u8; 4], version: u16, preset: Preset, seed: u64, capacity: usize) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(capacity);
     bytes.extend(magic);
-    bytes.extend(VERSION.to_le_bytes());
-    bytes.extend(GENERATOR.to_le_bytes());
+    bytes.extend(version.to_le_bytes());
+    bytes.extend(generator_version(preset).to_le_bytes());
     bytes.extend(seed.to_le_bytes());
     bytes
 }
 
-fn region_bytes(seed: u64, region: ChunkPos, records: &[u32]) -> Vec<u8> {
-    let mut bytes = prefix(b"PVRG", seed, REGION_HEADER + 4 * records.len() + CHECKSUM);
+fn region_bytes(seed: u64, preset: Preset, region: ChunkPos, records: &[u32]) -> Vec<u8> {
+    let mut bytes = prefix(
+        b"PVRG",
+        REGION_VERSION,
+        preset,
+        seed,
+        REGION_HEADER + 4 * records.len() + CHECKSUM,
+    );
     for value in region {
         bytes.extend(value.to_le_bytes());
     }
@@ -286,13 +355,24 @@ fn region_bytes(seed: u64, region: ChunkPos, records: &[u32]) -> Vec<u8> {
     bytes
 }
 
-fn initialize(path: &Path, directory: &Path, default_seed: u64) -> io::Result<u64> {
+fn initialize(
+    path: &Path,
+    directory: &Path,
+    default_seed: u64,
+    requested: Option<Preset>,
+) -> io::Result<(u64, Preset)> {
     let legacy = match File::open(path) {
-        Ok(file) => Some(decode(&read_bounded(file, MAX_FILE)?)?),
+        Ok(file) => {
+            ensure_preset(requested, Preset::Historical)?;
+            Some(decode(&read_bounded(file, MAX_FILE)?)?)
+        }
         Err(err) if err.kind() == ErrorKind::NotFound => None,
         Err(err) => return Err(err),
     };
-    let seed = legacy.as_ref().map_or(default_seed, World::seed);
+    let (seed, preset) = legacy.as_ref().map_or_else(
+        || (default_seed, requested.unwrap_or(Preset::Historical)),
+        |world| (world.seed(), world.preset()),
+    );
     let parent = directory_for(directory)?;
     let staged = Builder::new()
         .prefix(".pvxd-migration-")
@@ -312,18 +392,23 @@ fn initialize(path: &Path, directory: &Path, default_seed: u64) -> io::Result<u6
             edits.sort_unstable();
             commit_file(
                 &region_path(staged.path(), region),
-                &region_bytes(seed, region, &edits),
+                &region_bytes(seed, preset, region, &edits),
             )?;
         }
     }
-    let mut manifest = prefix(b"PVXD", seed, MANIFEST_BYTES);
+    let (version, preset_id) = match preset {
+        Preset::Historical => (HISTORICAL_MANIFEST_VERSION, None),
+        Preset::ForestModern => (PRESET_MANIFEST_VERSION, Some(FOREST_MODERN_ID)),
+    };
+    let mut manifest = prefix(b"PVXD", version, preset, seed, MANIFEST_BYTES);
+    manifest.extend(preset_id);
     manifest.extend(crc32fast::hash(&manifest).to_le_bytes());
     commit_file(&staged.path().join(MANIFEST), &manifest)?;
     #[cfg(test)]
     interrupt_at("publish-world");
     fs::rename(staged.path(), directory)?;
     sync_directory(parent)?;
-    Ok(seed)
+    Ok((seed, preset))
 }
 
 fn commit_file(path: &Path, bytes: &[u8]) -> io::Result<()> {
@@ -360,6 +445,7 @@ fn interrupt_at(point: &str) {
 mod tests {
     use super::*;
     use crate::save;
+    use primal_voxel::World;
     use std::process::Command;
 
     #[test]

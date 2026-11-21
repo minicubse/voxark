@@ -1,5 +1,5 @@
 use crate::{ChunkStore, MeshKind, Stage, Timing};
-use primal_voxel::{ChunkPos, Face, GeneratedChunk, MeshSnapshot, Pos, generate_chunk};
+use primal_voxel::{ChunkPos, Face, GeneratedChunk, MeshSnapshot, Pos, generate_for};
 use std::io;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::atomic::AtomicUsize;
@@ -8,7 +8,13 @@ use std::sync::{Arc, Mutex, mpsc};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
-pub(crate) type Prepare<P> = dyn Fn(&[Face]) -> (P, usize) + Send + Sync;
+type PrepareFaces<P> = dyn Fn(&[Face]) -> (P, usize) + Send + Sync;
+type PrepareSnapshot<P> = dyn Fn(&MeshSnapshot) -> (P, usize) + Send + Sync;
+
+pub(crate) enum Prepare<P> {
+    Faces(MeshKind, Box<PrepareFaces<P>>),
+    Snapshot(Box<PrepareSnapshot<P>>),
+}
 
 pub(crate) enum Work {
     Load,
@@ -41,7 +47,6 @@ pub(crate) struct Done<P> {
 impl Job {
     fn run<P>(
         &self,
-        kind: MeshKind,
         store: &dyn ChunkStore,
         prepare: &Prepare<P>,
         timings: &mut Vec<Timing>,
@@ -73,28 +78,36 @@ impl Job {
                     return Ok(None);
                 }
                 let started = Instant::now();
-                let data = generate_chunk(store.seed(), self.chunk)
+                let data = generate_for(store.preset(), store.seed(), self.chunk)
                     .ok_or_else(|| io::Error::other("chunk outside generator bounds"))?;
                 record(Stage::Generate, started);
                 Product::Load(data, edits)
             }
-            Work::Mesh(snapshot) => {
-                let started = Instant::now();
-                let faces = match kind {
-                    MeshKind::GreedyLocal => snapshot.greedy_mesh_local(),
-                    MeshKind::Greedy => snapshot.greedy_mesh(),
-                    MeshKind::Binary => snapshot.binary_greedy_mesh(),
-                    MeshKind::Faces => snapshot.mesh(),
-                };
-                record(Stage::Mesh, started);
-                if cancelled() {
-                    return Ok(None);
+            Work::Mesh(snapshot) => match prepare {
+                Prepare::Faces(kind, prepare) => {
+                    let started = Instant::now();
+                    let faces = match kind {
+                        MeshKind::GreedyLocal => snapshot.greedy_mesh_local(),
+                        MeshKind::Greedy => snapshot.greedy_mesh(),
+                        MeshKind::Binary => snapshot.binary_greedy_mesh(),
+                        MeshKind::Faces => snapshot.mesh(),
+                    };
+                    record(Stage::Mesh, started);
+                    if cancelled() {
+                        return Ok(None);
+                    }
+                    let started = Instant::now();
+                    let (payload, bytes) = prepare(&faces);
+                    record(Stage::Prepare, started);
+                    Product::Mesh(payload, bytes)
                 }
-                let started = Instant::now();
-                let (payload, bytes) = prepare(&faces);
-                record(Stage::Prepare, started);
-                Product::Mesh(payload, bytes)
-            }
+                Prepare::Snapshot(prepare) => {
+                    let started = Instant::now();
+                    let (payload, bytes) = prepare(snapshot);
+                    record(Stage::Mesh, started);
+                    Product::Mesh(payload, bytes)
+                }
+            },
             Work::Save(edits) => {
                 let started = Instant::now();
                 let saved = store.save_chunk(self.chunk, edits);
@@ -120,7 +133,6 @@ impl<P: Send + 'static> Pool<P> {
     pub(crate) fn new(
         count: usize,
         store: Arc<dyn ChunkStore>,
-        mesher: MeshKind,
         prepare: Arc<Prepare<P>>,
     ) -> io::Result<Self> {
         let (tx, tasks) = mpsc::channel::<Job>();
@@ -151,7 +163,7 @@ impl<P: Send + 'static> Pool<P> {
                         let cpu = cpu_time::ThreadTime::try_now().ok();
                         let mut timings = Vec::with_capacity(3);
                         let result = catch_unwind(AssertUnwindSafe(|| {
-                            job.run(mesher, store.as_ref(), prepare.as_ref(), &mut timings)
+                            job.run(store.as_ref(), prepare.as_ref(), &mut timings)
                         }))
                         .unwrap_or_else(|_| Err(io::Error::other("stream worker panicked")));
                         if out

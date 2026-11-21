@@ -1,7 +1,62 @@
 use primal_storage::RegionStore;
 use primal_streaming::{MeshKind, StreamConfig, Streamer, View};
-use primal_voxel::{World, chunk_at};
+use primal_voxel::{Preset, World, chunk_at, generate_for, surface_for};
 use std::time::{Duration, Instant};
+
+#[test]
+fn workers_load_forest_differences_against_the_saved_preset() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("forest.pvx");
+    let seed = 209;
+    let preset = Preset::ForestModern;
+    let store = RegionStore::open_with_preset(&path, seed, Some(preset)).unwrap();
+    assert!(
+        Streamer::headless(
+            World::streamed(seed),
+            store.clone(),
+            StreamConfig::default()
+        )
+        .is_err()
+    );
+
+    let ground = [0, surface_for(preset, seed, 0, 0), 0];
+    let c = chunk_at(ground);
+    let base = generate_for(preset, seed, c).unwrap();
+    assert_ne!(base.get(ground), Some(0));
+    store.save_chunk(c, &[(ground, 0)]).unwrap();
+    let mut stream = Streamer::headless(
+        World::with_preset(seed, preset),
+        store,
+        StreamConfig::default(),
+    )
+    .unwrap();
+    let view = View {
+        block: ground,
+        forward: [0.; 3],
+        velocity: [0.; 3],
+    };
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while !stream.world().is_resident(c) {
+        let frame = stream.tick(view);
+        assert!(frame.errors.is_empty(), "{:?}", frame.errors);
+        assert!(Instant::now() < deadline);
+        std::thread::yield_now();
+    }
+
+    assert_eq!(stream.world().lookup(ground), Some(0));
+    assert_eq!(stream.world().chunk_edits(c), [(ground, 0)]);
+    assert!(stream.world_mut().set(ground, base.get(ground).unwrap()));
+    assert!(stream.world().chunk_edits(c).is_empty());
+    while !stream.saves_idle() {
+        let frame = stream.tick_views(&[]);
+        assert!(frame.errors.is_empty(), "{:?}", frame.errors);
+        assert!(Instant::now() < deadline);
+        std::thread::yield_now();
+    }
+    drop(stream);
+    let reopened = RegionStore::open(&path, 0).unwrap();
+    assert!(reopened.load_chunk(c).unwrap().is_empty());
+}
 
 #[test]
 fn repeated_kilometres_bound_residency_and_reopen_a_distant_edit() {

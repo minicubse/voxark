@@ -1,4 +1,5 @@
 use primal_storage::{WorldLock, load_or_create, save};
+use primal_voxel::{Preset, World};
 use std::fs;
 use std::io::ErrorKind;
 
@@ -85,4 +86,19 @@ fn valid_checksum_does_not_hide_incompatible_or_invalid_records() {
             ErrorKind::InvalidData
         );
     }
+}
+
+#[test]
+fn legacy_snapshot_writer_rejects_forest_without_touching_an_existing_snapshot() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("vallee.pvx");
+    let historical = load_or_create(&path, 42).unwrap();
+    save(&path, &historical).unwrap();
+    let original = fs::read(&path).unwrap();
+    let forest = World::with_preset(42, Preset::ForestModern);
+    assert_eq!(
+        save(&path, &forest).unwrap_err().kind(),
+        ErrorKind::InvalidInput
+    );
+    assert_eq!(fs::read(path).unwrap(), original);
 }

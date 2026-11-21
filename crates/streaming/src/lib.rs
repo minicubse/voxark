@@ -3,7 +3,7 @@ mod plan;
 mod worker;
 use plan::Plan;
 use primal_storage::RegionStore;
-use primal_voxel::{ChunkPos, Face, LoadTicket, Pos, World};
+use primal_voxel::{ChunkPos, Face, LoadTicket, MeshSnapshot, Pos, Preset, World};
 use std::{
     collections::{HashMap, HashSet},
     io,
@@ -17,12 +17,18 @@ use worker::{Done, Job, Pool, Product, Work};
 
 pub trait ChunkStore: Send + Sync + 'static {
     fn seed(&self) -> u64;
+    fn preset(&self) -> Preset {
+        Preset::Historical
+    }
     fn load_chunk(&self, c: ChunkPos) -> io::Result<Vec<(Pos, u8)>>;
     fn save_chunk(&self, c: ChunkPos, edits: &[(Pos, u8)]) -> io::Result<()>;
 }
 impl<T: ChunkStore> ChunkStore for Arc<T> {
     fn seed(&self) -> u64 {
         (**self).seed()
+    }
+    fn preset(&self) -> Preset {
+        (**self).preset()
     }
     fn load_chunk(&self, c: ChunkPos) -> io::Result<Vec<(Pos, u8)>> {
         (**self).load_chunk(c)
@@ -34,6 +40,9 @@ impl<T: ChunkStore> ChunkStore for Arc<T> {
 impl ChunkStore for RegionStore {
     fn seed(&self) -> u64 {
         RegionStore::seed(self)
+    }
+    fn preset(&self) -> Preset {
+        RegionStore::preset(self)
     }
     fn load_chunk(&self, c: ChunkPos) -> io::Result<Vec<(Pos, u8)>> {
         RegionStore::load_chunk(self, c)
@@ -226,11 +235,44 @@ impl<P: Send + 'static> Streamer<P> {
         kind: MeshKind,
         prepare: impl Fn(&[Face]) -> (P, usize) + Send + Sync + 'static,
     ) -> io::Result<Self> {
+        Self::with_prepare(
+            world,
+            store,
+            config,
+            worker::Prepare::Faces(kind, Box::new(prepare)),
+        )
+    }
+
+    /// Prepares geometry directly from the resident chunk and its available halo.
+    /// The callback owns meshing and preparation; their combined time is recorded under Mesh.
+    pub fn new_with_snapshot(
+        world: World,
+        store: impl ChunkStore,
+        config: StreamConfig,
+        prepare: impl Fn(&MeshSnapshot) -> (P, usize) + Send + Sync + 'static,
+    ) -> io::Result<Self> {
+        Self::with_prepare(
+            world,
+            store,
+            config,
+            worker::Prepare::Snapshot(Box::new(prepare)),
+        )
+    }
+
+    fn with_prepare(
+        world: World,
+        store: impl ChunkStore,
+        config: StreamConfig,
+        prepare: worker::Prepare<P>,
+    ) -> io::Result<Self> {
         config.validate()?;
         if store.seed() != world.seed() {
             return Err(io::Error::other("Seed incompatible"));
         }
-        let pool = Pool::new(config.workers, Arc::new(store), kind, Arc::new(prepare))?;
+        if store.preset() != world.preset() {
+            return Err(io::Error::other("Preset incompatible"));
+        }
+        let pool = Pool::new(config.workers, Arc::new(store), Arc::new(prepare))?;
         Ok(Self {
             world,
             config,

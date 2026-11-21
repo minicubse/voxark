@@ -137,7 +137,7 @@ impl Plan {
                     .clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
                 let z = (i64::from(cz + dz) * 16 + 8)
                     .clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
-                let surface = primal_voxel::surface_hint(world.seed(), x, z) / CHUNK;
+                let surface = primal_voxel::surface_for(world.preset(), world.seed(), x, z) / CHUNK;
                 for y in 0..STREAM_HEIGHT / CHUNK {
                     // Chunk coordinates from i32 block positions have room for the planning halo.
                     let chunk = [cx + dx, y, cz + dz];

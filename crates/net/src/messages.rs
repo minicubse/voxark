@@ -1,4 +1,5 @@
-use primal_voxel::{CHUNK, ChunkPos, MAX_BLOCK, Pos, World, generate_chunk};
+use crate::Channel;
+use primal_voxel::{CHUNK, ChunkPos, MAX_BLOCK, Pos, Preset, World, generate_for};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{
     collections::HashMap,
@@ -76,6 +77,16 @@ pub enum ChunkData {
     Full(Vec<u8>),
 }
 
+/// Protocol v1 keeps Welcome's payload identical for every preset. Both lanes are reliable.
+/// Forest uses the ordered chunk lane to signal that subsequent voxel data is authoritative.
+/// Older clients consume Welcome from either lane and already understand full chunk volumes.
+pub fn welcome_channel(preset: Preset) -> Channel {
+    match preset {
+        Preset::Historical => Channel::Control,
+        Preset::ForestModern => Channel::Chunks,
+    }
+}
+
 pub fn encode<T: Serialize>(msg: &T) -> io::Result<Vec<u8>> {
     let bytes = postcard::to_stdvec(msg).map_err(io::Error::other)?;
     if bytes.len() > MAX_MESSAGE {
@@ -141,6 +152,9 @@ fn position(c: ChunkPos, i: u16) -> Pos {
 
 impl ChunkData {
     pub fn capture(world: &World, c: ChunkPos) -> Self {
+        if world.preset() != Preset::Historical {
+            return Self::full(world, c);
+        }
         let edits = world
             .chunk_edits(c)
             .into_iter()
@@ -154,8 +168,12 @@ impl ChunkData {
         if sparse_bytes <= 4096 {
             Self::Sparse(edits)
         } else {
-            Self::Full((0..4096).map(|i| world.get(position(c, i))).collect())
+            Self::full(world, c)
         }
+    }
+
+    fn full(world: &World, c: ChunkPos) -> Self {
+        Self::Full((0..4096).map(|i| world.get(position(c, i))).collect())
     }
 }
 pub struct Replica {
@@ -164,8 +182,12 @@ pub struct Replica {
 }
 impl Replica {
     pub fn new(seed: u64) -> Self {
+        Self::with_preset(seed, Preset::Historical)
+    }
+
+    pub fn with_preset(seed: u64, preset: Preset) -> Self {
         Self {
-            world: World::streamed(seed),
+            world: World::with_preset(seed, preset),
             revisions: HashMap::new(),
         }
     }
@@ -191,7 +213,7 @@ impl Replica {
                 if self.revisions.get(&c).is_some_and(|r| r >= revision) {
                     return Ok(vec![]);
                 }
-                let base = generate_chunk(self.world.seed(), c)
+                let base = generate_for(self.world.preset(), self.world.seed(), c)
                     .ok_or_else(|| io::Error::other("Chunk hors monde"))?;
                 let mut edits = Vec::new();
                 match data {
@@ -256,6 +278,7 @@ impl Replica {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use primal_voxel::generate_chunk;
     #[test]
     fn old_revision_cannot_replace_a_newer_surface() {
         let mut r = Replica::new(7);
@@ -294,6 +317,43 @@ mod tests {
             let mut rep = Replica::new(19);
             rep.apply(&decode(&encode(&msg).unwrap()).unwrap()).unwrap();
             assert_eq!(world.chunk_edits(c), rep.world.chunk_edits(c));
+        }
+    }
+
+    #[test]
+    fn forest_chunk_requires_no_local_forest_generator() {
+        let seed = 19;
+        let c = [0, 1, 0];
+        let mut world = World::with_preset(seed, Preset::ForestModern);
+        let ticket = world.begin_load(c).unwrap();
+        assert!(world.install_chunk(
+            ticket,
+            generate_for(Preset::ForestModern, seed, c).unwrap(),
+            &[],
+        ));
+        // Include non-generated geometry and ensure the footprint also differs naturally.
+        let edited = position(c, 0);
+        assert!(world.set(edited, if world.get(edited) == 7 { 0 } else { 7 }));
+        let historical = generate_for(Preset::Historical, seed, c).unwrap();
+        assert!((1..4096).any(|i| {
+            let p = position(c, i);
+            historical.get(p) != world.lookup(p)
+        }));
+        let data = ChunkData::capture(&world, c);
+        assert!(matches!(data, ChunkData::Full(_)));
+        let msg = ServerMsg::Chunk {
+            chunk: c,
+            revision: 0,
+            data,
+        };
+        let msg = decode(&encode(&msg).unwrap()).unwrap();
+        for preset in [Preset::Historical, Preset::ForestModern] {
+            let mut replica = Replica::with_preset(seed, preset);
+            replica.apply(&msg).unwrap();
+            for i in 0..4096 {
+                let p = position(c, i);
+                assert_eq!(replica.world.lookup(p), world.lookup(p), "{p:?}");
+            }
         }
     }
 }

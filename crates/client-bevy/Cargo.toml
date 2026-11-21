@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-bevy = { version = "=0.20.1", default-features = false, features = ["std","async_executor","multi_threaded","bevy_winit","bevy_pbr","bevy_core_pipeline","bevy_log","png","keyboard","mouse"] }
+bevy = { version = "=0.20.1", default-features = false, features = ["std","async_executor","multi_threaded","bevy_winit","bevy_pbr","bevy_core_pipeline","bevy_log","png","keyboard","mouse","tonemapping_luts","zstd_rust"] }
 primal-voxel = { path = "../voxel" }
 cpu-time = "1"
 primal-simulation = { path = "../simulation" }
@@ -16,3 +16,4 @@ serde_json = "1"
 
 [lints]
 workspace = true
+

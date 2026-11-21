@@ -1,10 +1,11 @@
 //! The UDP client pumps at the simulation rate even when rendering stalls.
-use crate::{Channel, ClientMsg, ClientTransport, ConnectionId, ServerMsg};
+use crate::{Channel, ClientMsg, ClientTransport, ConnectionId, ServerMsg, welcome_channel};
+use primal_voxel::Preset;
 use std::{
     net::{SocketAddr, ToSocketAddrs},
     sync::{
         Arc, Mutex,
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         mpsc,
     },
     thread,
@@ -25,6 +26,7 @@ pub struct Link {
     pub events: mpsc::Receiver<ServerMsg>,
     pub id: ConnectionId,
     rtt_us: Arc<AtomicU64>,
+    forest_modern: Arc<AtomicBool>,
     pub sent_inputs: Arc<AtomicU64>,
     commands: mpsc::SyncSender<ClientMsg>,
     thread: Option<thread::JoinHandle<()>>,
@@ -59,6 +61,8 @@ impl Link {
         let id = transport.connection_id();
         let rtt_us = Arc::new(AtomicU64::new(0));
         let timing = rtt_us.clone();
+        let forest_modern = Arc::new(AtomicBool::new(false));
+        let forest = forest_modern.clone();
         let sent_inputs = Arc::new(AtomicU64::new(0));
         let counter = sent_inputs.clone();
         let (commands, rx) = mpsc::sync_channel(32);
@@ -92,9 +96,13 @@ impl Link {
                     if let Some(reason) = transport.disconnect_reason() {
                         return Err(reason);
                     }
-                    while let Some((_, bytes)) = transport.recv() {
+                    while let Some((channel, bytes)) = transport.recv() {
                         let msg: ServerMsg = crate::decode(&bytes).map_err(|e| e.to_string())?;
                         if matches!(msg, ServerMsg::Welcome { .. }) {
+                            forest.store(
+                                channel == welcome_channel(Preset::ForestModern),
+                                Ordering::Release,
+                            );
                             send(&mut transport, Channel::Control, &ClientMsg::Ready)?;
                         }
                         tx.try_send(msg).map_err(|e| e.to_string())?;
@@ -154,12 +162,17 @@ impl Link {
             commands,
             id,
             rtt_us,
+            forest_modern,
             sent_inputs,
             thread: Some(thread),
         })
     }
     pub fn rtt_ms(&self) -> f64 {
         self.rtt_us.load(Ordering::Relaxed) as f64 / 1000.
+    }
+    /// Available when the caller receives Welcome.
+    pub fn forest_modern(&self) -> bool {
+        self.forest_modern.load(Ordering::Acquire)
     }
     pub fn edit(&self, msg: ClientMsg) -> Result<(), String> {
         self.commands.try_send(msg).map_err(|e| e.to_string())

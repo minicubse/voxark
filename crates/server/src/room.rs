@@ -3,11 +3,11 @@ use primal_ledger::{PlayerState, PlayerUpdate};
 use primal_net::{Actor, direction};
 use primal_net::{
     Channel, ChunkData, ClientMsg, ConnectionId, PROTOCOL_VERSION, ServerEvent, ServerMsg,
-    ServerTransport, decode, encode,
+    ServerTransport, decode, encode, welcome_channel,
 };
 use primal_simulation::{Input, Player};
 use primal_streaming::{Streamer, View};
-use primal_voxel::{ChunkPos, GENERATOR_VERSION, World, chunk_at};
+use primal_voxel::{ChunkPos, GENERATOR_VERSION, World, chunk_at, generate_for};
 use std::sync::mpsc::{Receiver, TryRecvError};
 use std::{
     collections::{HashMap, HashSet},
@@ -260,7 +260,7 @@ impl Room {
             return Err("Transaction déjà en cours");
         }
         let token = self.peers[&id].token;
-        let base = primal_voxel::generate_chunk(world.seed(), c)
+        let base = generate_for(world.preset(), world.seed(), c)
             .and_then(|g| g.get(target))
             .ok_or("Chunk indisponible")?;
         let mut edits = world.chunk_edits(c);
@@ -354,7 +354,7 @@ impl Room {
                 .net
                 .send(
                     id,
-                    Channel::Control,
+                    welcome_channel(world.preset()),
                     encode(&ServerMsg::Welcome {
                         id: state.id,
                         seed: world.seed(),

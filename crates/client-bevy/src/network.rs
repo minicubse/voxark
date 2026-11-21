@@ -13,6 +13,8 @@ use std::{
 #[derive(Resource)]
 pub struct Online(pub Mutex<Session>);
 pub struct Session {
+    style: super::forest::Style,
+    lit: bool,
     address: String,
     input_hz: u32,
     token: [u8; 32],
@@ -37,8 +39,17 @@ fn mesher() -> ClientMesher<Geometry> {
     ClientMesher::new(|s| terrain::prepare(&s.greedy_mesh_local()).0)
 }
 impl Session {
-    pub fn new(addr: String, token: [u8; 32], input_hz: u32, playtest: bool) -> Self {
+    pub fn new(
+        addr: String,
+        token: [u8; 32],
+        input_hz: u32,
+        playtest: bool,
+        style: super::forest::Style,
+        lit: bool,
+    ) -> Self {
         Self {
+            style,
+            lit,
             address: addr,
             input_hz,
             token,
@@ -94,7 +105,21 @@ impl Session {
     fn receive(&mut self, msg: ServerMsg, rig: &mut CameraRig, bench: bool) -> Result<(), String> {
         match &msg {
             ServerMsg::Welcome { id, seed } => {
-                self.replica = Some(Replica::new(*seed));
+                if self.link.as_ref().is_some_and(|l| l.forest_modern()) {
+                    let seed = *seed;
+                    let style = self.style;
+                    let lit = self.lit;
+                    self.mesher =
+                        ClientMesher::new(move |s| super::forest::prepare(s, style, lit, seed).0);
+                }
+                self.replica = Some(Replica::with_preset(
+                    *seed,
+                    if self.link.as_ref().is_some_and(|l| l.forest_modern()) {
+                        primal_voxel::Preset::ForestModern
+                    } else {
+                        primal_voxel::Preset::Historical
+                    },
+                ));
                 self.id = Some(*id);
                 println!("Connexion joueur {id}, seed {seed}");
             }

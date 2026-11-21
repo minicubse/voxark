@@ -5,10 +5,13 @@ use std::sync::Arc;
 
 mod binary;
 mod catalog;
+mod forest;
 mod generation;
 mod mesh;
 pub use catalog::{BlockDef, CatalogError, block_def, parse_block_catalog};
-pub use generation::{GeneratedChunk, generate_chunk, surface_hint};
+pub use generation::{
+    GeneratedChunk, Preset, generate_chunk, generate_for, surface_for, surface_hint,
+};
 pub use mesh::{Face, MeshSnapshot};
 
 pub const CHUNK: i32 = 16;
@@ -135,6 +138,7 @@ impl LoadTicket {
 
 pub struct World {
     seed: u64,
+    preset: Preset,
     valley: bool,
     chunks: HashMap<ChunkPos, Resident>,
     pending: HashMap<ChunkPos, u64>,
@@ -167,8 +171,14 @@ impl World {
     }
 
     pub fn streamed(seed: u64) -> Self {
+        Self::with_preset(seed, Preset::Historical)
+    }
+
+    /// Empty streamed world whose chunks are generated with the selected preset.
+    pub fn with_preset(seed: u64, preset: Preset) -> Self {
         Self {
             seed,
+            preset,
             valley: false,
             chunks: HashMap::new(),
             pending: HashMap::new(),
@@ -178,6 +188,10 @@ impl World {
 
     pub fn seed(&self) -> u64 {
         self.seed
+    }
+
+    pub fn preset(&self) -> Preset {
+        self.preset
     }
 
     /// Legacy footprint used to validate PVXD v1 records.
@@ -275,6 +289,7 @@ impl World {
         if !self.cancel_load(ticket)
             || data.chunk != ticket.chunk
             || data.seed != self.seed
+            || data.preset != self.preset
             || edits.len() > VOLUME
         {
             return false;

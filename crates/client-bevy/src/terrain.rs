@@ -6,6 +6,7 @@ use primal_voxel::{ChunkPos, Face, block_def};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 pub struct Geometry {
+    pub forest: bool,
     pub mesh: Mesh,
     pub quads: usize,
     pub bytes: usize,
@@ -40,6 +41,7 @@ pub fn prepare(faces: &[Face]) -> (Geometry, usize) {
     .with_inserted_indices(Indices::U32(indices));
     (
         Geometry {
+            forest: false,
             mesh,
             quads: faces.len(),
             bytes,
@@ -124,7 +126,7 @@ impl Terrain {
         &mut self,
         commands: &mut Commands,
         meshes: &mut Assets<Mesh>,
-        material: &Handle<StandardMaterial>,
+        material: &super::Surface,
     ) {
         let now = std::time::Instant::now();
         let retired: Vec<_> = self.retired.iter().copied().take(6).collect();
@@ -149,15 +151,20 @@ impl Terrain {
             if g.quads == 0 {
                 continue;
             }
-            let entity = commands
-                .spawn((
-                    Mesh3d(meshes.add(g.mesh)),
-                    MeshMaterial3d(material.clone()),
-                    NoFrustumCulling,
-                    Transform::from_translation(offset(c, self.origin)),
-                    Visibility::Hidden,
-                ))
-                .id();
+            let mut entity = commands.spawn((
+                Mesh3d(meshes.add(g.mesh)),
+                NoFrustumCulling,
+                Transform::from_translation(offset(c, self.origin)),
+                Visibility::Hidden,
+            ));
+            if !g.forest {
+                entity.insert(MeshMaterial3d(material.historic.clone()));
+            } else if let Some(h) = &material.grain {
+                entity.insert(MeshMaterial3d(h.clone()));
+            } else {
+                entity.insert(MeshMaterial3d(material.forest.clone()));
+            }
+            let entity = entity.id();
             self.tiles.insert(
                 c,
                 Tile {
