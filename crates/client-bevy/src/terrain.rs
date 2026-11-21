@@ -91,6 +91,14 @@ impl Terrain {
             self.retired.insert(c);
         }
     }
+    pub fn clear(&mut self) {
+        self.pending.clear();
+        self.order.clear();
+        self.retired.extend(self.tiles.keys().copied());
+    }
+    pub fn has_geometry(&self, c: ChunkPos) -> bool {
+        self.tiles.contains_key(&c) && !self.retired.contains(&c)
+    }
     pub fn idle(&self) -> bool {
         self.pending.is_empty() && self.retired.is_empty()
     }

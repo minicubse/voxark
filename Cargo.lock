@@ -3437,6 +3437,9 @@ name = "primal-client-bevy"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "cpu-time",
+ "primal-net",
+ "primal-simulation",
  "primal-storage",
  "primal-streaming",
  "primal-voxel",

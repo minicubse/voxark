@@ -180,3 +180,52 @@ fn bounded_send_returns_backpressure_without_disconnect() {
         Err(TransportError::NotConnected)
     ));
 }
+
+#[test]
+fn inputs_continue_at_server_cadence_while_the_graphical_thread_is_idle() {
+    use primal_net::{ClientMsg, ServerMsg, decode, encode, link::Link};
+    use std::time::Instant;
+    let mut server = ServerTransport::bind(local(), 1).unwrap();
+    let link = Link::open(&server.local_addr().to_string(), [7; 32], 30).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let mut start = None;
+    let mut received = 0;
+    let mut previous = Instant::now();
+    loop {
+        let now = Instant::now();
+        assert!(now < deadline, "local handshake timed out");
+        server.poll(now - previous).unwrap();
+        previous = now;
+        while let Some((id, _, bytes)) = server.recv() {
+            match decode::<ClientMsg>(&bytes).unwrap() {
+                ClientMsg::Hello { .. } => server
+                    .send(
+                        id,
+                        Channel::Control,
+                        encode(&ServerMsg::Welcome { id: 1, seed: 42 }).unwrap(),
+                    )
+                    .unwrap(),
+                ClientMsg::Ready => {
+                    let mut input = link.input.lock().unwrap();
+                    input.ready = true;
+                    input.movement = [1., 0., 0.];
+                    start = Some(now);
+                }
+                ClientMsg::Input { movement, .. } => {
+                    assert_eq!(movement, [1., 0., 0.]);
+                    received += 1;
+                }
+                _ => {}
+            }
+        }
+        server.flush().unwrap();
+        if start.is_some_and(|s| now - s >= Duration::from_secs(1)) {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    assert!(
+        (23..=34).contains(&received),
+        "received {received} inputs at 30 Hz"
+    );
+}

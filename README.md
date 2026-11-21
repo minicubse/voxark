@@ -1,8 +1,8 @@
 # Primal Voxel — Vallée originelle
 
-Version 2 pour Windows x64. Le menu propose solo, hébergement local et connexion à un serveur dédié. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
+La distribution Windows x64 du jalon 3 propose deux clients compatibles avec le même serveur. Lancez **Jouer-Bevy.cmd** pour la caméra libre Bevy, ou **Jouer.cmd** pour le menu Macroquad. Le menu propose solo, hébergement local et connexion à un serveur dédié. À pied ou en vol, vous pouvez quitter la vallée et explorer le terrain généré au fil du trajet. Les sept matériaux restent disponibles pour creuser et construire. Les modifications sont écrites en arrière-plan.
 
-[Lancer une partie multijoueur ou un serveur](docs/MULTIJOUEUR_2.md) · [Résultats des essais à deux et quatre joueurs](docs/PERFORMANCE_2.md)
+[Jouer avec Bevy et Macroquad](docs/MULTIJOUEUR_3.md) · [Comparaison des renderers sur Ryzen](docs/PERFORMANCE_3.md) · [Lancer une partie multijoueur ou un serveur](docs/MULTIJOUEUR_2.md) · [Résultats des essais à deux et quatre joueurs](docs/PERFORMANCE_2.md)
 
 ## Jouer
 

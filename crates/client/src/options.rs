@@ -23,6 +23,7 @@ impl Mesher {
 #[derive(Debug)]
 pub struct Options {
     pub compare: bool,
+    pub playtest: bool,
     pub compare_drift: bool,
     pub connect: Option<String>,
     pub identity: PathBuf,
@@ -51,6 +52,7 @@ impl Options {
     pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Self, String> {
         let mut options = Self {
             compare: false,
+            playtest: false,
             compare_drift: false,
             connect: None,
             identity: default_save_path().with_file_name("client.identity"),
@@ -82,6 +84,7 @@ impl Options {
         let mut args = args.into_iter();
         while let Some(arg) = args.next() {
             match arg.as_str() {
+                "--test-input" => options.playtest = true,
                 "--compare" => options.compare = true,
                 "--compare-route" => {
                     options.compare_drift = match value(&mut args, &arg)?.as_str() {
@@ -138,8 +141,8 @@ impl Options {
                     options.tick_rate = value(&mut args, &arg)?
                         .parse()
                         .map_err(|_| "--tick-rate attend un entier")?;
-                    if !(30..=120).contains(&options.tick_rate) {
-                        return Err("--tick-rate doit être compris entre 30 et 120".into());
+                    if !(10..=120).contains(&options.tick_rate) {
+                        return Err("--tick-rate doit être compris entre 10 et 120".into());
                     }
                 }
                 "--frames" => {
@@ -173,11 +176,11 @@ impl Options {
             .stream
             .validate()
             .map_err(|error| error.to_string())?;
+        if options.connect.is_none() && options.tick_rate < 30 {
+            return Err("Le solo exige au moins 30 ticks/s".into());
+        }
         if options.net_frames == Some(0) {
             return Err("--net-frames exige au moins une image".into());
-        }
-        if options.compare && options.connect.is_some() {
-            return Err("--compare utilise le monde local".into());
         }
         if options.compare_drift && !options.compare {
             return Err("--compare-route exige --compare".into());
@@ -298,10 +301,9 @@ pub fn help() -> &'static str {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn comparison_accepts_a_deterministic_local_route() {
+    fn comparison_accepts_deterministic_local_and_remote_routes() {
         assert!(parse(&["--compare"]).is_ok());
         assert!(parse(&["--compare-route", "drift"]).is_err());
-        assert!(parse(&["--compare", "--connect", "127.0.0.1:47620"]).is_err());
         assert!(
             parse(&[
                 "--compare",
@@ -310,18 +312,9 @@ mod tests {
                 "--connect",
                 "127.0.0.1:47620"
             ])
-            .is_err()
+            .is_ok()
         );
-        assert!(
-            parse(&[
-                "--compare",
-                "--compare-route",
-                "random",
-                "--connect",
-                "127.0.0.1:47620"
-            ])
-            .is_err()
-        );
+        assert!(parse(&["--compare", "--compare-route", "random"]).is_err());
     }
     use super::*;
 

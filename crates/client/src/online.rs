@@ -6,15 +6,11 @@ use crate::{
     terrain::{self, Terrain},
 };
 use macroquad::prelude::*;
-use primal_net::{
-    Actor, Channel, ClientMsg, ClientTransport, ConnectionId, PROTOCOL_VERSION, Replica, ServerMsg,
-};
+use primal_net::{Actor, ClientMsg, Replica, ServerMsg, link::Link};
 use primal_simulation::{MAX_REACH, raycast};
-use primal_voxel::{ChunkPos, GENERATOR_VERSION, MeshSnapshot, chunk_at};
+use primal_voxel::chunk_at;
 use std::{
     collections::{BTreeMap, BTreeSet},
-    net::{SocketAddr, ToSocketAddrs},
-    sync::mpsc,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
@@ -36,117 +32,15 @@ fn interpolate(from: [f32; 3], to: [f32; 3], amount: f32) -> [f32; 3] {
     std::array::from_fn(|i| from[i] + (to[i] - from[i]) * amount)
 }
 
-struct Mesher {
-    jobs: mpsc::SyncSender<MeshSnapshot>,
-    results: mpsc::Receiver<(ChunkPos, u64, Buffers)>,
-    inflight: BTreeSet<ChunkPos>,
-    dirty: BTreeSet<ChunkPos>,
-}
-impl Mesher {
-    fn new() -> Self {
-        let (jobs, receive) = mpsc::sync_channel::<MeshSnapshot>(4);
-        let (send, results) = mpsc::channel();
-        std::thread::spawn(move || {
-            while let Ok(snapshot) = receive.recv() {
-                let result = (
-                    snapshot.chunk(),
-                    snapshot.revision(),
-                    Buffers::prepare(&snapshot.greedy_mesh()).0,
-                );
-                if send.send(result).is_err() {
-                    break;
-                }
-            }
-        });
-        Self {
-            jobs,
-            results,
-            inflight: BTreeSet::new(),
-            dirty: BTreeSet::new(),
-        }
-    }
-    fn tick(&mut self, replica: &Replica, terrain: &mut Terrain, position: [f32; 3]) {
-        for _ in 0..4 {
-            let Ok((chunk, revision, buffers)) = self.results.try_recv() else {
-                break;
-            };
-            self.inflight.remove(&chunk);
-            if replica.world.mesh_revision(chunk) == Some(revision) {
-                terrain.install(chunk, buffers);
-            } else if replica.world.is_resident(chunk) {
-                self.dirty.insert(chunk);
-            }
-        }
-        let center = chunk_at(position.map(|v| v.floor() as i32));
-        let mut pending: Vec<_> = self.dirty.iter().copied().collect();
-        pending.sort_by_key(|c| (c[0] - center[0]).abs() + (c[2] - center[2]).abs());
-        for chunk in pending {
-            if !replica.world.is_resident(chunk) {
-                terrain.remove(chunk);
-                self.dirty.remove(&chunk);
-                continue;
-            }
-            if self.inflight.contains(&chunk) {
-                continue;
-            }
-            let Some(snapshot) = replica.world.mesh_snapshot(chunk) else {
-                continue;
-            };
-            match self.jobs.try_send(snapshot) {
-                Ok(()) => {
-                    self.inflight.insert(chunk);
-                    self.dirty.remove(&chunk);
-                }
-                Err(mpsc::TrySendError::Full(_)) => break,
-                Err(mpsc::TrySendError::Disconnected(_)) => break,
-            }
-        }
-    }
-}
-
-fn send(transport: &mut ClientTransport, channel: Channel, msg: &ClientMsg) -> Result<(), String> {
-    transport
-        .send(channel, primal_net::encode(msg).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())
-}
-
 pub async fn run(options: &Options, address: &str) -> Result<(), String> {
-    let server = address
-        .to_socket_addrs()
-        .map_err(|e| format!("Adresse invalide : {e}"))?
-        .next()
-        .ok_or("Adresse sans IP")?;
-    let bind: SocketAddr = if server.is_ipv4() {
-        "0.0.0.0:0"
-    } else {
-        "[::]:0"
-    }
-    .parse()
-    .unwrap();
     let nonce = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|e| e.to_string())?
         .as_nanos() as u64
         ^ u64::from(std::process::id());
-    let mut transport = ClientTransport::connect(
-        bind,
-        server,
-        ConnectionId::random().map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())?;
     let token = primal_net::identity(&options.identity).map_err(|e| format!("Identité : {e}"))?;
-    let result = session(options, address, &mut transport, nonce, token).await;
-    let _ = send(&mut transport, Channel::Control, &ClientMsg::Bye);
-    let _ = transport.flush();
-    if transport.is_connected() {
-        let leaving = Instant::now();
-        while leaving.elapsed() < Duration::from_millis(180) {
-            let _ = transport.poll(Duration::from_millis(16));
-            let _ = transport.flush();
-            next_frame().await;
-        }
-        transport.disconnect();
-    }
+    let transport = Link::open(address, token, u32::from(options.tick_rate))?;
+    let result = session(options, address, &transport, nonce).await;
     set_cursor_grab(false);
     show_mouse(true);
     result
@@ -155,26 +49,26 @@ pub async fn run(options: &Options, address: &str) -> Result<(), String> {
 async fn session(
     options: &Options,
     address: &str,
-    transport: &mut ClientTransport,
+    transport: &Link,
     mut seq: u64,
-    token: [u8; 32],
 ) -> Result<(), String> {
     let start = Instant::now();
-    let mut last_poll = Instant::now();
+
     let mut replica = None;
     let mut own_id = None;
-    let mut hello_sent = false;
+
     let mut own = None;
     let mut displayed_position: Option<Vec3> = None;
     let mut remotes: BTreeMap<u64, Remote> = BTreeMap::new();
     let mut terrain = Terrain::default();
-    let mut mesher = Mesher::new();
+    let mut mesher = primal_net::ClientMesher::new(|s| Buffers::prepare(&s.greedy_mesh()).0);
     let mut yaw: f32 = -0.35;
     let mut pitch: f32 = -0.12;
+    let mut driver = options.playtest.then(primal_net::playtest::Playtest::open);
     let mut captured = false;
     let mut flying = false;
     let mut selected = 1_u8;
-    let mut input_clock = 0.;
+
     let mut jump = false;
     let mut frame = 0;
     let mut metrics = FrameMetrics::default();
@@ -192,34 +86,22 @@ async fn session(
     let mut rtt_samples = Vec::new();
     let mut ready_at = None;
     let mut captured_peer = false;
+    let mut comparison = crate::compare::NetworkBench::new();
     let fog = terrain::fog_material().ok();
     loop {
-        let now = Instant::now();
-        transport
-            .poll(now.duration_since(last_poll))
-            .map_err(|e| e.to_string())?;
-        last_poll = now;
-        if transport.is_connected() && !hello_sent {
-            send(
-                transport,
-                Channel::Control,
-                &ClientMsg::Hello {
-                    version: PROTOCOL_VERSION,
-                    generator: GENERATOR_VERSION,
-                    token,
-                },
-            )?;
-            hello_sent = true;
-        }
-        while let Some((_channel, bytes)) = transport.recv() {
-            let msg: ServerMsg = primal_net::decode(&bytes)
-                .map_err(|e| format!("Réponse serveur invalide : {e}"))?;
+        loop {
+            let msg = match transport.events.try_recv() {
+                Ok(msg) => msg,
+                Err(std::sync::mpsc::TryRecvError::Empty) => break,
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    return Err("Déconnecté du serveur".into());
+                }
+            };
             match &msg {
                 ServerMsg::Welcome { id, seed } => {
                     own_id = Some(*id);
                     replica = Some(Replica::new(*seed));
                     status = "Connecté · monde autoritaire".into();
-                    send(transport, Channel::Control, &ClientMsg::Ready)?;
                 }
                 ServerMsg::Players { tick, players } => {
                     if own_id.is_none() || last_snapshot_tick.is_some_and(|last| *tick <= last) {
@@ -280,20 +162,8 @@ async fn session(
                 _ => {}
             }
             if let Some(replica) = replica.as_mut() {
-                mesher
-                    .dirty
-                    .extend(replica.apply(&msg).map_err(|e| e.to_string())?);
+                mesher.dirty(replica.apply(&msg).map_err(|e| e.to_string())?);
             }
-        }
-        if !transport.is_connected()
-            && (own_id.is_some() || transport.disconnect_reason().is_some())
-        {
-            return Err(format!(
-                "Déconnecté : {}",
-                transport
-                    .disconnect_reason()
-                    .unwrap_or_else(|| "serveur indisponible".into())
-            ));
         }
         if own.is_none() && start.elapsed() > Duration::from_secs(20) {
             return Err("Le serveur n'a pas envoyé de joueur sous 20 s".into());
@@ -344,6 +214,27 @@ async fn session(
         if wheel != 0. {
             selected = ((i32::from(selected) - 1 - wheel.signum() as i32).rem_euclid(7) + 1) as u8;
         }
+        let mut click = None;
+        let mut take_photo = false;
+        if let Some(d) = driver.as_mut() {
+            use primal_net::playtest::Action;
+            match d.next_action() {
+                Some(Action::Look(y, p)) => {
+                    yaw = y;
+                    pitch = p;
+                }
+                Some(Action::Click(v)) => {
+                    click = Some(v);
+                    if v > 0 {
+                        selected = v;
+                    }
+                }
+                Some(Action::Fly) => flying = true,
+                Some(Action::Photo) => take_photo = true,
+                Some(Action::Quit) => break,
+                _ => {}
+            }
+        }
         let benchmark = options.net_frames.is_some();
         let forward = vec3(yaw.sin(), 0., yaw.cos());
         let right = forward.cross(Vec3::Y);
@@ -366,7 +257,7 @@ async fn session(
                     );
             jump |= is_key_pressed(KeyCode::Space);
         }
-        if benchmark {
+        if benchmark && !options.compare {
             flying = true;
             let t = start.elapsed().as_secs_f32();
             let side = if own_id.unwrap_or(0) % 2 == 0 {
@@ -382,30 +273,24 @@ async fn session(
             yaw = t * 0.13;
             pitch = -0.23;
         }
-        input_clock += dt;
-        if own.is_some() && input_clock >= 1. / 60. {
-            input_clock %= 1. / 60.;
-            seq = seq.wrapping_add(1);
-            send(
-                transport,
-                Channel::Input,
-                &ClientMsg::Input {
-                    seq,
-                    movement: movement.to_array(),
-                    jump,
-                    sprint: captured && is_key_down(KeyCode::LeftShift),
-                    flying,
-                    yaw,
-                    pitch,
-                },
-            )?;
+        if own.is_some() {
+            let mut input = transport.input.lock().unwrap();
+            input.ready = true;
+            input.movement = movement.to_array();
+            input.jump |= jump;
+            input.sprint = captured && is_key_down(KeyCode::LeftShift);
+            input.flying = flying;
+            input.yaw = yaw;
+            input.pitch = pitch;
             jump = false;
         }
         let front = Vec3::from_array(primal_net::direction(yaw, pitch));
         if let (Some(replica), Some(actor)) = (&replica, &own) {
             let eye = Vec3::from_array(actor.position) + Vec3::Y * 1.62;
-            let remove = captured && !just_captured && is_mouse_button_pressed(MouseButton::Left);
-            let place = captured && is_mouse_button_pressed(MouseButton::Right);
+            let remove = click == Some(0)
+                || captured && !just_captured && is_mouse_button_pressed(MouseButton::Left);
+            let place = click.is_some_and(|m| m > 0)
+                || captured && is_mouse_button_pressed(MouseButton::Right);
             if (remove || place)
                 && let Some(hit) =
                     raycast(&replica.world, eye.to_array(), front.to_array(), MAX_REACH)
@@ -413,21 +298,49 @@ async fn session(
                 let target = if remove { hit.block } else { hit.adjacent };
                 if let Some(revision) = replica.revision(chunk_at(target)) {
                     seq = seq.wrapping_add(1);
-                    send(
-                        transport,
-                        Channel::Edits,
-                        &ClientMsg::Edit {
-                            seq,
-                            target,
-                            revision,
-                            material: if remove { 0 } else { selected },
-                            yaw,
-                            pitch,
-                        },
-                    )?;
+                    transport.edit(ClientMsg::Edit {
+                        seq,
+                        target,
+                        revision,
+                        material: if remove { 0 } else { selected },
+                        yaw,
+                        pitch,
+                    })?;
                 }
             }
-            mesher.tick(replica, &mut terrain, actor.position);
+            for (chunk, payload) in mesher.tick(replica, actor.position) {
+                if let Some(buffers) = payload {
+                    terrain.install(chunk, buffers);
+                } else {
+                    terrain.remove(chunk);
+                }
+            }
+        }
+        if options.compare {
+            let settled = own.is_some()
+                && remotes.is_empty()
+                && mesher.pending() == 0
+                && replica
+                    .as_ref()
+                    .is_some_and(|r| r.world.resident_len() >= 392);
+            if !settled && start.elapsed() > Duration::from_secs(90) {
+                return Err("La scène réseau ne se stabilise pas".into());
+            }
+
+            if comparison
+                .frame(
+                    options,
+                    &terrain,
+                    settled,
+                    transport
+                        .sent_inputs
+                        .load(std::sync::atomic::Ordering::Relaxed),
+                )
+                .await?
+            {
+                return Ok(());
+            }
+            continue;
         }
         crate::draw_sky();
         let mut visible_peers = 0;
@@ -488,7 +401,7 @@ async fn session(
         maximum_quads = maximum_quads.max(terrain.faces);
         maximum_chunks = maximum_chunks.max(terrain.len());
         max_visible_peers = max_visible_peers.max(visible_peers);
-        let rtt = transport.rtt().as_secs_f64() * 1000.;
+        let rtt = transport.rtt_ms();
         if options.net_report.is_some() && own.is_some() {
             rtt_samples.push(rtt);
         }
@@ -544,12 +457,25 @@ async fn session(
                 WHITE,
             );
         }
-        transport.flush().map_err(|e| e.to_string())?;
+        if let (Some(d), Some(r), Some(id)) = (&mut driver, &replica, own_id)
+            && let Some(p) = d.watch()
+        {
+            d.observe(
+                r,
+                id,
+                remotes.len(),
+                mesher.pending() == 0 && terrain.has_geometry(chunk_at(p)),
+            );
+        }
+
         if own.is_some() {
             frame += 1;
         }
         if options.net_report.is_some() && frame > 120 {
             metrics.record(get_frame_time());
+        }
+        if take_photo && let Some(path) = &options.capture {
+            crate::capture(path)?;
         }
         if !captured_peer
             && visible_peers > 0
@@ -579,7 +505,7 @@ async fn session(
         .map_err(|e| e.to_string())?;
         report["mode"] = "authoritative multiplayer".into();
         report["server"] = address.into();
-        report["connection_id"] = transport.connection_id().0.into();
+        report["connection_id"] = transport.id.0.into();
         report["actor_id"] = serde_json::json!(own_id);
         report["position"] = serde_json::json!(own.as_ref().map(|a| a.position));
         report["peer_ids"] = serde_json::json!(peer_ids);

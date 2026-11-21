@@ -97,3 +97,111 @@ pub(super) async fn local(o: &Options) -> Result<(), String> {
     println!("{s}");
     Ok(())
 }
+
+pub(super) struct NetworkBench {
+    metrics: FrameMetrics,
+    stable: Instant,
+    previous: Instant,
+    cpu: cpu_time::ProcessTime,
+    warm: usize,
+    frames: usize,
+    empty: usize,
+    draw_us: f64,
+    geometry: u64,
+    inputs: u64,
+    bytes: u64,
+}
+impl NetworkBench {
+    pub fn new() -> Self {
+        Self {
+            metrics: FrameMetrics::default(),
+            stable: Instant::now(),
+            previous: Instant::now(),
+            cpu: cpu_time::ProcessTime::now(),
+            warm: 0,
+            frames: 0,
+            empty: 0,
+            draw_us: 0.,
+            geometry: 0,
+            inputs: 0,
+            bytes: 0,
+        }
+    }
+    pub async fn frame(
+        &mut self,
+        o: &Options,
+        terrain: &Terrain,
+        ready: bool,
+        sent_inputs: u64,
+    ) -> Result<bool, String> {
+        let count = o.net_frames.unwrap_or(480);
+        let (eye, front) = camera(o.compare_drift, self.frames, count);
+        let draw_start = Instant::now();
+        draw(terrain, eye, front, o.stream.render_radius);
+        let draw_us = draw_start.elapsed().as_secs_f64() * 1e6;
+        let stats = terrain.last_draw.get();
+        next_frame().await;
+        let now = Instant::now();
+        let dt = now - self.previous;
+        self.previous = now;
+        if self.warm < 120 {
+            if !ready || stats.chunks == 0 {
+                self.stable = now;
+                self.warm = 0;
+            }
+            if now - self.stable > Duration::from_secs(1) {
+                self.warm += 1;
+            }
+            if self.warm == 120 {
+                self.cpu = cpu_time::ProcessTime::now();
+                self.inputs = sent_inputs;
+            }
+            return Ok(false);
+        }
+        self.frames += 1;
+        self.empty += usize::from(stats.chunks == 0);
+        self.draw_us += draw_us;
+        self.bytes += stats.bytes as u64;
+        self.geometry =
+            primal_net::playtest::geometry_digest(self.geometry, stats.chunks, stats.quads);
+        self.metrics.record(dt.as_secs_f32());
+        if self.frames < count {
+            return Ok(false);
+        }
+        let cpu_ms = self.cpu.elapsed().as_secs_f64() * 1000.;
+        // Capture one additional frame. Telemetry draws thumbnails, so its cost is excluded.
+        macroquad::telemetry::capture_frame();
+        next_frame().await;
+        draw(terrain, eye, front, o.stream.render_radius);
+        next_frame().await;
+        let calls = macroquad::telemetry::drawcalls();
+        let indices = calls.iter().map(|c| c.indices_count).sum::<usize>();
+        if indices != stats.quads * 6 {
+            return Err(format!(
+                "Capture draws {indices} indices pour {} quads",
+                stats.quads
+            ));
+        }
+        let mut report: serde_json::Value = serde_json::from_str(&self.metrics.json(
+            o.width,
+            o.height,
+            stats.chunks,
+            stats.quads,
+            "greedy",
+        ))
+        .map_err(|e| e.to_string())?;
+        let extra = serde_json::json!({"renderer":"macroquad","backend":"OpenGL","players":1,"render_radius":o.stream.render_radius,
+            "geometry_digest":format!("{:016x}",self.geometry),"sent_inputs":sent_inputs-self.inputs,"route":if o.compare_drift{"drift"}else{"fixed"},"visible_chunks":stats.chunks,"quads":stats.quads,"triangles":stats.quads*2,
+            "empty_frames":self.empty,"draws_audit_frame":calls.len(),"terrain_submissions":stats.submissions,"uploads_audit_frame":2*calls.len(),
+            "vertex_index_bytes_all_frames":self.bytes,"cpu_draw_and_flush_us":self.draw_us,"process_cpu_ms":cpu_ms});
+        report
+            .as_object_mut()
+            .unwrap()
+            .extend(extra.as_object().unwrap().clone());
+        if let Some(path) = &o.net_report {
+            std::fs::write(path, report.to_string()).map_err(|e| e.to_string())?;
+        }
+        println!("{report}");
+        Ok(true)
+    }
+}

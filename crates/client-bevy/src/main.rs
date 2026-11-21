@@ -1,3 +1,4 @@
+mod network;
 mod terrain;
 
 use bevy::{
@@ -32,6 +33,10 @@ struct Options {
     route: String,
     pbr: bool,
     world: Option<PathBuf>,
+    connect: Option<String>,
+    identity: PathBuf,
+    input_hz: u32,
+    playtest: bool,
 }
 impl Options {
     fn parse() -> Self {
@@ -44,13 +49,27 @@ impl Options {
             route: "fixed".into(),
             pbr: false,
             world: None,
+            connect: None,
+            identity: "bevy.identity".into(),
+            input_hz: 60,
+            playtest: false,
         };
         let mut args = std::env::args().skip(1);
         while let Some(arg) = args.next() {
+            if arg == "--test-input" {
+                o.playtest = true;
+                continue;
+            }
+            if arg == "--compare" {
+                continue;
+            }
             let val = args
                 .next()
                 .unwrap_or_else(|| panic!("Valeur manquante pour {arg}"));
             match arg.as_str() {
+                "--connect" => o.connect = Some(val),
+                "--identity" => o.identity = val.into(),
+                "--input-hz" => o.input_hz = val.parse().unwrap(),
                 "--resolution" => {
                     let (w, h) = val.split_once('x').expect("WIDTHxHEIGHT");
                     o.size = (w.parse().unwrap(), h.parse().unwrap());
@@ -74,7 +93,11 @@ impl Options {
                 _ => panic!("Option inconnue {arg}"),
             }
         }
-        assert!((1..=23).contains(&o.radius));
+        assert!((1..=23).contains(&o.radius) && (10..=120).contains(&o.input_hz));
+        assert!(
+            o.connect.is_none() || o.world.is_none(),
+            "--world est réservé au solo"
+        );
         o
     }
 }
@@ -109,80 +132,103 @@ struct Bench {
     signature: (usize, usize, usize),
     warm: usize,
     samples: Vec<f64>,
+    cpu: cpu_time::ProcessTime,
     empty: usize,
+    geometry: u64,
+    inputs: u64,
     baseline: (usize, usize, f64),
     shot: bool,
 }
 fn main() -> AppExit {
     let o = Options::parse();
-    let dir = o.world.is_none().then(|| tempfile::tempdir().unwrap());
-    let path = o
-        .world
-        .clone()
-        .unwrap_or_else(|| dir.as_ref().unwrap().path().join("world.pvx"));
-    let store = RegionStore::open(&path, 20_261_120).expect("ouverture du monde");
-    let cfg = StreamConfig {
-        load_radius: o.radius + 1,
-        render_radius: o.radius,
-        uploads_per_tick: 6,
-        ..default()
-    };
-    let local_stream = Streamer::new(
-        primal_voxel::World::streamed(store.seed()),
-        store,
-        cfg,
-        MeshKind::GreedyLocal,
-        terrain::prepare,
-    )
-    .unwrap();
+    let mut app = App::new();
+    if let Some(address) = &o.connect {
+        let token = primal_net::identity(&o.identity).expect("Identité réseau");
+        app.insert_resource(network::Online(Mutex::new(network::Session::new(
+            address.clone(),
+            token,
+            o.input_hz,
+            o.playtest,
+        ))));
+    } else {
+        let dir = o.world.is_none().then(|| tempfile::tempdir().unwrap());
+        let path = o
+            .world
+            .clone()
+            .unwrap_or_else(|| dir.as_ref().unwrap().path().join("world.pvx"));
+        let store = RegionStore::open(&path, 20_261_120).expect("ouverture du monde");
+        let cfg = StreamConfig {
+            load_radius: o.radius + 1,
+            render_radius: o.radius,
+            uploads_per_tick: 6,
+            ..default()
+        };
+        let local_stream = Streamer::new(
+            primal_voxel::World::streamed(store.seed()),
+            store,
+            cfg,
+            MeshKind::GreedyLocal,
+            terrain::prepare,
+        )
+        .unwrap();
+        app.insert_resource(LocalWorld {
+            stream: Mutex::new(local_stream),
+            _dir: dir,
+        });
+    }
     let eye = if o.route == "far" {
         DVec3::new(-1_500_000_000.375, 32., 1_499_999_999.625)
     } else {
         DVec3::new(0.5, 18., 0.5)
     };
     let now = Instant::now();
-    App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "Primal Voxel — Bevy".into(),
-                resolution:
-                    WindowResolution::new(o.size.0, o.size.1).with_scale_factor_override(1.),
-                present_mode: PresentMode::Immediate,
-                ..default()
-            }),
+    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+        primary_window: Some(Window {
+            title: "Primal Voxel — Bevy".into(),
+            resolution: WindowResolution::new(o.size.0, o.size.1).with_scale_factor_override(1.),
+            present_mode: PresentMode::Immediate,
             ..default()
-        }))
-        .insert_resource(WinitSettings::continuous())
-        .insert_resource(o)
-        .insert_resource(CameraRig {
-            eye,
-            yaw: 0.78,
-            pitch: -0.32,
-            velocity: Vec3::ZERO,
-        })
-        .insert_resource(LocalWorld {
-            stream: Mutex::new(local_stream),
-            _dir: dir,
-        })
-        .init_resource::<Terrain>()
-        .insert_resource(Bench {
-            last: now,
-            start: now,
-            stable: now,
-            signature: (0, 0, 0),
-            warm: 0,
-            samples: vec![],
-            empty: 0,
-            baseline: (0, 0, 0.),
-            shot: false,
-        })
-        .insert_resource(ClearColor(Color::srgb_u8(123, 175, 210)))
-        .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (control, stream, publish, measure, screenshot_key).chain(),
+        }),
+        ..default()
+    }))
+    .insert_resource(WinitSettings::continuous())
+    .insert_resource(o)
+    .insert_resource(CameraRig {
+        eye,
+        yaw: 0.78,
+        pitch: -0.32,
+        velocity: Vec3::ZERO,
+    })
+    .init_resource::<Terrain>()
+    .insert_resource(Bench {
+        last: now,
+        start: now,
+        stable: now,
+        signature: (0, 0, 0),
+        warm: 0,
+        samples: vec![],
+        cpu: cpu_time::ProcessTime::now(),
+        empty: 0,
+        geometry: 0,
+        inputs: 0,
+        baseline: (0, 0, 0.),
+        shot: false,
+    })
+    .insert_resource(ClearColor(Color::srgb_u8(123, 175, 210)))
+    .add_systems(Startup, setup)
+    .add_systems(
+        Update,
+        (
+            control,
+            stream,
+            network::update,
+            publish,
+            measure,
+            screenshot_key,
         )
-        .run()
+            .chain(),
+    )
+    .run()
 }
 fn setup(
     mut cmds: Commands,
@@ -236,6 +282,10 @@ fn setup(
         ));
     }
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "Bevy injects these independent system parameters"
+)]
 fn control(
     mut rig: ResMut<CameraRig>,
     o: Res<Options>,
@@ -296,7 +346,8 @@ fn control(
     rig.velocity =
         ((rig.eye - old).as_vec3() / time.delta_secs().max(0.001)).clamp_length_max(100.);
 }
-fn stream(mut world: ResMut<LocalWorld>, mut terrain: ResMut<Terrain>, rig: Res<CameraRig>) {
+fn stream(world: Option<ResMut<LocalWorld>>, mut terrain: ResMut<Terrain>, rig: Res<CameraRig>) {
+    let Some(mut world) = world else { return };
     let s = world.stream.get_mut().unwrap();
     let frame = s.tick(View {
         block: rig.eye.floor().as_ivec3().to_array(),
@@ -313,6 +364,10 @@ fn stream(mut world: ResMut<LocalWorld>, mut terrain: ResMut<Terrain>, rig: Res<
         }
     }
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "Bevy injects these independent system parameters"
+)]
 fn publish(
     mut terrain: ResMut<Terrain>,
     rig: Res<CameraRig>,
@@ -336,11 +391,16 @@ fn publish(
         &mut cmds,
     );
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "Bevy injects these independent system parameters"
+)]
 fn measure(
     mut bench: ResMut<Bench>,
     o: Res<Options>,
     terrain: Res<Terrain>,
-    world: Res<LocalWorld>,
+    world: Option<Res<LocalWorld>>,
+    online: Option<Res<network::Online>>,
     rig: Res<CameraRig>,
     gpu: Res<RenderAdapterInfo>,
     mut cmds: Commands,
@@ -354,7 +414,13 @@ fn measure(
     bench.last = now;
     let sig = (terrain.len(), terrain.uploads, terrain.removed);
     if bench.warm < 120 {
-        if sig != bench.signature || !terrain.idle() || terrain.visible == 0 {
+        if online
+            .as_ref()
+            .is_some_and(|n| !n.0.lock().unwrap().ready())
+            || sig != bench.signature
+            || !terrain.idle()
+            || terrain.visible == 0
+        {
             bench.signature = sig;
             bench.stable = now;
             bench.warm = 0;
@@ -367,6 +433,8 @@ fn measure(
             "Terrain non stabilisé"
         );
         if bench.warm == 120 {
+            bench.cpu = cpu_time::ProcessTime::now();
+            bench.inputs = online.as_ref().map_or(0, |n| n.0.lock().unwrap().inputs());
             bench.baseline = (terrain.uploads, terrain.bytes, terrain.publish_us);
         }
         return;
@@ -379,6 +447,8 @@ fn measure(
         bench.shot = true;
     }
     bench.empty += usize::from(terrain.visible == 0);
+    bench.geometry =
+        primal_net::playtest::geometry_digest(bench.geometry, terrain.visible, terrain.quads);
     bench.samples.push(ms);
     if bench.samples.len() < o.frames {
         return;
@@ -387,15 +457,17 @@ fn measure(
     sorted.sort_by(f64::total_cmp);
     let pct = |p: f64| sorted[(p * sorted.len() as f64).ceil() as usize - 1];
     let tail = &sorted[sorted.len() - (0.01 * sorted.len() as f64).ceil() as usize..];
-    let s = world.stream.lock().unwrap();
-    let stats = s.stats();
+    let stream = world.as_ref().map(|w| w.stream.lock().unwrap());
+    let stats = stream.as_ref().map(|s| s.stats());
     let report = json!({"renderer":"bevy","adapter":gpu.name,"backend":format!("{:?}",gpu.backend),"device_type":format!("{:?}",gpu.device_type),
         "material":if o.pbr{"pbr"}else{"simple"},"route":o.route,"resolution":o.size,"render_radius":o.radius,"frames":sorted.len(),
+        "geometry_digest":format!("{:016x}",bench.geometry),"sent_inputs":online.as_ref().map(|n|n.0.lock().unwrap().inputs()-bench.inputs),
+        "process_cpu_ms":bench.cpu.elapsed().as_secs_f64()*1000.,"players":online.as_ref().map(|n|n.0.lock().unwrap().player_count),
         "fps_avg":1000.*sorted.len() as f64/sorted.iter().sum::<f64>(),"fps_1low":1000.*tail.len() as f64/tail.iter().sum::<f64>(),
         "p95_ms":pct(0.95),"p99_ms":pct(0.99),"p999_ms":pct(0.999),"empty_frames":bench.empty,"visible_chunks":terrain.visible,
         "quads":terrain.quads,"triangles":terrain.quads*2,"mesh_publications":terrain.uploads-bench.baseline.0,
         "published_bytes":terrain.bytes-bench.baseline.1,"publication_cpu_us":terrain.publish_us-bench.baseline.2,
-        "peak_meshes":terrain.peak,"peak_resident":stats.peak_resident,"peak_jobs":stats.peak_jobs,"evictions":stats.evictions,
+        "peak_meshes":terrain.peak,"peak_resident":stats.map(|s|s.peak_resident),"peak_jobs":stats.map(|s|s.peak_jobs),"evictions":stats.map(|s|s.evictions),
         "meshes_retired":terrain.removed,"rebases":terrain.rebases,"final_eye":rig.eye.to_array()});
     if let Some(path) = &o.report {
         std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap()).unwrap();

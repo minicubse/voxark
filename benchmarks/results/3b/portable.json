@@ -1,0 +1,79 @@
+{
+  "archive": "PrimalVoxel-3-Windows-x64.zip",
+  "sha256": "71a0106b05f39e41f6f621285025165bf1f9cf8a2c77c41e121e001b1939996e",
+  "bytes": 32935099,
+  "verified_files": 1350,
+  "dependency_notices": 324,
+  "replay": [
+    {
+      "action": "edit",
+      "client": "Macroquad",
+      "value": 0,
+      "revision": 1,
+      "local_mesh_ms": 67.7117999875918,
+      "remote_mesh_ms": 63.36779998673592
+    },
+    {
+      "action": "edit",
+      "client": "Macroquad",
+      "value": 4,
+      "revision": 2,
+      "local_mesh_ms": 99.22679999726824,
+      "remote_mesh_ms": 96.13629999512341
+    },
+    {
+      "action": "edit",
+      "client": "Bevy",
+      "value": 0,
+      "revision": 3,
+      "local_mesh_ms": 91.6397999972105,
+      "remote_mesh_ms": 101.36840000632219
+    },
+    {
+      "action": "edit",
+      "client": "Bevy",
+      "value": 7,
+      "revision": 4,
+      "local_mesh_ms": 92.39059999526944,
+      "remote_mesh_ms": 98.4141999942949
+    },
+    {
+      "action": "bevy_reconnect",
+      "id": 2,
+      "value": 7,
+      "revision": 4
+    },
+    {
+      "action": "macroquad_reconnect",
+      "id": 1,
+      "value": 7,
+      "revision": 4
+    },
+    {
+      "action": "server_restart",
+      "actors": [
+        1,
+        2
+      ],
+      "value": 7,
+      "revision": 4
+    },
+    {
+      "action": "peer_avatar_in_frame",
+      "client": "macro",
+      "verified_pixels": 2756
+    },
+    {
+      "action": "peer_avatar_in_frame",
+      "client": "bevy",
+      "verified_pixels": 2800
+    }
+  ],
+  "launcher": {
+    "adapter": "AMD Radeon (TM) Graphics",
+    "backend": "Vulkan",
+    "device_type": "IntegratedGpu",
+    "frames": 160,
+    "visible_chunks": 66
+  }
+}

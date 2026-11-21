@@ -1,0 +1,18 @@
+[
+  {
+    "client": "primal-client",
+    "elapsed_ms": 6521.6072
+  },
+  {
+    "client": "primal-client-bevy",
+    "elapsed_ms": 12241.093
+  },
+  {
+    "client": "primal-client-bevy",
+    "elapsed_ms": 6890.8663
+  },
+  {
+    "client": "primal-client",
+    "elapsed_ms": 4824.1951
+  }
+]

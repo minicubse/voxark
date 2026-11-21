@@ -1,8 +1,14 @@
+# Primal Voxel — jalon 3B
+
+Deux clients graphiques partagent le serveur autoritaire version 1. Les 91 tests Rust passent. Les essais sur fenêtres Windows vérifient les quatre éditions croisées, les deux reconnexions, le redémarrage du serveur et les deux avatars. Le ZIP comprend les trois exécutables. À 720p, sur le trajet réseau mobile, les médianes sont de 293 FPS pour Bevy et 596 FPS pour Macroquad. Le pic observé pour Bevy est de 549 Mio.
+
+[Multijoueur et interfaces du prochain jalon](MULTIJOUEUR_3.md) · [Benchmarks Ryzen](PERFORMANCE_3.md)
+
 ## Jalon 3A — renderer Bevy validé en solo
 
-Le client Bevy 0.20.1 et le client Macroquad rendent les mêmes 11 249 quads en 720p. Le contrôle de la caméra et les parcours lointains ont été exercés sur la Radeon. Les 90 tests du workspace en release passent. La prochaine étape est l’intégration multijoueur Bevy. [Mesures et limites 3A](RENDU_3A.md)
+Le client Bevy 0.20.1 et le client Macroquad rendent les mêmes 11 249 quads en 720p. Le contrôle de la caméra et les parcours lointains ont été exercés sur la Radeon. Les 90 tests du workspace en release passent. [Mesures et limites 3A](RENDU_3A.md)
 
-# Primal Voxel — jalon 2
+## Historique du jalon 2
 
 Le serveur Rust dédié, le client graphique Macroquad et le ZIP portable sont disponibles pour Windows x64. Des processus clients distincts ont validé les éditions concurrentes, les zones à 4,096 km, la reconnexion et la relecture des positions et du terrain après redémarrage. [Mode d’emploi et architecture réseau](MULTIJOUEUR_2.md) · [Mesures et limites](PERFORMANCE_2.md)
 

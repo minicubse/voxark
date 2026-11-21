@@ -1,0 +1,255 @@
+{
+  "source": "wgpu-core 30.0.2 trace; 24 steady intervals between fullscreen triangle draws; fixed authoritative scene",
+  "frames": [
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.258
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.35
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.303
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.255
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.28600000000000003
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.266
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.331
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.38099999999999995
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.259
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.301
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.26099999999999995
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.245
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.269
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.32699999999999996
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.311
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.39
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.267
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.247
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.42
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.285
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.268
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.289
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "RenderPass::draw_indirect": 2,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.287
+    },
+    {
+      "RenderPass::draw": 1,
+      "RenderPass::draw_indirect": 2,
+      "RenderPass::multi_draw_indirect_count": 1,
+      "submit_calls": 2,
+      "Queue::create_staging_buffer": 4,
+      "Queue::write_buffer": 13,
+      "Ignoring write_buffer of size 0": 2,
+      "submit_wall_ms": 0.306
+    }
+  ],
+  "medians": {
+    "RenderPass::draw": 1.0,
+    "RenderPass::draw_indirect": 2.0,
+    "RenderPass::multi_draw_indirect_count": 1.0,
+    "submit_calls": 2.0,
+    "Queue::create_staging_buffer": 4.0,
+    "Queue::write_buffer": 13.0,
+    "Ignoring write_buffer of size 0": 2.0,
+    "submit_wall_ms": 0.2865
+  }
+}
