@@ -262,15 +262,7 @@ impl Replica {
             _ => return Ok(vec![]),
         };
         let mut dirty = vec![c];
-        for axis in 0..3 {
-            for d in [-1, 1] {
-                let mut n = c;
-                n[axis] += d;
-                if self.world.is_resident(n) {
-                    dirty.push(n)
-                }
-            }
-        }
+        dirty.extend(self.world.resident_mesh_neighbours(c));
         Ok(dirty)
     }
 }
@@ -279,6 +271,23 @@ impl Replica {
 mod tests {
     use super::*;
     use primal_voxel::generate_chunk;
+    #[test]
+    fn replica_queues_corner_neighbours_on_arrival_and_forget() {
+        let mut replica = Replica::new(99);
+        let center = [0, 6, 0];
+        let corner = [1, 7, 1];
+        let install = |chunk| ServerMsg::Chunk {
+            chunk,
+            revision: 1,
+            data: ChunkData::Sparse(vec![]),
+        };
+        assert_eq!(replica.apply(&install(center)).unwrap(), [center]);
+        assert_eq!(replica.apply(&install(corner)).unwrap(), [corner, center]);
+        assert_eq!(
+            replica.apply(&ServerMsg::Forget { chunk: corner }).unwrap(),
+            [corner, center],
+        );
+    }
     #[test]
     fn old_revision_cannot_replace_a_newer_surface() {
         let mut r = Replica::new(7);

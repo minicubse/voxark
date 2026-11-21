@@ -28,6 +28,15 @@ pub struct Style {
     pub palette: bool,
     pub variation: bool,
     pub cull: bool,
+    pub density: f32,
+    pub veg_distance: f32,
+    pub ao: bool,
+    pub lighting: bool,
+    pub shadows: usize,
+    pub shadow_size: usize,
+    pub shadow_distance: f32,
+    pub fog: bool,
+    pub tone: bevy::core_pipeline::tonemapping::Tonemapping,
 }
 impl Default for Style {
     fn default() -> Self {
@@ -35,6 +44,15 @@ impl Default for Style {
             palette: true,
             variation: true,
             cull: true,
+            density: 0.58,
+            veg_distance: 46.,
+            ao: true,
+            lighting: true,
+            shadows: 1,
+            shadow_size: 1024,
+            shadow_distance: 44.,
+            fog: true,
+            tone: bevy::core_pipeline::tonemapping::Tonemapping::TonyMcMapface,
         }
     }
 }
@@ -62,15 +80,32 @@ pub fn color(f: &Face, y: f32, lit: bool) -> [f32; 4] {
     [col.red * k, col.green * k, col.blue * k, 1.]
 }
 pub fn prepare(snapshot: &MeshSnapshot, style: Style, lit: bool, seed: u64) -> (Geometry, usize) {
-    let faces = snapshot.greedy_mesh_local();
+    let timer = std::time::Instant::now();
+    let (faces, levels): (Vec<Face>, Vec<[u8; 4]>) = if style.ao {
+        snapshot.greedy_ao_local().into_iter().unzip()
+    } else {
+        (snapshot.greedy_mesh_local(), Vec::new())
+    };
     let (mut geom, _) = crate::terrain::prepare(&faces);
     geom.forest = true;
-    if style.palette {
+    if style.palette || style.ao {
         let c = snapshot.chunk();
         let mut colors = Vec::with_capacity(faces.len() * 4);
-        for f in &faces {
-            for p in f.corners {
-                colors.push(color(f, c[1] as f32 * 16. + p[1], lit));
+        for (idx, f) in faces.iter().enumerate() {
+            for (vertex, p) in f.corners.iter().enumerate() {
+                let mut col = color(f, c[1] as f32 * 16. + p[1], lit);
+                if !style.palette {
+                    let [r, g, b] = primal_voxel::block_def(f.block).unwrap().rgb;
+                    let base = Color::srgb_u8(r, g, b).to_linear();
+                    col = [base.red, base.green, base.blue, 1.];
+                }
+                if style.ao {
+                    let k = [0.44, 0.63, 0.82, 1.0][levels[idx][vertex] as usize];
+                    for v in &mut col[..3] {
+                        *v *= k;
+                    }
+                }
+                colors.push(col);
             }
         }
         geom.mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
@@ -93,6 +128,22 @@ pub fn prepare(snapshot: &MeshSnapshot, style: Style, lit: bool, seed: u64) -> (
         geom.mesh.insert_attribute(Mesh::ATTRIBUTE_UV_1, uv_b);
         geom.bytes += faces.len() * 4 * 16;
     }
-    let bytes = geom.bytes;
+    if style.ao {
+        let mut indices = Vec::with_capacity(faces.len() * 6);
+        for (i, light) in levels.iter().enumerate() {
+            let n = (i * 4) as u32;
+            let order = if light[0] + light[2] > light[1] + light[3] {
+                [0, 1, 3, 1, 2, 3]
+            } else {
+                [0, 1, 2, 0, 2, 3]
+            };
+            indices.extend(order.map(|v| n + v));
+        }
+        geom.mesh.insert_indices(bevy::mesh::Indices::U32(indices));
+    }
+    geom.flora = crate::flora::build(&faces, snapshot.chunk(), seed, style.density);
+    geom.bytes += geom.flora.bytes;
+    geom.build_us = timer.elapsed().as_secs_f64() * 1e6;
+    let bytes = geom.bytes + geom.flora.supports.capacity() * 3;
     (geom, bytes)
 }

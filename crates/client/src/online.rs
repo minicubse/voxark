@@ -230,6 +230,11 @@ async fn session(
                     }
                 }
                 Some(Action::Fly) => flying = true,
+                Some(Action::Pose) => {
+                    if let Some(actor) = &own {
+                        primal_net::playtest::report_pose(actor);
+                    }
+                }
                 Some(Action::Photo) => take_photo = true,
                 Some(Action::Quit) => break,
                 _ => {}

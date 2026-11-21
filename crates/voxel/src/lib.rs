@@ -3,6 +3,7 @@
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
+mod ao;
 mod binary;
 mod catalog;
 mod forest;
@@ -35,6 +36,32 @@ const DIRECTIONS: [Pos; 6] = [
     [0, 0, 1],
     [0, 0, -1],
 ];
+const DIAGONALS: [Pos; 20] = [
+    [-1, -1, 0],
+    [-1, 1, 0],
+    [1, -1, 0],
+    [1, 1, 0],
+    [-1, 0, -1],
+    [-1, 0, 1],
+    [1, 0, -1],
+    [1, 0, 1],
+    [0, -1, -1],
+    [0, -1, 1],
+    [0, 1, -1],
+    [0, 1, 1],
+    [-1, -1, -1],
+    [-1, -1, 1],
+    [-1, 1, -1],
+    [-1, 1, 1],
+    [1, -1, -1],
+    [1, -1, 1],
+    [1, 1, -1],
+    [1, 1, 1],
+];
+
+fn mesh_neighbour_offsets() -> impl Iterator<Item = Pos> {
+    DIRECTIONS.into_iter().chain(DIAGONALS)
+}
 
 pub fn chunk_at(position: Pos) -> ChunkPos {
     position.map(|v| v.div_euclid(CHUNK))
@@ -319,11 +346,20 @@ impl World {
     }
 
     fn invalidate_neighbours(&mut self, chunk: ChunkPos, revision: u64) {
-        for normal in DIRECTIONS {
-            if let Some(adjacent) = self.chunks.get_mut(&neighbour(chunk, normal)) {
+        for offset in mesh_neighbour_offsets() {
+            if let Some(adjacent) = self.chunks.get_mut(&neighbour(chunk, offset)) {
                 adjacent.mesh_revision = revision;
             }
         }
+    }
+
+    /// Resident chunks whose meshes can sample the given chunk, even after evicting it.
+    pub fn resident_mesh_neighbours(&self, chunk: ChunkPos) -> impl Iterator<Item = ChunkPos> + '_ {
+        self.contains_chunk(chunk)
+            .then_some(chunk)
+            .into_iter()
+            .flat_map(|chunk| mesh_neighbour_offsets().map(move |d| neighbour(chunk, d)))
+            .filter(|c| self.chunks.contains_key(c))
     }
 
     pub fn chunk_revision(&self, chunk: ChunkPos) -> Option<u64> {
@@ -391,8 +427,8 @@ impl World {
         resident.revision = revision;
         resident.mesh_revision = revision;
         resident.dirty = true;
-        for face in touched_faces(position) {
-            if let Some(c) = self.chunks.get_mut(&neighbour(chunk, face)) {
+        for offset in touched_mesh_neighbours(position) {
+            if let Some(c) = self.chunks.get_mut(&neighbour(chunk, offset)) {
                 c.mesh_revision = revision;
             }
         }
@@ -438,8 +474,16 @@ impl World {
             .sum()
     }
 
+    /// Chunks whose mesh can be affected by changing this block.
     pub fn dirty_chunks(&self, position: Pos) -> Vec<ChunkPos> {
-        affected(position, |c| self.contains_chunk(c))
+        let chunk = chunk_at(position);
+        if !self.contains_chunk(chunk) {
+            return Vec::new();
+        }
+        std::iter::once(chunk)
+            .chain(touched_mesh_neighbours(position).map(|d| neighbour(chunk, d)))
+            .filter(|&c| self.contains_chunk(c))
+            .collect()
     }
 
     pub fn mesh_snapshot(&self, chunk: ChunkPos) -> Option<MeshSnapshot> {
@@ -453,6 +497,11 @@ impl World {
                     .get(&neighbour(chunk, d))
                     .map(|n| n.cells.clone())
             }),
+            diagonal: Box::new(DIAGONALS.map(|d| {
+                self.chunks
+                    .get(&neighbour(chunk, d))
+                    .map(|n| n.cells.clone())
+            })),
         })
     }
 
@@ -465,6 +514,16 @@ impl World {
         self.mesh_snapshot(chunk)
             .map_or_else(Vec::new, |s| s.greedy_mesh())
     }
+}
+
+fn touched_mesh_neighbours(position: Pos) -> impl Iterator<Item = Pos> {
+    let boundary = position.map(|v| match v.rem_euclid(CHUNK) {
+        0 => -1,
+        v if v == CHUNK - 1 => 1,
+        _ => 0,
+    });
+    mesh_neighbour_offsets()
+        .filter(move |d| (0..3).all(|axis| d[axis] == 0 || d[axis] == boundary[axis]))
 }
 
 fn touched_faces(position: Pos) -> impl Iterator<Item = Pos> {

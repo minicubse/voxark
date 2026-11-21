@@ -7,6 +7,8 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 pub struct Geometry {
     pub forest: bool,
+    pub flora: crate::flora::Flora,
+    pub build_us: f64,
     pub mesh: Mesh,
     pub quads: usize,
     pub bytes: usize,
@@ -42,6 +44,8 @@ pub fn prepare(faces: &[Face]) -> (Geometry, usize) {
     (
         Geometry {
             forest: false,
+            flora: Default::default(),
+            build_us: 0.,
             mesh,
             quads: faces.len(),
             bytes,
@@ -58,6 +62,12 @@ pub fn origin_for(position: DVec3) -> ChunkPos {
     (position / 16.).floor().as_ivec3().to_array()
 }
 struct Tile {
+    forest: bool,
+    flora: [Option<Entity>; 2],
+    flora_tri: [usize; 2],
+    plants: [usize; 2],
+    lod: usize,
+    supports: Vec<[u8; 3]>,
     entity: Entity,
     quads: usize,
     visible: bool,
@@ -77,9 +87,17 @@ pub struct Terrain {
     pub visible: usize,
     pub quads: usize,
     pub removed: usize,
+    pub flora_tri: usize,
+    pub plants: usize,
+    pub build_us: f64,
+    pub built: usize,
+    pub stream_us: f64,
+    pub stream_ticks: usize,
 }
 impl Terrain {
     pub fn install(&mut self, c: ChunkPos, g: Geometry) {
+        self.build_us += g.build_us;
+        self.built += 1;
         self.retired.remove(&c);
         if self.pending.insert(c, g).is_none() {
             self.order.push_back(c);
@@ -100,6 +118,12 @@ impl Terrain {
     }
     pub fn has_geometry(&self, c: ChunkPos) -> bool {
         self.tiles.contains_key(&c) && !self.retired.contains(&c)
+    }
+    pub fn has_plant(&self, pos: [i32; 3]) -> bool {
+        let c = primal_voxel::chunk_at(pos);
+        self.tiles
+            .get(&c)
+            .is_some_and(|t| t.supports.contains(&pos.map(|v| v.rem_euclid(16) as u8)))
     }
     pub fn idle(&self) -> bool {
         self.pending.is_empty() && self.retired.is_empty()
@@ -153,21 +177,44 @@ impl Terrain {
             }
             let mut entity = commands.spawn((
                 Mesh3d(meshes.add(g.mesh)),
-                NoFrustumCulling,
                 Transform::from_translation(offset(c, self.origin)),
                 Visibility::Hidden,
             ));
             if !g.forest {
-                entity.insert(MeshMaterial3d(material.historic.clone()));
+                entity.insert((NoFrustumCulling, MeshMaterial3d(material.historic.clone())));
             } else if let Some(h) = &material.grain {
                 entity.insert(MeshMaterial3d(h.clone()));
             } else {
                 entity.insert(MeshMaterial3d(material.forest.clone()));
             }
             let entity = entity.id();
+            let fl = g.flora;
+            let nf = fl.supports.len();
+            let flora = [fl.near, fl.far].map(|mesh| {
+                mesh.map(|m| {
+                    self.uploads += 1;
+                    commands
+                        .spawn((
+                            Mesh3d(meshes.add(m)),
+                            MeshMaterial3d(material.flora.clone()),
+                            ChildOf(entity),
+                            bevy::light::NotShadowCaster,
+                            Visibility::Hidden,
+                            Transform::default(),
+                        ))
+                        .id()
+                })
+            });
+
             self.tiles.insert(
                 c,
                 Tile {
+                    forest: g.forest,
+                    flora,
+                    flora_tri: [fl.near_tri, fl.far_tri],
+                    plants: [nf, fl.far_count],
+                    supports: fl.supports,
+                    lod: 2,
                     entity,
                     quads: g.quads,
                     visible: false,
@@ -185,8 +232,11 @@ impl Terrain {
         front: Vec3,
         distance: f32,
         aspect: f32,
+        veg_distance: f32,
         commands: &mut Commands,
     ) {
+        self.flora_tri = 0;
+        self.plants = 0;
         self.visible = 0;
         self.quads = 0;
         let right = front.cross(Vec3::Y).normalize_or_zero();
@@ -202,13 +252,43 @@ impl Terrain {
                 && z + radius >= 0.05
                 && delta.dot(right).abs() <= z * horiz + radius * (1. + horiz * horiz).sqrt()
                 && delta.dot(up).abs() <= z * vertical + radius * (1. + vertical * vertical).sqrt();
-            if visible != t.visible {
-                commands.entity(t.entity).insert(if visible {
+            let d = delta.length();
+            let lod = if !visible || d > veg_distance + 8. {
+                2
+            } else if d < veg_distance * 0.62 + 4. {
+                0
+            } else {
+                1
+            };
+            if lod != t.lod {
+                for (i, entity) in t.flora.iter().enumerate() {
+                    if let Some(e) = entity {
+                        commands.entity(*e).insert(if i == lod {
+                            Visibility::Inherited
+                        } else {
+                            Visibility::Hidden
+                        });
+                    }
+                }
+                t.lod = lod;
+            }
+            if lod < 2 {
+                self.flora_tri += t.flora_tri[lod];
+                self.plants += t.plants[lod];
+            }
+            // Keep nearby forest geometry available to the shadow camera even behind the player.
+            let submitted = if t.forest {
+                !self.retired.contains(&c) && d <= distance + radius
+            } else {
+                visible
+            };
+            if submitted != t.visible {
+                commands.entity(t.entity).insert(if submitted {
                     Visibility::Visible
                 } else {
                     Visibility::Hidden
                 });
-                t.visible = visible;
+                t.visible = submitted;
             }
             if visible {
                 self.visible += 1;

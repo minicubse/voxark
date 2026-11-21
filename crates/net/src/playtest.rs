@@ -9,6 +9,8 @@ pub enum Action {
     Look(f32, f32),
     Click(u8),
     Fly,
+    Pose,
+    Plant(Pos),
     Photo,
     Quit,
 }
@@ -49,6 +51,12 @@ impl Playtest {
                 None
             }
             ["fly"] => Some(Action::Fly),
+            ["plant", x, y, z] => Some(Action::Plant([
+                x.parse().ok()?,
+                y.parse().ok()?,
+                z.parse().ok()?,
+            ])),
+            ["pose"] => Some(Action::Pose),
             ["photo"] => Some(Action::Photo),
             ["quit"] => Some(Action::Quit),
             _ => None,
@@ -71,6 +79,12 @@ impl Playtest {
             );
         }
     }
+}
+
+/// Report the last authoritative pose received by an opt-in test client.
+pub fn report_pose(actor: &crate::Actor) {
+    let [x, y, z] = actor.position;
+    println!("POSE {} {} {x} {y} {z}", actor.id, actor.flying);
 }
 
 /// Stable rolling digest of the sequence of per-frame visible geometry counts.

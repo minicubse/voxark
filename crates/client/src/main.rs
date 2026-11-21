@@ -168,7 +168,7 @@ async fn run(options: &Options) -> Result<(), String> {
         if options.valley_only {
             World::valley_streamed(store.seed())
         } else {
-            World::streamed(store.seed())
+            World::with_preset(store.seed(), store.preset())
         },
         store.clone(),
         options.stream.clone(),

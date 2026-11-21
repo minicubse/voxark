@@ -74,6 +74,11 @@ impl Session {
             driver: playtest.then(primal_net::playtest::Playtest::open),
         }
     }
+    pub fn is_forest(&self) -> bool {
+        self.replica
+            .as_ref()
+            .is_some_and(|r| r.world.preset() == primal_voxel::Preset::ForestModern)
+    }
     pub fn inputs(&self) -> u64 {
         self.link.as_ref().map_or(0, |l| {
             l.sent_inputs.load(std::sync::atomic::Ordering::Relaxed)
@@ -234,6 +239,10 @@ pub fn update(
                 }
             }
             Some(Action::Fly) => n.flying = true,
+            Some(Action::Plant(p)) => {
+                println!("PLANT {} {} {} {}", p[0], p[1], p[2], terrain.has_plant(p))
+            }
+            Some(Action::Pose) => primal_net::playtest::report_pose(own),
             Some(Action::Photo) => {
                 if let Some(path) = &o.capture {
                     use bevy::render::view::screenshot::{Screenshot, save_to_disk};

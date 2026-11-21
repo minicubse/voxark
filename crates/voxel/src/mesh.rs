@@ -1,8 +1,8 @@
-use super::{CHUNK, ChunkPos, DIRECTIONS, SIDE, Voxels};
+use super::{CHUNK, ChunkPos, DIAGONALS, DIRECTIONS, SIDE, Voxels};
 use std::sync::Arc;
 
-const EDGE: usize = SIDE + 2;
-const STRIDE: [usize; 3] = [1, EDGE * EDGE, EDGE];
+pub(super) const EDGE: usize = SIDE + 2;
+pub(super) const STRIDE: [usize; 3] = [1, EDGE * EDGE, EDGE];
 const CORNERS: [[[i32; 3]; 4]; 6] = [
     [[1, 0, 0], [1, 1, 0], [1, 1, 1], [1, 0, 1]],
     [[0, 0, 1], [0, 1, 1], [0, 1, 0], [0, 0, 0]],
@@ -19,7 +19,7 @@ pub struct Face {
     pub block: u8,
 }
 
-/// Immutable block and face-neighbour references captured in one world update.
+/// Immutable block and neighbour references captured in one world update.
 /// Edits while a worker is running copy only the affected shared voxel buffer.
 #[derive(Clone)]
 pub struct MeshSnapshot {
@@ -27,6 +27,7 @@ pub struct MeshSnapshot {
     pub(super) revision: u64,
     pub(super) center: Arc<Voxels>,
     pub(super) adjacent: [Option<Arc<Voxels>>; 6],
+    pub(super) diagonal: Box<[Option<Arc<Voxels>>; DIAGONALS.len()]>,
 }
 
 impl MeshSnapshot {
@@ -38,7 +39,7 @@ impl MeshSnapshot {
     }
 
     /// Row-major Y, Z, X with a one-cell halo, X contiguous. The six face
-    /// planes are sufficient for both meshers. Missing neighbours expose the
+    /// planes are sufficient for visibility. Missing neighbours expose the
     /// frontier until their arrival invalidates this snapshot's revision.
     pub fn padded_blocks(&self) -> [u8; EDGE * EDGE * EDGE] {
         let mut grid = [0; EDGE * EDGE * EDGE];
@@ -71,6 +72,33 @@ impl MeshSnapshot {
                     dst[axis] = if positive { EDGE - 1 } else { 0 };
                     grid[(dst[1] * EDGE + dst[2]) * EDGE + dst[0]] =
                         cells.get((src[1] * SIDE + src[2]) * SIDE + src[0]);
+                }
+            }
+        }
+        grid
+    }
+
+    pub(super) fn ao_blocks(&self) -> [u8; EDGE * EDGE * EDGE] {
+        let mut grid = self.padded_blocks();
+        for (direction, cells) in DIAGONALS.into_iter().zip(self.diagonal.iter()) {
+            let Some(cells) = cells else { continue };
+            if matches!(cells.as_ref(), Voxels::Uniform(0)) {
+                continue;
+            }
+            let [width, height, depth] = direction.map(|d| if d == 0 { SIDE } else { 1 });
+            let src = direction.map(|d| if d < 0 { SIDE - 1 } else { 0 });
+            let dst = direction.map(|d| match d {
+                -1 => 0,
+                1 => EDGE - 1,
+                _ => 1,
+            });
+            for y in 0..height {
+                for z in 0..depth {
+                    for x in 0..width {
+                        let i = ((src[1] + y) * SIDE + src[2] + z) * SIDE + src[0] + x;
+                        let j = ((dst[1] + y) * EDGE + dst[2] + z) * EDGE + dst[0] + x;
+                        grid[j] = cells.get(i);
+                    }
                 }
             }
         }
@@ -195,12 +223,12 @@ impl MeshSnapshot {
 }
 
 #[inline]
-fn padded_index([x, y, z]: [usize; 3]) -> usize {
+pub(super) fn padded_index([x, y, z]: [usize; 3]) -> usize {
     ((y + 1) * EDGE + z + 1) * EDGE + x + 1
 }
 
 #[inline]
-fn adjacent_index(i: usize, side: usize) -> usize {
+pub(super) fn adjacent_index(i: usize, side: usize) -> usize {
     if side.is_multiple_of(2) {
         i + STRIDE[side / 2]
     } else {

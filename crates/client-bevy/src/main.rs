@@ -1,3 +1,5 @@
+mod daylight;
+mod flora;
 mod forest;
 mod network;
 mod terrain;
@@ -104,11 +106,27 @@ impl Options {
                             .expect("x,y,z,yaw,pitch"),
                     )
                 }
+                "--density" => o.style.density = val.parse().unwrap(),
+                "--vegetation-distance" => o.style.veg_distance = val.parse().unwrap(),
+                "--ao" => o.style.ao = switch(&val),
+                "--lighting" => o.style.lighting = switch(&val),
+                "--fog" => o.style.fog = switch(&val),
+                "--shadows" => o.style.shadows = val.parse().unwrap(),
+                "--shadow-size" => o.style.shadow_size = val.parse().unwrap(),
+                "--shadow-distance" => o.style.shadow_distance = val.parse().unwrap(),
+                "--tone" => {
+                    o.style.tone = match val.as_str() {
+                        "agx" => Tonemapping::AgX,
+                        "tony" => Tonemapping::TonyMcMapface,
+                        "none" => Tonemapping::None,
+                        _ => panic!("tone: none|agx|tony"),
+                    }
+                }
                 "--world" => o.world = Some(val.into()),
                 "--route" | "--compare-route" => {
                     assert!(matches!(
                         val.as_str(),
-                        "fixed" | "drift" | "traverse" | "far"
+                        "fixed" | "drift" | "forest-drift" | "forest-traverse" | "traverse" | "far"
                     ));
                     o.route = val;
                 }
@@ -119,6 +137,13 @@ impl Options {
                 _ => panic!("Option inconnue {arg}"),
             }
         }
+        assert!(
+            (0.0..=1.0).contains(&o.style.density)
+                && (0.0..=368.).contains(&o.style.veg_distance)
+                && o.style.shadows <= 2
+                && matches!(o.style.shadow_size, 512 | 1024 | 2048)
+                && (4.0..=150.).contains(&o.style.shadow_distance)
+        );
         assert!((1..=23).contains(&o.radius) && (10..=120).contains(&o.input_hz));
         assert!(
             o.connect.is_none() || o.world.is_none(),
@@ -157,6 +182,7 @@ impl CameraRig {
 }
 #[derive(Resource)]
 struct Surface {
+    flora: Handle<StandardMaterial>,
     historic: Handle<StandardMaterial>,
     forest: Handle<StandardMaterial>,
     grain: Option<Handle<forest::ForestMaterial>>,
@@ -187,7 +213,7 @@ fn main() -> AppExit {
             o.input_hz,
             o.playtest,
             o.style,
-            o.pbr,
+            o.style.lighting,
         ))));
     } else {
         let dir = o.world.is_none().then(|| tempfile::tempdir().unwrap());
@@ -208,7 +234,7 @@ fn main() -> AppExit {
         };
         let world = primal_voxel::World::with_preset(seed, preset);
         let style = o.style;
-        let lit = o.pbr;
+        let lit = style.lighting;
         let local_stream = if preset == primal_voxel::Preset::ForestModern {
             Streamer::new_with_snapshot(world, store, cfg, move |s| {
                 forest::prepare(s, style, lit, seed)
@@ -284,6 +310,7 @@ fn main() -> AppExit {
             control,
             stream,
             network::update,
+            daylight::sync,
             publish,
             measure,
             screenshot_key,
@@ -318,7 +345,7 @@ fn setup(
         "Rendu logiciel refusé"
     );
     let base = StandardMaterial {
-        unlit: !o.pbr,
+        unlit: !o.style.lighting,
         cull_mode: o
             .style
             .cull
@@ -326,6 +353,13 @@ fn setup(
         ..default()
     };
     cmds.insert_resource(Surface {
+        flora: materials.add(StandardMaterial {
+            unlit: !o.style.lighting,
+            cull_mode: None,
+            double_sided: true,
+            perceptual_roughness: 0.82,
+            ..default()
+        }),
         historic: materials.add(StandardMaterial {
             unlit: !o.pbr,
             cull_mode: None,
@@ -407,10 +441,29 @@ fn control(
     } else if bench.warm >= 120 {
         let i = bench.samples.len() as f64;
         match o.route.as_str() {
+            "forest-drift" => {
+                let p = o.view.expect("forest-drift exige --view");
+                let t = i / o.frames.saturating_sub(1).max(1) as f64;
+                rig.eye = DVec3::new(p[0] + 3. * t, p[1] + 0.15 * t, p[2] + 1.75 * t);
+                rig.yaw = (p[3] + 0.16 * t) as f32;
+            }
             "drift" => {
                 let t = i / (o.frames.saturating_sub(1).max(1) as f64);
                 rig.eye = DVec3::new(0.5 + 4. * t, 18., 0.5 + 2. * t);
                 rig.yaw = 0.78 + 0.10 * t as f32;
+            }
+            "forest-traverse" => {
+                let x = i * 0.40;
+                let z = 4. + i * 0.10;
+                let ground = primal_voxel::surface_for(
+                    primal_voxel::Preset::ForestModern,
+                    20_261_120,
+                    x as i32,
+                    z as i32,
+                );
+                rig.eye = DVec3::new(x, ground as f64 + 9., z);
+                rig.yaw = 1.31;
+                rig.pitch = -0.12;
             }
             "traverse" => rig.eye = DVec3::new(0.5 + i * 0.8, 32., 0.5 + i * 0.2),
             "far" => {
@@ -429,11 +482,14 @@ fn control(
 fn stream(world: Option<ResMut<LocalWorld>>, mut terrain: ResMut<Terrain>, rig: Res<CameraRig>) {
     let Some(mut world) = world else { return };
     let s = world.stream.get_mut().unwrap();
+    let start = Instant::now();
     let frame = s.tick(View {
         block: rig.eye.floor().as_ivec3().to_array(),
         forward: rig.front().to_array(),
         velocity: rig.velocity.to_array(),
     });
+    terrain.stream_us += start.elapsed().as_secs_f64() * 1e6;
+    terrain.stream_ticks += 1;
     assert!(frame.errors.is_empty(), "{:?}", frame.errors);
     for c in frame.evicted {
         terrain.remove(c);
@@ -468,6 +524,7 @@ fn publish(
         front,
         (o.radius * 16) as f32,
         window.width() / window.height(),
+        o.style.veg_distance,
         &mut cmds,
     );
 }
@@ -539,7 +596,7 @@ fn measure(
     let tail = &sorted[sorted.len() - (0.01 * sorted.len() as f64).ceil() as usize..];
     let stream = world.as_ref().map(|w| w.stream.lock().unwrap());
     let stats = stream.as_ref().map(|s| s.stats());
-    let report = json!({"renderer":"bevy","adapter":gpu.name,"backend":format!("{:?}",gpu.backend),"device_type":format!("{:?}",gpu.device_type),
+    let mut report = json!({"renderer":"bevy","adapter":gpu.name,"backend":format!("{:?}",gpu.backend),"device_type":format!("{:?}",gpu.device_type),
         "material":if o.pbr{"pbr"}else{"simple"},"route":o.route,"resolution":o.size,"render_radius":o.radius,"frames":sorted.len(),
         "geometry_digest":format!("{:016x}",bench.geometry),"sent_inputs":online.as_ref().map(|n|n.0.lock().unwrap().inputs()-bench.inputs),
         "process_cpu_ms":bench.cpu.elapsed().as_secs_f64()*1000.,"players":online.as_ref().map(|n|n.0.lock().unwrap().player_count),
@@ -549,6 +606,21 @@ fn measure(
         "published_bytes":terrain.bytes-bench.baseline.1,"publication_cpu_us":terrain.publish_us-bench.baseline.2,
         "peak_meshes":terrain.peak,"peak_resident":stats.map(|s|s.peak_resident),"peak_jobs":stats.map(|s|s.peak_jobs),"evictions":stats.map(|s|s.evictions),
         "meshes_retired":terrain.removed,"rebases":terrain.rebases,"final_eye":rig.eye.to_array()});
+    if o.preset == Some(primal_voxel::Preset::ForestModern) {
+        report["material"] = json!(if o.style.lighting {
+            "forest_lit"
+        } else {
+            "forest_unlit"
+        });
+        report["forest"] = json!({
+            "decorative_triangles":terrain.flora_tri, "plants":terrain.plants,
+            "visible_triangles_total":terrain.quads*2 + terrain.flora_tri,
+            "cumulative_upload_bytes":terrain.bytes, "cumulative_meshes":terrain.uploads,
+            "cumulative_build_us":terrain.build_us, "completed_builds":terrain.built,
+            "cumulative_stream_us":terrain.stream_us,"stream_ticks":terrain.stream_ticks,
+            "frame_ms":bench.samples
+        });
+    }
     if let Some(path) = &o.report {
         std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap()).unwrap();
     }
