@@ -289,6 +289,7 @@ def main():
     extras += sorted(f for f in (repo / "benchmarks/results/3c").rglob("*") if f.is_file())
     extras += [repo / "docs" / name for name in ("CREATURES_3D.md", "WYVERN_ASSET.md")]
     extras += [repo / "tools" / name for name in ("generate-wyvern.py", "validate-wyvern.py", "benchmark-creatures.py", "test-creature-import.py", "check-creature-motion.py")]
+    extras += [repo / "tools" / name for name in ("validate-creature.py", "creature_gltf.py")]
     extras += sorted(f for f in (repo / "assets/creatures").iterdir() if f.is_file())
     extras += sorted(f for f in (repo / "benchmarks/results/3d").rglob("*") if f.is_file())
     for source in extras:
