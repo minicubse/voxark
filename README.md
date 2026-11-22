@@ -1,4 +1,6 @@
-# Primal Voxel — Forêt moderne et Vallée originelle
+# Primal Voxel — Forêt moderne, wyverne et Vallée originelle
+
+**Pour voir la wyverne**, décompressez le ZIP 3D puis ouvrez **Inspecter-Wyverne.cmd**. La séquence de démonstration est locale. Vous gardez la caméra libre. [Inspection, commandes et mesures Radeon](docs/CREATURES_3D.md).
 
 **Pour jouer à la forêt**, extrayez le ZIP 3C puis ouvrez **Jouer-Foret.cmd**. Le client Bevy rejoint le serveur local, qui sauvegarde vos constructions et vos destructions. **Serveur-Foret.cmd** permet aux deux clients de rejoindre le même monde sur le port 47621.
 

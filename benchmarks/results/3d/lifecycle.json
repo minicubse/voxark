@@ -1,0 +1,42 @@
+{
+  "adapter": "AMD Radeon (TM) Graphics",
+  "backend": "Vulkan",
+  "creature_lifecycle": {
+    "original_colors_restored": true,
+    "palette_mutation_isolated": true,
+    "remaining_instances": 3,
+    "root_and_skin_joints_despawned": true,
+    "shared_palette_materials_retained": true
+  },
+  "creature_inventory": {
+    "gpu_resident_meshes": 4,
+    "inverse_bind_bytes": 1472,
+    "joint_reference_bytes": 2208,
+    "joints_all_instances": 69,
+    "loaded_clips": 6,
+    "scene_to_render_asset_ms": 2.2494,
+    "skinned_primitives": 12,
+    "triangles_all_instances": 18144,
+    "unique_graphs": 1,
+    "unique_inverse_bind_assets": 1,
+    "unique_materials_used": 12,
+    "unique_mesh_bytes": 254080,
+    "unique_meshes": 4,
+    "unique_triangles": 6048,
+    "view_visible_primitives": 12,
+    "view_visible_triangles": 18144
+  },
+  "creatures": {
+    "asset_load_ms": 21.6009,
+    "clips": 6,
+    "instances": 3,
+    "max_joints": 23,
+    "mesh_assets": 4,
+    "palette_materials": 12,
+    "players": 3,
+    "scenes": 1,
+    "skinned_meshes": 12,
+    "skins": 1,
+    "slots": 4
+  }
+}

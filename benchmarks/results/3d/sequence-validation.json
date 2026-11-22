@@ -1,0 +1,50 @@
+[
+  {
+    "states": [
+      "IdleGround",
+      "Walk",
+      "Takeoff",
+      "Flap",
+      "Glide",
+      "Land",
+      "IdleGround"
+    ],
+    "peak_speed_blocks_s": 20.52857937482615,
+    "peak_altitude": 59.621738615030694,
+    "minimum_head_forward_dot": 0.9999636413611285,
+    "minimum_movement_forward_dot": 0.9969016910683712,
+    "maximum_joint_scale_error": 0.0,
+    "maximum_live_blended_clips": 2,
+    "camera": [
+      1.0,
+      28.849999999999998,
+      5.3
+    ],
+    "sample_count": 183,
+    "speed": 1.0
+  },
+  {
+    "states": [
+      "IdleGround",
+      "Walk",
+      "Takeoff",
+      "Flap",
+      "Glide",
+      "Land",
+      "IdleGround"
+    ],
+    "peak_speed_blocks_s": 20.480190371180555,
+    "peak_altitude": 59.61857696507865,
+    "minimum_head_forward_dot": 0.9999636347030922,
+    "minimum_movement_forward_dot": 0.9928743720790382,
+    "maximum_joint_scale_error": 0.0,
+    "maximum_live_blended_clips": 2,
+    "camera": [
+      0.5,
+      27.8,
+      0.5
+    ],
+    "sample_count": 200,
+    "speed": 2.0
+  }
+]

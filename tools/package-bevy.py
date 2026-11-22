@@ -156,9 +156,10 @@ def collect_notices(repo, destination, baseline):
     return len(packages)
 
 
-NOTICE = """PRIMAL VOXEL 3C — WINDOWS x64
+NOTICE = """PRIMAL VOXEL 3D — WINDOWS x64
 
 Décompressez entièrement ce dossier dans un emplacement inscriptible.
+Inspecter-Wyverne.cmd ouvre la démonstration locale de la wyverne animée (voir docs/CREATURES_3D.md).
 Jouer-Foret.cmd ouvre la forêt jouable avec Bevy et son serveur autoritaire local.
 Fermez le client pour sauvegarder et arrêter le serveur. Le monde est dans worlds/foret.pvx.regions.
 Serveur-Foret.cmd lance seulement le serveur de forêt (port 47621). Les deux clients peuvent le rejoindre.
@@ -174,7 +175,8 @@ pilote officiel du GPU si le client ne trouve aucun adaptateur compatible.
 Le lanceur choisit Vulkan pour ne pas dépendre de dxcompiler.dll/dxil.dll.
 Les shaders Bevy sont intégrés à l'exécutable. Les mondes restent locaux au PC.
 Le guide et les mesures sont dans docs/FORET_3C.md et docs/PERFORMANCE_3C.md.
-Les captures PNG du jeu sont dans benchmarks/results/3c/.
+Retrouvez la vidéo et les captures de la wyverne dans benchmarks/results/3d/,
+et les vues de la forêt de référence dans benchmarks/results/3c/.
 
 Pour rejoindre le serveur local avec Bevy, démarrer le serveur puis lancer
 Jouer-Bevy.cmd --connect 127.0.0.1:47620 --identity joueur-bevy.identity
@@ -226,7 +228,7 @@ def pe_imports(path):
 def main():
     repo = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=repo.parent / "PrimalVoxel-3C-Windows-x64")
+    parser.add_argument("--out", type=Path, default=repo.parent / "PrimalVoxel-3D-Windows-x64")
     parser.add_argument("--baseline-notices", type=Path, default=repo.parent / "PrimalVoxel-1C-Windows-x64/LICENCES")
     parser.add_argument("--client", type=Path, help="Validated Macroquad client")
     parser.add_argument("--bevy-client", type=Path, help="Validated Bevy client")
@@ -260,6 +262,7 @@ def main():
               'if errorlevel 1 pause\n')
     launcher("Jouer-Foret", "host", "-Bevy -Config serveur-foret.json -Port 47621")
     launcher("Serveur-Foret", "server", "-Config serveur-foret.json")
+    launcher("Inspecter-Wyverne", "bevy", "--preset forest-modern --creatures 1 --creature-state demo --view 0.5,27.8,0.5,-1.66,0.02")
     launcher("Visiter-Foret", "bevy", "--preset forest-modern --view 0.5,27.8,0.5,-1.66,0.08")
     config = {"world": "worlds/host.pvx", "bind": "0.0.0.0:47620", "seed": 20261120,
               "tick_hz": 60, "max_players": 8}
@@ -284,6 +287,10 @@ def main():
     extras = [repo / "docs" / name for name in ("FORET_3C.md", "PERFORMANCE_3C.md", "MULTIJOUEUR_2.md")]
     extras += [repo / "tools" / name for name in ("benchmark-forest.py", "test-mixed-renderers.py")]
     extras += sorted(f for f in (repo / "benchmarks/results/3c").rglob("*") if f.is_file())
+    extras += [repo / "docs" / name for name in ("CREATURES_3D.md", "WYVERN_ASSET.md")]
+    extras += [repo / "tools" / name for name in ("generate-wyvern.py", "validate-wyvern.py", "benchmark-creatures.py", "test-creature-import.py", "check-creature-motion.py")]
+    extras += sorted(f for f in (repo / "assets/creatures").iterdir() if f.is_file())
+    extras += sorted(f for f in (repo / "benchmarks/results/3d").rglob("*") if f.is_file())
     for source in extras:
         target = args.out / source.relative_to(repo)
         target.parent.mkdir(parents=True, exist_ok=True)

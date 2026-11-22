@@ -361,6 +361,7 @@ pub struct CreatureAnimation {
 #[derive(Component)]
 pub struct CreatureMesh {
     pub owner: Entity,
+    pub membrane: bool,
 }
 
 #[derive(Component)]
@@ -705,14 +706,18 @@ struct InstanceParts<'w, 's> {
     >,
 }
 
+type UnboundMounts<'w, 's> = Query<
+    'w,
+    's,
+    (Entity, &'static ChildOf, &'static WorldInstance),
+    (With<CreatureMount>, Without<BoundInstance>),
+>;
+
 fn bind_instances(
     mut commands: Commands,
     spawner: Res<WorldInstanceSpawner>,
     mut assets: ResMut<CreatureAssets>,
-    mounts: Query<
-        (Entity, &ChildOf, &WorldInstance),
-        (With<CreatureMount>, Without<BoundInstance>),
-    >,
+    mounts: UnboundMounts,
     mut visuals: Query<&mut CreatureVisual>,
     parts: InstanceParts,
 ) {
@@ -763,8 +768,12 @@ fn bind_instances(
                 continue;
             };
             let mut mesh = commands.entity(entity);
-            mesh.insert(CreatureMesh { owner });
-            if let Some(slot) = name.and_then(|name| model.slot_names.get(&name.0)) {
+            let slot = name.and_then(|name| model.slot_names.get(&name.0));
+            mesh.insert(CreatureMesh {
+                owner,
+                membrane: slot == Some(&MaterialSlot::Membranes),
+            });
+            if let Some(slot) = slot {
                 let handle = model.palettes[visual.palette as usize][*slot as usize].clone();
                 mesh.insert(MeshMaterial3d(handle));
             }

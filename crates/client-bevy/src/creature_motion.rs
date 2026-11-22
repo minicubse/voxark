@@ -265,10 +265,10 @@ pub(crate) fn update_demo(
     } else {
         virtual_time.pause();
     }
-    if o.creature_probe && demo.ready {
+    if (o.creature_probe || o.creature_record) && demo.ready {
         let before = demo.probe_elapsed;
         demo.probe_elapsed += real.delta_secs_f64();
-        if before < PROBE_AWAY && demo.probe_elapsed >= PROBE_AWAY {
+        if o.creature_probe && before < PROBE_AWAY && demo.probe_elapsed >= PROBE_AWAY {
             demo.probe_yaw = Some(rig.yaw);
             rig.yaw += std::f32::consts::PI;
         }
@@ -369,6 +369,31 @@ pub(crate) fn update_demo(
     }
 }
 
+/// Explicit validation export only. Interactive inspection never installs this camera system.
+pub(crate) fn film_camera(
+    o: Res<Options>,
+    bench: Res<Bench>,
+    actors: Query<&Actor>,
+    mut rig: ResMut<CameraRig>,
+    mut commands: Commands,
+) {
+    let Ok(actor) = actors.single() else { return };
+    let target = actor.position + DVec3::Y * 1.45;
+    rig.eye = target + DVec3::new(8.0, 2.4, 3.8);
+    let dir = (target - rig.eye).normalize();
+    rig.yaw = dir.x.atan2(dir.z) as f32;
+    rig.pitch = dir.y.asin() as f32;
+    if bench.warm >= 120
+        && bench.samples.len() < o.frames
+        && let Some(dir) = &o.creature_film
+    {
+        let path = dir.join(format!("frame-{:04}.png", bench.samples.len()));
+        use bevy::render::view::screenshot::{Screenshot, save_to_disk};
+        commands
+            .spawn(Screenshot::primary_window())
+            .observe(save_to_disk(path));
+    }
+}
 pub(crate) fn publish_actors(terrain: Res<Terrain>, mut actors: Query<(&Actor, &mut Transform)>) {
     for (actor, mut transform) in &mut actors {
         let position = local_position(actor.position, terrain.origin);
@@ -539,11 +564,20 @@ struct ProbeScene<'w, 's> {
     camera: Query<'w, 's, &'static VisibleEntities, With<Camera3d>>,
     roots: Query<'w, 's, (Entity, &'static Actor, &'static Transform)>,
     players: Query<'w, 's, (Entity, &'static CreatureAnimation, &'static AnimationPlayer)>,
-    joints: Query<'w, 's, (&'static Name, &'static AnimatedBy, &'static Transform)>,
+    joints: Query<
+        'w,
+        's,
+        (
+            &'static Name,
+            &'static AnimatedBy,
+            &'static Transform,
+            &'static GlobalTransform,
+        ),
+    >,
 }
 
 fn probe_enabled(o: Res<Options>) -> bool {
-    o.creature_probe
+    o.creature_probe || o.creature_record
 }
 
 fn record_probe(
@@ -578,16 +612,23 @@ fn record_probe(
         };
         let mut joints = serde_json::Map::new();
         if actor.slot == 0 {
-            for (name, animated_by, transform) in &scene.joints {
+            for (name, animated_by, transform, global) in &scene.joints {
                 if animated_by.0 == player_entity
                     && matches!(
                         name.as_str(),
-                        "Head" | "Jaw" | "WingWrist.L" | "WingWrist.R" | "Ankle.L" | "TailTip"
+                        "Body"
+                            | "Head"
+                            | "Jaw"
+                            | "WingWrist.L"
+                            | "WingWrist.R"
+                            | "Ankle.L"
+                            | "TailTip"
                     )
                 {
                     joints.insert(
                         name.to_string(),
                         json!({
+                            "global": global.translation().to_array(),
                             "rotation": transform.rotation.to_array(),
                             "translation": transform.translation.to_array(),
                             "scale": transform.scale.to_array(),
@@ -617,6 +658,7 @@ fn record_probe(
                 "elapsed_s": actor.elapsed,
                 "world": actor.position.to_array(),
                 "local": transform.translation.to_array(),
+                "forward": transform.forward().to_array(),
                 "visible_meshes": visible.get(&entity).copied().unwrap_or(0),
                 "clips": clips,
                 "joints": joints,

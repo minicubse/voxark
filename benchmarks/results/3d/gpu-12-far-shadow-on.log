@@ -1,0 +1,1796 @@
+2026-11-22T00:11:22.389781Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.389989Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.390042Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.390078Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.390133Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.390191Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.390224Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.390266Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.390324Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.390340Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.390373Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.390444Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.390487Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.390524Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.390625Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.391330Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1733
+2026-11-22T00:11:22.391422Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.391509Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1735
+2026-11-22T00:11:22.393437Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.393504Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.394291Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.394314Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.394328Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.394403Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.394446Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.394344Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.394417Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.394366Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.394912Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.394973Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395034Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395070Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395254Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395284Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395310Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395338Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395361Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395383Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395406Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395428Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395448Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395513Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395573Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395601Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395627Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395647Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395689Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395716Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395758Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.395968Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396001Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.396001Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396075Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396111Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396144Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.396059Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396060Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396063Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396287Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.396047Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396050Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396394Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.396049Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.396495Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.397824Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.397897Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.397937Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.397902Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.397935Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.397962Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.398101Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.397916Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.398031Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.398181Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.398124Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.398162Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.398072Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.398205Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.398243Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.398351Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.398273Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.398404Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.398378Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.398430Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.398463Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.398498Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.398545Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.398582Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.398611Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.398543Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.398561Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.398685Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.398725Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.398753Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.398704Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.398779Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.398810Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.398863Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.398898Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.398926Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.398946Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.398963Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.398984Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.399037Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.399570Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1737
+2026-11-22T00:11:22.399648Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.399722Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1739
+2026-11-22T00:11:22.401484Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.401537Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.402576Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.402591Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.402592Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.402641Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.402650Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.402668Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.402698Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.402713Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.403119Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403128Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403221Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403251Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403281Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403305Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403320Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403334Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403353Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403373Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403393Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403419Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403444Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403505Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403566Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403599Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403623Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403643Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403661Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403681Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403708Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.403737Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404010Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404009Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404067Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404020Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404024Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404026Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404033Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404076Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404281Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.404142Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404387Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.404021Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.404503Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.404205Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.404519Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.405670Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.405706Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.405747Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.405737Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.405680Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.405776Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.405813Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.405827Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.405884Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.405928Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.406059Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.406081Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.405962Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.406008Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.406143Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.406176Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.406235Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.406250Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.406253Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.406266Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.406302Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.406334Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.406374Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.406407Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.406436Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.406519Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.406498Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.406476Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.406540Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.406670Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.406714Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.406804Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.406849Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.406884Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.406937Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.406968Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.406992Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.407026Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.407047Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.407124Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.407726Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1741
+2026-11-22T00:11:22.407809Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.407886Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1743
+2026-11-22T00:11:22.409910Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.409978Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.410721Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.410773Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.410805Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.410743Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.410811Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.410853Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.410819Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.410868Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.411336Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411351Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411434Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411464Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411495Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411517Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411537Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411562Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411585Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411606Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411632Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411648Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411722Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411754Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411794Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411829Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411852Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411877Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411893Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411909Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.411924Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412138Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412171Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412224Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412177Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412176Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412153Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412192Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412202Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412891Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.412245Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412963Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.412155Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.412443Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.413042Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.413157Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.414454Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.414508Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.414519Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.414612Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.414584Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.414591Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.414549Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.414786Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.414769Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.414715Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.414677Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.414862Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.414889Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.414994Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.415002Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.415057Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.414930Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.415095Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.415132Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.415180Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.415268Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.415300Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.415228Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.415229Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.415325Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.415363Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.415447Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.415475Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.415502Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.415424Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.415384Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.415577Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.415616Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.415652Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.415696Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.415759Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.415789Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.415736Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.415856Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.415955Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.416551Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1745
+2026-11-22T00:11:22.416650Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.416746Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1747
+2026-11-22T00:11:22.418577Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.418639Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.419405Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.419449Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.419417Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.419476Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.419590Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.419496Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.419528Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.419498Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.419932Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.419957Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420019Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420052Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420086Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420113Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420138Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420161Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420187Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420210Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420238Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420260Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420274Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420326Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420372Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420401Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420442Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420470Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420497Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420526Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420559Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420584Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420809Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420831Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420869Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420914Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420853Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.421009Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420860Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420839Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.420911Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.420927Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.420845Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.421238Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.420856Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.421013Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.421384Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.422680Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.422717Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.422725Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.422737Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.422742Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.422798Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.422851Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.422852Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.422923Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.423172Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.423224Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.423015Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.423119Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.423328Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.423300Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.423395Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.423359Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.423279Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.423491Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.423514Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.423522Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.423601Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.423563Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.423622Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.423645Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.423700Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.423741Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.423775Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.423810Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.423846Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.423879Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.423913Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.423944Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.423978Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.424032Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.424135Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.424162Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.424202Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.424232Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.424372Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.425123Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1749
+2026-11-22T00:11:22.425214Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.425333Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1751
+2026-11-22T00:11:22.427482Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.427557Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.428339Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.428384Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.428356Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.428475Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.428497Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.428422Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.428440Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.428405Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.429049Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429067Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429174Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429208Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429243Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429270Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429296Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429321Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429350Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429380Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429528Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429564Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429590Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429698Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429746Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429768Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429790Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429806Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429822Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429839Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429858Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.429874Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430182Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430183Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430183Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430303Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.430191Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430397Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.430247Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430256Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430256Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430535Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.430188Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430239Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430304Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.430633Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.430681Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.432016Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.432069Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.432033Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.432108Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.432145Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.432151Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.432303Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.432326Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.432344Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.432182Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.432185Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.432255Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.432379Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.432455Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.432504Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.432552Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.432589Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.432623Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.432663Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.432689Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.432770Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.432806Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.432839Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.432801Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.432883Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.432895Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.432919Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.432961Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.432925Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.432934Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.432991Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.433022Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.433147Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.433177Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.433206Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.433070Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.433341Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.433376Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.433117Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.433504Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.434157Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1753
+2026-11-22T00:11:22.434284Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.434407Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1755
+2026-11-22T00:11:22.436101Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.436174Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.436942Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.436991Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.437027Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.437074Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.437010Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.437087Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.436961Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437023Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.437593Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437631Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437678Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437706Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437732Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437767Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437800Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437826Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437840Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437868Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437892Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437915Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437941Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.437994Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438036Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438057Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438086Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438110Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438132Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438155Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438183Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438209Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438494Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438497Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438517Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438610Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438643Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438539Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438556Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438556Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438597Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438618Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.438523Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.438730Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.438767Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.438799Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.438944Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.440266Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.440330Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.440382Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.440425Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.440456Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.440479Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.440509Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.440335Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.440481Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.440390Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.440531Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.440336Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.440740Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.440627Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.440678Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.440820Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.440768Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.440830Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.440768Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.440859Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.440898Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.440928Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.440999Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.441044Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.441141Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.441115Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.441167Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.441282Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.441228Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.441343Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.441374Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.441404Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.441451Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.441458Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.441478Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.441487Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.441499Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.441632Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.441669Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.441767Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.442424Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1757
+2026-11-22T00:11:22.442515Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.442626Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1759
+2026-11-22T00:11:22.444581Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.444647Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.445426Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.445447Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.445502Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.445545Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.445589Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.445479Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.445550Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.445507Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.446140Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446174Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446224Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446254Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446628Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446686Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446716Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446745Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446774Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446803Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446834Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446862Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446885Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.446959Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447013Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447034Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447054Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447070Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447094Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447124Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447159Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447186Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447529Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447567Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447576Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447579Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.447708Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447694Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447703Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447709Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447715Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447924Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.447721Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.447879Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.447653Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.448076Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.448234Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.449346Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.449387Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.449437Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.449402Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.449395Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.449450Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.449448Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.449504Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.449570Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.449613Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.449644Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.449774Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.449805Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.449675Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.449732Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.449863Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.449935Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.449954Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.449964Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.449973Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.449989Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.450016Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.450061Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.450076Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.450111Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.450136Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.450165Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.450192Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.450220Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.450245Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.450280Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.450317Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.450367Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.450378Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.450425Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.450407Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.450482Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.450515Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.450547Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.450620Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.451180Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1761
+2026-11-22T00:11:22.451254Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.451352Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1763
+2026-11-22T00:11:22.452918Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.452982Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.453636Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.453659Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.453666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.453747Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.453695Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.453704Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.453733Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.453640Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.454105Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454138Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454183Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454208Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454276Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454302Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454325Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454347Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454367Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454385Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454429Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454456Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454476Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454501Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454521Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454538Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454566Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454588Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454609Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454630Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454652Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454671Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454842Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454872Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454898Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454872Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454950Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454986Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454885Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454910Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.454855Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454883Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.454955Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.454855Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.455058Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.455192Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.455343Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.456336Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.456384Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.456398Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.456399Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.456405Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.456458Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.456471Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.456517Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.456581Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.456621Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.456670Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.456691Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.456862Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.456816Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.456924Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.456962Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.456991Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.456770Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.456937Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.457035Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.457140Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.457149Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.457086Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.457165Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.457180Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.457240Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.457291Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.457393Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.457408Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.457377Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.457439Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.457465Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.457493Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.457557Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.457571Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.457518Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.457619Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.457645Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.457581Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.457770Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.458484Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1765
+2026-11-22T00:11:22.458574Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.458716Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1767
+2026-11-22T00:11:22.460629Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.460692Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.461356Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.461395Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.461431Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.461411Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.461442Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.461368Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.461493Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.461506Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.461948Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.461983Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462001Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462093Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462126Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462152Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462175Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462279Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462303Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462326Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462351Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462375Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462398Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462828Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462876Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462902Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462921Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462935Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462957Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462980Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.462999Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463017Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463227Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463248Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463292Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463327Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.463291Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463436Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.463297Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463500Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.463299Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463300Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463309Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463233Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463244Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.463673Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.463653Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.464652Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.464692Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.464662Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.464769Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.464748Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.464875Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.465011Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.464784Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.464837Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.464754Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.464708Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.465052Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.465125Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.465249Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.465160Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.465291Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.465297Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.465306Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.465328Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.465343Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.465366Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.465376Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.465379Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.465409Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.465436Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.465509Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.465483Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.465557Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.465539Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.465595Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.465616Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.465460Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.465645Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.465576Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.465655Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.465665Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.465797Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.465819Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.465840Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.465917Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.466426Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1769
+2026-11-22T00:11:22.466498Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.466567Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1771
+2026-11-22T00:11:22.467918Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.467967Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.468552Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.468573Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.468616Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.468632Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.468620Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.468634Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.468633Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.468593Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.469030Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469045Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469106Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469120Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469133Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469143Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469153Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469164Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469174Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469185Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469195Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469205Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469227Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469274Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469312Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469333Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469355Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469376Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469394Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469411Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469429Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469447Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469588Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469603Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469633Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469592Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469615Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469619Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469627Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469633Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469610Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.469658Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469669Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.469876Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.469722Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.469853Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.469977Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.470836Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.470846Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.470896Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.470886Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.470884Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.470913Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.470942Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.470964Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.471006Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.471103Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.471067Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.471138Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.471120Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.471183Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.471115Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.471193Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.471203Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.471217Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.471275Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.471255Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.471240Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.471333Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.471369Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.471425Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.471395Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.471446Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.471468Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.471497Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.471484Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.471522Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.471527Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.471525Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.471583Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.471548Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.471593Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.471620Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.471630Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.471660Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.471687Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.471835Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.472403Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1773
+2026-11-22T00:11:22.472471Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.472538Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1775
+2026-11-22T00:11:22.473906Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.473963Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.474543Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.474567Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.474596Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.474606Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.474652Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.474641Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.474663Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.474635Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.475178Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475200Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475236Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475258Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475285Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475305Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475341Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475373Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475396Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475414Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475433Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475450Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475470Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475517Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475544Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475564Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475589Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475610Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475630Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475649Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475669Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475686Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.475995Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476033Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476018Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476120Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.476042Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476047Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476052Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476090Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476092Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476276Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.476015Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476338Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.476106Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.476382Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.476414Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.477574Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.477624Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.477650Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.477701Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.477661Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.477666Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.477765Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.477797Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.477823Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.477857Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.477892Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.477938Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.477970Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.478003Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.478031Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.477897Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.477904Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.478054Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.478124Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.478083Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.478133Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.478140Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.478158Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.478210Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.478229Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.478263Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.478269Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.478279Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.478398Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.478428Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.478449Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.478465Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.478487Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.478508Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.478520Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.478545Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.478562Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.478577Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.478588Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.478667Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.479201Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1777
+2026-11-22T00:11:22.479269Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.479338Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1779
+2026-11-22T00:11:22.480937Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.480989Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.481609Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.481626Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.481653Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.481695Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.481724Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.481698Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.481674Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.481677Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482100Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482132Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482171Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482192Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482215Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482239Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482250Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482262Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482271Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482281Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482296Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482314Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482329Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482372Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482395Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482411Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482431Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482448Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482464Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482478Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482495Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482510Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482661Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482691Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482712Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482667Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482664Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482783Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.482716Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482717Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482744Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482889Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.482869Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.482704Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.482947Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.482968Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.483967Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.484005Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.484013Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.484013Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.484021Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.484131Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.484064Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.484106Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.484027Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.484159Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.484289Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.484194Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.484303Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.484310Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.484368Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.484352Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.484398Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.484334Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.484412Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.484449Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.484462Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.484507Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.484482Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.484518Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.484546Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.484554Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.484579Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.484593Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.484596Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.484606Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.484647Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.484629Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.484610Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.484687Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.484718Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.484753Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.484760Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.484774Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.484782Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.484865Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.485319Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1781
+2026-11-22T00:11:22.485375Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.485429Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1783
+2026-11-22T00:11:22.486747Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.486797Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487414Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487432Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.487460Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.487470Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.487495Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.487509Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487511Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.487516Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487909Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487914Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.487986Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488006Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488020Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488032Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488044Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488055Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488067Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488079Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488091Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488103Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488114Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488170Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488205Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488229Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488254Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488286Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488309Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488329Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488353Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488377Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488518Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488545Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488571Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488585Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488545Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488620Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488578Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.488532Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488589Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488595Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.488536Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488520Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.488720Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.488788Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.488865Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.489797Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.489806Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.489861Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.489842Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.489924Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.489951Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.489972Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.489987Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.490009Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.490021Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.490034Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.489873Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.490037Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.490089Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.490056Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.489909Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.490112Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.490140Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.490255Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.490188Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.490290Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.490315Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.490351Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.490405Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.490356Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.490452Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.490478Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.490485Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.490420Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.490497Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.490514Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.490536Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.490560Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.490634Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.490649Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.490668Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.490613Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.490583Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.490718Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.490837Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.491391Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1785
+2026-11-22T00:11:22.491456Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.491528Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1787
+2026-11-22T00:11:22.493097Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493149Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.493769Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.493783Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493829Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493819Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493805Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493853Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.493858Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.493871Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494316Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494339Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494355Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494417Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494440Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494458Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494475Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494491Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494513Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494529Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494546Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494562Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494580Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494618Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494644Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494689Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494709Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494727Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494744Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494765Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494782Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494952Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494982Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.494960Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494967Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494971Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494981Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494958Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494984Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.495227Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.495005Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.495056Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.495305Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.495274Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.495308Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.494989Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.496530Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.496555Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.496574Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.496627Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.496601Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.496607Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.496579Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.496682Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.496805Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.496824Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.496723Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.496834Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.496855Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.496880Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.496902Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.496972Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.496943Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.496946Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.497027Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.497036Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.497045Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.497057Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.497065Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.497077Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.497078Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.497142Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.497110Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.497085Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.497203Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.497183Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.497163Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.497223Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.497240Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.497297Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.497296Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.497337Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.497347Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.497360Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.497372Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.497414Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.497850Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1789
+2026-11-22T00:11:22.497906Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.497962Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1791
+2026-11-22T00:11:22.499353Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.499405Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.499997Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500013Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500050Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.500061Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.500094Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.500031Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.500097Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500072Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.500512Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500538Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500575Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500593Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500612Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500631Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500648Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500666Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500694Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500711Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500727Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500746Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500765Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500813Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500841Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500877Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500900Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500918Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500935Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500950Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500966Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.500980Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501133Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501156Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501192Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501221Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501141Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501250Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.501185Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501187Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501365Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.501233Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501167Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.501269Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.501175Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501164Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.501547Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.502430Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.502446Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.502449Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.502471Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.502473Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.502502Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.502511Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.502542Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.502619Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.502637Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.502667Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.502722Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.502744Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.502767Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.502861Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.502863Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.502825Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.502879Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.502931Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.502896Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.502940Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.502949Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.503005Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.503016Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.503039Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.503064Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.503087Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.503091Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.503107Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.503167Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.503188Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.503170Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.503196Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.503211Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.503213Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.503229Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.503237Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.503249Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.503259Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.503328Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.503748Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1793
+2026-11-22T00:11:22.503801Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.503855Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1795
+2026-11-22T00:11:22.505077Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.505123Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.505693Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.505709Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.505731Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.505742Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.505746Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.505755Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.505769Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.505802Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.506139Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506170Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506205Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506222Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506240Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506255Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506271Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506415Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506440Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506459Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506477Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506494Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506512Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506551Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506585Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506606Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506626Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506641Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506656Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506670Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506686Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506701Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506833Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506843Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506874Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506911Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506872Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506860Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506984Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.506897Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.506860Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.507050Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.506966Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.506896Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.507096Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.506927Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.507175Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.508056Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.508079Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.508117Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.508129Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.508120Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.508154Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.508211Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.508232Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.508246Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.508196Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.508343Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.508361Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.508374Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.508168Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.508417Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.508419Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.508452Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.508518Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.508491Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.508469Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.508542Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.508569Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.508630Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.508631Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.508649Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.508701Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.508721Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.508742Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.508778Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.508859Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.508809Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.508903Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.508919Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.508934Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.508958Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.508975Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.508992Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.509015Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.509032Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.509080Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.509644Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1797
+2026-11-22T00:11:22.509712Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.509775Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1799
+2026-11-22T00:11:22.511326Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.511372Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.511915Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.511944Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.511952Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.511926Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.511958Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.511983Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.512018Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.512026Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512395Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512433Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512469Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512484Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512506Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512524Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512540Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512558Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512574Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512589Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512605Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512621Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512635Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512676Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512699Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512716Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512735Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512750Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512763Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512780Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512793Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.512808Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513060Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513093Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513118Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513150Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513066Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513186Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.513095Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.513134Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513141Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513142Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513187Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513103Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.513302Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.513368Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.513382Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.514379Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.514448Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.514444Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.514508Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.514462Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.514519Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.514453Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.514563Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.514596Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.514654Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.514676Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.514700Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.514722Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.514742Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.514762Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.514781Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.514846Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.514906Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.514872Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.514930Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.514906Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.515003Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.515013Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.515041Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.515048Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.515068Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.515078Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.515101Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.515110Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.515111Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.515159Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.515185Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.515200Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.515220Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.515205Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.515236Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.515255Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.515291Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.515308Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.515414Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.515824Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1801
+2026-11-22T00:11:22.515873Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.515959Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1803
+2026-11-22T00:11:22.517232Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517280Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.517807Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.517829Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517855Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517880Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517860Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517891Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.517893Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.517903Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518300Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518315Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518358Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518379Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518402Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518423Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518439Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518454Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518472Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518482Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518491Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518507Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518522Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518588Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518622Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518642Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518660Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518676Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518701Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518721Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518739Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518751Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518927Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518939Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518942Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518987Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.519007Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.518961Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518961Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518962Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518966Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.518993Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.518944Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.519157Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.518956Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.519191Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.519209Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.520052Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.520089Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.520094Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.520098Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.520119Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.520178Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.520175Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.520262Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.520139Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.520238Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.520200Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.520372Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.520352Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.520285Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.520458Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.520505Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.520515Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.520579Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.520656Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.520670Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.520697Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.520720Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.520721Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.520790Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.520770Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.520743Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.520845Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.520811Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.520907Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.520886Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.520870Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.520947Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.520953Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.520967Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.520972Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.520922Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.520981Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.521034Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.521056Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.521105Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.521484Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1805
+2026-11-22T00:11:22.521530Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.521581Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1807
+2026-11-22T00:11:22.522699Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.522735Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523204Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523213Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523236Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.523391Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523258Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.523301Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.523355Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.523253Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.523714Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523741Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523776Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523795Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523813Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523827Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523836Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523845Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523854Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523864Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523873Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523882Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523892Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523922Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523939Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523953Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523967Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523977Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523985Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.523994Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524004Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524014Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524137Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524140Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524145Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524153Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524176Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524177Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524182Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524325Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.524188Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524200Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.524279Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524412Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.524365Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.524186Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.524563Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.525540Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.525591Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.525600Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.525607Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.525650Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.525649Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.525689Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.525690Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.525714Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.525748Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.525830Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.525865Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.525886Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.525947Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.525929Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.525909Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.526006Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.526013Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.526026Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.526049Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.526051Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.526071Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.526077Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.526085Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.526101Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.526131Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 8 (vertex buffer)' label
+2026-11-22T00:11:22.526145Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 1 (index buffer)' label
+2026-11-22T00:11:22.526146Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering populate pipeline' label
+2026-11-22T00:11:22.526175Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 61
+2026-11-22T00:11:22.526156Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 80 Buffer with '' label 16 163
+2026-11-22T00:11:22.526203Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.526189Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.526224Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 7 (vertex buffer)' label
+2026-11-22T00:11:22.526233Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.526249Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.526271Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.526240Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 1300 Buffer with '' label 24 20
+2026-11-22T00:11:22.526307Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'skybox_pipeline' label
+2026-11-22T00:11:22.526366Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.526491Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.527220Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1809
+2026-11-22T00:11:22.527293Z TRACE wgpu_core::device::queue: Queue::submit
+2026-11-22T00:11:22.527484Z TRACE wgpu_core::device::queue: Queue::submit returned submit index 1811
+2026-11-22T00:11:22.528814Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.528867Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529430Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529444Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.529479Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.529467Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.529524Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529512Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.529506Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529529Z TRACE wgpu_core::device::queue: Queue::create_staging_buffer
+2026-11-22T00:11:22.529935Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529963Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.529997Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530013Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530037Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530058Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530077Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530100Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530119Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530136Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530156Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530168Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530187Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530271Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530309Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530329Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530348Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530365Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530379Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530392Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530407Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530420Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530622Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530646Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530670Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530705Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.530660Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530660Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530673Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530671Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530641Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530853Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.530630Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530687Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.530910Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.530942Z TRACE wgpu_core::device::queue: Ignoring write_buffer of size 0
+2026-11-22T00:11:22.531032Z TRACE wgpu_core::device::queue: Queue::write_buffer
+2026-11-22T00:11:22.531921Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'tonemapping pipeline' label
+2026-11-22T00:11:22.531961Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.531959Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'blit pipeline' label
+2026-11-22T00:11:22.532008Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label
+2026-11-22T00:11:22.532012Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.531965Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'clustering count pipeline' label
+2026-11-22T00:11:22.532079Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.532020Z TRACE wgpu_core::command::render: RenderPass::draw 3 1 0 0
+2026-11-22T00:11:22.532048Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'general mesh slab 6 (vertex buffer)' label
+2026-11-22T00:11:22.532095Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.532097Z TRACE wgpu_core::command::render: RenderPass::set_viewport Rect { x: 0.0, y: 0.0, w: 17.0, h: 9.0 }
+2026-11-22T00:11:22.532179Z TRACE wgpu_core::command::render: RenderPass::set_vertex_buffer 0 Buffer with 'GPU clustering vertex buffer' label
+2026-11-22T00:11:22.532159Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.532144Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'general mesh slab 4 (index buffer)' label
+2026-11-22T00:11:22.532230Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.532199Z TRACE wgpu_core::command::render: RenderPass::set_index_buffer Buffer with 'GPU clustering index buffer' label
+2026-11-22T00:11:22.532260Z TRACE wgpu_core::command::render: RenderPass::draw_indirect (family:DrawIndexed) Buffer with 'clustering Z slicing metadata buffer' label 0 1
+2026-11-22T00:11:22.532237Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 0 Buffer with '' label 0 3
+2026-11-22T00:11:22.532246Z TRACE wgpu_core::command::render: RenderPass::multi_draw_indirect_count (family:DrawIndexed) Buffer with '' label 60 Buffer with '' label 8 1
+2026-11-22T00:11:22.532339Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_opaque_mesh_pipeline' label
+2026-11-22T00:11:22.532339Z TRACE wgpu_core::command::render: RenderPass::set_pipeline RenderPipeline with 'pbr_prepass_pipeline' label

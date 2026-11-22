@@ -1,4 +1,5 @@
 mod creature_asset;
+mod creature_metrics;
 mod creature_motion;
 mod daylight;
 mod flora;
@@ -52,9 +53,13 @@ struct Options {
     creature_time: Option<f64>,
     creature_speed: f32,
     creature_shadows: bool,
+    membrane_shadows: bool,
     creature_pause: bool,
     creature_probe: bool,
     creature_profile: bool,
+    creature_lifecycle: bool,
+    creature_film: Option<PathBuf>,
+    creature_record: bool,
     creature_placement: String,
 }
 impl Options {
@@ -82,9 +87,13 @@ impl Options {
             creature_time: None,
             creature_speed: 1.,
             creature_shadows: true,
+            membrane_shadows: true,
             creature_pause: false,
             creature_probe: false,
             creature_profile: false,
+            creature_lifecycle: false,
+            creature_film: None,
+            creature_record: false,
             creature_placement: "near".into(),
         };
         let mut args = std::env::args().skip(1);
@@ -108,8 +117,12 @@ impl Options {
                     o.creature_time = Some(val.parse().expect("temps de démonstration"))
                 }
                 "--creature-speed" => o.creature_speed = val.parse().expect("vitesse d’animation"),
+                "--membrane-shadows" => o.membrane_shadows = switch(&val),
                 "--creature-shadows" => o.creature_shadows = switch(&val),
                 "--creature-pause" => o.creature_pause = switch(&val),
+                "--creature-film" => o.creature_film = Some(val.into()),
+                "--creature-record" => o.creature_record = switch(&val),
+                "--creature-lifecycle" => o.creature_lifecycle = switch(&val),
                 "--creature-profile" => o.creature_profile = switch(&val),
                 "--creature-probe" => o.creature_probe = switch(&val),
                 "--creature-placement" => o.creature_placement = val,
@@ -196,6 +209,17 @@ impl Options {
             o.creature_placement.as_str(),
             "near" | "far" | "offscreen"
         ));
+        if let Some(dir) = &o.creature_film {
+            assert!(
+                o.creatures == 1 && o.frames > 0 && !o.creature_probe && !o.creature_pause,
+                "Export à 25 i/s : une créature animée, --frames requis"
+            );
+            std::fs::create_dir_all(dir).expect("dossier des images");
+            o.creature_record = true;
+        }
+        if o.creature_lifecycle {
+            assert!(o.creatures >= 4 && o.frames >= 30);
+        }
         if o.creatures > 0 {
             assert!(
                 o.connect.is_none(),
@@ -316,6 +340,11 @@ fn main() -> AppExit {
         DVec3::new(0.5, 18., 0.5)
     };
     let [x, y, z, yaw, pitch] = o.view.unwrap_or_else(|| {
+        if o.creatures > 0 {
+            let ground =
+                primal_voxel::surface_for(primal_voxel::Preset::ForestModern, camera_seed, 0, 0);
+            return [0.5, f64::from(ground) + 3.8, 0.5, -1.66, 0.02];
+        }
         if o.preset == Some(primal_voxel::Preset::ForestModern) {
             [
                 0.5,
@@ -346,6 +375,7 @@ fn main() -> AppExit {
         });
     let creatures = o.creatures;
     let profiling = o.creature_profile;
+    let film = o.creature_film.is_some();
     let measuring = o.frames > 0;
     let manifest = o.creature_manifest.clone();
     app.add_plugins(
@@ -410,6 +440,20 @@ fn main() -> AppExit {
         )
             .chain(),
     );
+    if film {
+        app.insert_resource(bevy::time::TimeUpdateStrategy::ManualDuration(
+            Duration::from_secs_f64(1. / 25.),
+        ))
+        .add_systems(
+            Update,
+            creature_motion::film_camera
+                .after(creature_motion::update_demo)
+                .before(stream),
+        );
+    }
+    if measuring && creatures > 0 {
+        app.add_plugins(creature_metrics::CreatureMetricsPlugin);
+    }
     if profiling {
         app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin);
     }
@@ -456,11 +500,11 @@ fn check_creature_assets(
 
 fn creature_shadow_flags(
     o: Res<Options>,
-    new_parts: Query<Entity, Added<creature_asset::CreatureMesh>>,
+    new_parts: Query<(Entity, &creature_asset::CreatureMesh), Added<creature_asset::CreatureMesh>>,
     mut commands: Commands,
 ) {
-    if !o.creature_shadows {
-        for entity in &new_parts {
+    for (entity, part) in &new_parts {
+        if !o.creature_shadows || (!o.membrane_shadows && part.membrane) {
             commands.entity(entity).insert(bevy::light::NotShadowCaster);
         }
     }
@@ -694,6 +738,8 @@ fn measure(
     diagnostics: Res<bevy::diagnostic::DiagnosticsStore>,
     assets: Option<Res<creature_asset::CreatureAssets>>,
     motion: Option<Res<creature_motion::MotionReport>>,
+    inventory: Option<Res<creature_metrics::Inventory>>,
+    lifecycle: Option<Res<creature_metrics::Lifecycle>>,
     mut cmds: Commands,
     mut exit: MessageWriter<AppExit>,
 ) {
@@ -744,12 +790,24 @@ fn measure(
             .observe(save_to_disk(path.clone()));
         bench.shot = true;
     }
-    bench.empty += usize::from(terrain.visible == 0);
-    bench.geometry =
-        primal_net::playtest::geometry_digest(bench.geometry, terrain.visible, terrain.quads);
-    bench.samples.push(ms);
+    if bench.samples.len() < o.frames {
+        bench.empty += usize::from(terrain.visible == 0);
+        bench.geometry =
+            primal_net::playtest::geometry_digest(bench.geometry, terrain.visible, terrain.quads);
+        bench.samples.push(ms);
+    }
     if bench.samples.len() < o.frames {
         return;
+    }
+    if let Some(dir) = &o.creature_film {
+        let last = dir.join(format!("frame-{:04}.png", o.frames - 1));
+        if !last.exists() {
+            assert!(
+                now - bench.start < Duration::from_secs(180),
+                "Export des captures interrompu"
+            );
+            return;
+        }
     }
     let mut sorted = bench.samples.clone();
     sorted.sort_by(f64::total_cmp);
@@ -786,6 +844,14 @@ fn measure(
         report["creatures"] = json!(a.counts());
         report["creature_import"] = json!(a.info());
         report["app_start_to_rig_ready_ms"] = json!(bench.creature_ready_ms);
+    }
+    if let Some(i) = inventory {
+        report["creature_inventory"] = i.0.clone();
+    }
+    if let Some(l) = lifecycle
+        && !l.0.is_null()
+    {
+        report["creature_lifecycle"] = l.0.clone();
     }
     if let Some(motion) = motion {
         report["creature_motion"] = motion.json();

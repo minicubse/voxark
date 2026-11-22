@@ -1,4 +1,8 @@
-# Primal Voxel — jalon 3C
+# Primal Voxel — jalon 3D
+
+Le client Bevy importe une wyverne provisoire, ses 23 articulations et six clips glTF. **Inspecter-Wyverne.cmd** lance la démonstration locale. Le serveur et le mode en réseau conservent le périmètre 3C. [Inspection, vidéo et résultats 0/1/4/12](CREATURES_3D.md) · [Contrat du modèle de remplacement](WYVERN_ASSET.md).
+
+## Jalon 3C
 
 Le preset optionnel **forest-modern** est jouable avec le serveur autoritaire, le client Bevy et le client de référence Macroquad. Les 111 tests Rust passent. Trois passages du binaire livré donnent une médiane de 161 FPS à 720p, 108 FPS en 1 % low, et un pic maximal de 853 Mio. Le paquet Windows ouvre une partie persistante avec **Jouer-Foret.cmd**. La visite en caméra libre reproduit les cadrages du benchmark.
 
