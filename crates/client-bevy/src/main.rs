@@ -1,3 +1,4 @@
+mod creature_asset;
 mod daylight;
 mod flora;
 mod forest;
@@ -43,6 +44,17 @@ struct Options {
     identity: PathBuf,
     input_hz: u32,
     playtest: bool,
+    creatures: usize,
+    creature_manifest: String,
+    asset_root: Option<PathBuf>,
+    creature_state: String,
+    creature_time: Option<f64>,
+    creature_speed: f32,
+    creature_shadows: bool,
+    creature_pause: bool,
+    creature_probe: bool,
+    creature_profile: bool,
+    creature_placement: String,
 }
 impl Options {
     fn parse() -> Self {
@@ -62,6 +74,17 @@ impl Options {
             identity: "bevy.identity".into(),
             input_hz: 60,
             playtest: false,
+            creatures: 0,
+            creature_manifest: creature_asset::DEFAULT_CREATURE_MANIFEST.into(),
+            asset_root: None,
+            creature_state: "demo".into(),
+            creature_time: None,
+            creature_speed: 1.,
+            creature_shadows: true,
+            creature_pause: false,
+            creature_probe: false,
+            creature_profile: false,
+            creature_placement: "near".into(),
         };
         let mut args = std::env::args().skip(1);
         while let Some(arg) = args.next() {
@@ -76,6 +99,17 @@ impl Options {
                 .next()
                 .unwrap_or_else(|| panic!("Valeur manquante pour {arg}"));
             match arg.as_str() {
+                "--creatures" => o.creatures = val.parse().expect("nombre de créatures"),
+                "--asset-root" => o.asset_root = Some(val.into()),
+                "--creature-manifest" => o.creature_manifest = val,
+                "--creature-state" => o.creature_state = val.to_ascii_lowercase(),
+                "--creature-time" => o.creature_time = Some(val.parse().expect("temps de démonstration")),
+                "--creature-speed" => o.creature_speed = val.parse().expect("vitesse d’animation"),
+                "--creature-shadows" => o.creature_shadows = switch(&val),
+                "--creature-pause" => o.creature_pause = switch(&val),
+                "--creature-profile" => o.creature_profile = switch(&val),
+                "--creature-probe" => o.creature_probe = switch(&val),
+                "--creature-placement" => o.creature_placement = val,
                 "--connect" => o.connect = Some(val),
                 "--identity" => o.identity = val.into(),
                 "--input-hz" => o.input_hz = val.parse().unwrap(),
@@ -149,6 +183,15 @@ impl Options {
             o.connect.is_none() || o.world.is_none(),
             "--world est réservé au solo"
         );
+        assert!(o.creatures <= 64 && (0.05..=8.0).contains(&o.creature_speed));
+        assert!(o.creature_time.is_none_or(|v| v.is_finite() && v >= 0.));
+        assert!(matches!(o.creature_state.as_str(), "demo"|"idleground"|"walk"|"takeoff"|"flap"|"glide"|"land"));
+        assert!(matches!(o.creature_placement.as_str(), "near"|"far"|"offscreen"));
+        if o.creatures > 0 {
+            assert!(o.connect.is_none(), "L’inspection des créatures est une démonstration locale");
+            assert!(o.preset.is_none_or(|p| p == primal_voxel::Preset::ForestModern), "La démonstration utilise forest-modern");
+            o.preset = Some(primal_voxel::Preset::ForestModern);
+        }
         o
     }
 }
@@ -201,6 +244,7 @@ struct Bench {
     inputs: u64,
     baseline: (usize, usize, f64),
     shot: bool,
+    creature_ready_ms: Option<f64>,
 }
 fn main() -> AppExit {
     let mut o = Options::parse();
@@ -271,7 +315,18 @@ fn main() -> AppExit {
         }
     });
     let now = Instant::now();
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+    // A portable build resolves its assets next to the executable, including when launched elsewhere.
+    let portable_assets = std::env::current_exe().ok().and_then(|p| p.parent().map(|dir| dir.join("assets")));
+    let assets = o.asset_root.clone().or_else(|| portable_assets.filter(|p| p.is_dir()))
+        .unwrap_or_else(|| std::env::current_dir().expect("dossier courant").join("assets"));
+    let creatures = o.creatures;
+    let profiling = o.creature_profile;
+    let measuring = o.frames > 0;
+    let manifest = o.creature_manifest.clone();
+    app.add_plugins(DefaultPlugins.set(AssetPlugin {
+        file_path: std::path::absolute(assets).expect("dossier des assets").to_string_lossy().into_owned(),
+        ..default()
+    }).set(WindowPlugin {
         primary_window: Some(Window {
             title: "Primal Voxel — Bevy".into(),
             resolution: WindowResolution::new(o.size.0, o.size.1).with_scale_factor_override(1.),
@@ -303,6 +358,7 @@ fn main() -> AppExit {
         inputs: 0,
         baseline: (0, 0, 0.),
         shot: false,
+        creature_ready_ms: None,
     })
     .insert_resource(ClearColor(Color::srgb_u8(123, 175, 210)))
     .add_systems(Startup, setup)
@@ -319,7 +375,52 @@ fn main() -> AppExit {
         )
             .chain(),
     )
-    .run()
+    ;
+    if profiling {
+        app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin);
+    }
+    if measuring {
+        app.init_resource::<AnimationTiming>().add_systems(PostUpdate, (
+            begin_animation_timing.before(bevy::app::AnimationSystems),
+            end_animation_timing.after(bevy::app::AnimationSystems),
+        ).chain());
+    }
+    if creatures > 0 {
+        app.add_plugins(creature_asset::CreatureAssetPlugin::new(manifest))
+            .add_systems(Startup, first_wyvern)
+            .add_systems(Update,(check_creature_assets, first_clip));
+    }
+    app.run()
+}
+
+#[derive(Resource, Default)]
+struct AnimationTiming {
+    start: Option<Instant>,
+    samples: Vec<f64>,
+}
+fn begin_animation_timing(mut timer: ResMut<AnimationTiming>, bench: Res<Bench>) {
+    timer.start = (bench.warm >= 120).then(Instant::now);
+}
+fn end_animation_timing(mut timer: ResMut<AnimationTiming>) {
+    if let Some(start) = timer.start.take() {
+        timer.samples.push(start.elapsed().as_secs_f64() * 1e6);
+    }
+}
+fn check_creature_assets(assets: Res<creature_asset::CreatureAssets>, mut exit: MessageWriter<AppExit>) {
+    if let creature_asset::CreatureAssetStatus::Failed(message) = assets.status() {
+        eprintln!("Créature non chargée : {message}");
+        exit.write(AppExit::error());
+    }
+}
+
+fn first_clip(assets: Res<creature_asset::CreatureAssets>, mut players: Query<&mut AnimationPlayer, Added<creature_asset::CreatureAnimation>>) {
+    if let Some(index) = assets.node(creature_asset::CreatureClip::Flap) {
+        for mut p in &mut players { p.play(index).repeat(); }
+    }
+}
+fn first_wyvern(mut commands: Commands) {
+    commands.spawn((creature_asset::CreatureVisual::new(creature_asset::CreaturePalette::Jade),
+                    Transform::from_xyz(-4.,25.,0.)));
 }
 fn setup(
     mut cmds: Commands,
@@ -409,7 +510,7 @@ fn control(
     keys: Res<ButtonInput<KeyCode>>,
     buttons: Res<ButtonInput<MouseButton>>,
     mouse: Res<AccumulatedMouseMotion>,
-    time: Res<Time>,
+    time: Res<Time<Real>>,
     mut cursor: Single<&mut CursorOptions>,
 ) {
     let old = rig.eye;
@@ -542,6 +643,9 @@ fn measure(
     online: Option<Res<network::Online>>,
     rig: Res<CameraRig>,
     gpu: Res<RenderAdapterInfo>,
+    animation: Option<Res<AnimationTiming>>,
+    diagnostics: Res<bevy::diagnostic::DiagnosticsStore>,
+    assets: Option<Res<creature_asset::CreatureAssets>>,
     mut cmds: Commands,
     mut exit: MessageWriter<AppExit>,
 ) {
@@ -551,11 +655,16 @@ fn measure(
     let now = Instant::now();
     let ms = (now - bench.last).as_secs_f64() * 1000.;
     bench.last = now;
+    let ready = assets.as_ref().is_none_or(|a| a.counts().players == o.creatures);
+    if ready && assets.is_some() && bench.creature_ready_ms.is_none() {
+        bench.creature_ready_ms = Some((now - bench.start).as_secs_f64()*1000.);
+    }
     let sig = (terrain.len(), terrain.uploads, terrain.removed);
     if bench.warm < 120 {
         if online
             .as_ref()
             .is_some_and(|n| !n.0.lock().unwrap().ready())
+            || !ready
             || sig != bench.signature
             || !terrain.idle()
             || terrain.visible == 0
@@ -622,6 +731,23 @@ fn measure(
             "cumulative_stream_us":terrain.stream_us,"stream_ticks":terrain.stream_ticks,
             "frame_ms":bench.samples
         });
+    }
+    if let Some(a) = assets {
+        report["creatures"] = json!(a.counts());
+        report["creature_import"] = json!(a.info());
+        report["app_start_to_rig_ready_ms"] = json!(bench.creature_ready_ms);
+    }
+    report["driver"] = json!([gpu.driver,gpu.driver_info]);
+    if let Some(timer) = animation {
+        let mean = timer.samples.iter().sum::<f64>() / timer.samples.len().max(1) as f64;
+        report["animation_schedule_us"] = json!({"mean":mean,"samples":timer.samples});
+    }
+    if o.creature_profile {
+        report["render_passes"] = serde_json::Value::Object(diagnostics.iter().filter_map(|d| {
+            let name = d.path().to_string();
+            (name.starts_with("render/") && (name.ends_with("elapsed_cpu") || name.ends_with("elapsed_gpu")))
+                .then(|| d.average().map(|v| (name,json!(v)))).flatten()
+        }).collect());
     }
     if let Some(path) = &o.report {
         std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap()).unwrap();
