@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Carnet de commandes artistiques de Primal Voxel",
+  "description": "Un identifiant est unique dans le carnet et détermine les chemins de la commande. La vérification Git contrôle les transitions et le périmètre des modifications par branche.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "orders"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "orders": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/order" }
+    }
+  },
+  "$defs": {
+    "order": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "priority", "status", "spec_path", "manifest_path",
+        "output_path", "replaces", "assigned_to", "notes"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "priority": { "type": "integer", "minimum": 1 },
+        "status": {
+          "enum": ["TODO", "IN_PROGRESS", "READY_FOR_INTEGRATION", "INTEGRATED"]
+        },
+        "spec_path": {
+          "type": "string",
+          "pattern": "^art_pipeline/specs/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$"
+        },
+        "manifest_path": {
+          "type": "string",
+          "pattern": "^assets/creatures/[a-z0-9]+(?:-[a-z0-9]+)*_art\\.json$"
+        },
+        "output_path": {
+          "type": "string",
+          "pattern": "^assets/creatures/[a-z0-9]+(?:-[a-z0-9]+)*_art/$"
+        },
+        "replaces": { "type": "string", "minLength": 1 },
+        "assigned_to": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

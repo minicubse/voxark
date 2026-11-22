@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "orders": [
+    {
+      "id": "wyvern",
+      "priority": 1,
+      "status": "TODO",
+      "spec_path": "art_pipeline/specs/wyvern.md",
+      "manifest_path": "assets/creatures/wyvern_art.json",
+      "output_path": "assets/creatures/wyvern_art/",
+      "replaces": "procedural-wyvern-3d",
+      "assigned_to": "PC2-ZCode",
+      "notes": "Créer la wyverne voxel artistique définitive sans modifier le modèle provisoire."
+    }
+  ]
+}
