@@ -1,5 +1,7 @@
 # Primal Voxel — Forêt moderne, wyverne et Vallée originelle
 
+**Production moteur et Blender sur deux PC** · [Installer le dépôt et Git LFS](art_pipeline/GIT_SETUP.md) · [File des commandes](art_pipeline/QUEUE.json) · [Produire sur PC 2](art_pipeline/AGENT_ART_INSTRUCTIONS.md) · [Intégrer sur PC 1](art_pipeline/INTEGRATION_PC1.md).
+
 **Pour voir la wyverne**, décompressez le ZIP 3D puis ouvrez **Inspecter-Wyverne.cmd**. La séquence de démonstration est locale. Vous gardez la caméra libre. [Inspection, commandes et mesures Radeon](docs/CREATURES_3D.md).
 
 **Pour jouer à la forêt**, extrayez le ZIP 3C puis ouvrez **Jouer-Foret.cmd**. Le client Bevy rejoint le serveur local, qui sauvegarde vos constructions et vos destructions. **Serveur-Foret.cmd** permet aux deux clients de rejoindre le même monde sur le port 47621.

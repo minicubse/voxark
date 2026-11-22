@@ -10,6 +10,7 @@ import sys
 QUEUE = "art_pipeline/QUEUE.json"
 CREATURE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 REGULAR_MODES = {"000000", "100644", "100755"}
+REPOSITORY_RULES = {".gitattributes", ".gitignore", ".gitmodules", ".lfsconfig", "agents.md"}
 NEXT_STATUS = {
     "TODO": "IN_PROGRESS",
     "IN_PROGRESS": "READY_FOR_INTEGRATION",
@@ -49,7 +50,8 @@ def verify_paths(start, end, creature):
     )
     # A rename appears as a deletion and an addition, so both names are checked.
     entries = git(
-        "diff", "--raw", "-z", "--no-renames", "--ignore-submodules=none",
+        "diff", "--raw", "-z", "--no-renames", "--no-relative", "--no-ext-diff", "--no-textconv",
+        "--ignore-submodules=none",
         start, end, "--",
     ).split(b"\0")
     for metadata, raw_path in zip(entries[0:-1:2], entries[1:-1:2]):
@@ -57,10 +59,13 @@ def verify_paths(start, end, creature):
             path = raw_path.decode("utf-8")
         except UnicodeError as error:
             raise GuardError(f"Non-UTF-8 path: {raw_path!r}") from error
-        if any(not part or UNSAFE_COMPONENT.search(part) for part in path.split("/")):
+        parts = path.split("/")
+        if any(not part or UNSAFE_COMPONENT.search(part) for part in parts):
             raise GuardError(f"Path cannot be used safely on Windows: {path!r}")
         if path not in exact and not path.startswith(prefixes):
             raise GuardError(f"Path outside art/{creature}: {path}")
+        if any(part.casefold() in REPOSITORY_RULES for part in parts):
+            raise GuardError(f"Repository control path cannot be changed: {path}")
         modes = metadata[1:].decode("ascii").split()[:2]
         if any(mode not in REGULAR_MODES for mode in modes):
             raise GuardError(f"Only regular files are allowed: {path} ({', '.join(modes)})")
@@ -82,7 +87,7 @@ def reject_constant(value):
 def read_queue(commit, creature):
     try:
         queue = json.loads(
-            git("show", f"{commit}:{QUEUE}").decode("utf-8"),
+            git("show", f"{commit}:{QUEUE}").decode("utf-8-sig"),
             object_pairs_hook=unique_fields,
             parse_constant=reject_constant,
         )

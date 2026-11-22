@@ -1,0 +1,72 @@
+[
+  {
+    "case": "valid_glb",
+    "loaded": true,
+    "counts": {
+      "asset_load_ms": 27.113100000000003,
+      "clips": 6,
+      "instances": 1,
+      "max_joints": 23,
+      "mesh_assets": 4,
+      "palette_materials": 12,
+      "players": 1,
+      "scenes": 1,
+      "skinned_meshes": 4,
+      "skins": 1,
+      "slots": 4
+    }
+  },
+  {
+    "case": "external_gltf",
+    "loaded": true,
+    "counts": {
+      "asset_load_ms": 15.784099999999999,
+      "clips": 6,
+      "instances": 1,
+      "max_joints": 23,
+      "mesh_assets": 4,
+      "palette_materials": 12,
+      "players": 1,
+      "scenes": 1,
+      "skinned_meshes": 4,
+      "skins": 1,
+      "slots": 4
+    }
+  },
+  {
+    "case": "missing_manifest",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/missing_manifest.json: Path not found: C:\\Users\\lenai\\AppData\\Local\\Temp\\tmpi8evge6p\\creatures/missing_manifest.json"
+  },
+  {
+    "case": "broken_manifest",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/broken_manifest.json: Failed to load asset 'creatures/broken_manifest.json' with asset loader 'primal_client_bevy::creature_asset::CreatureLoader': EOF while parsing an object at line 1 column 1"
+  },
+  {
+    "case": "missing_model",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/missing_model.json: Path not found: C:\\Users\\lenai\\AppData\\Local\\Temp\\tmpi8evge6p\\creatures/absent.glb"
+  },
+  {
+    "case": "invalid_glb",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/invalid_glb.json: Failed to load asset 'creatures/broken.glb' with asset loader 'bevy_gltf::loader::GltfLoader': invalid glTF file: expected ident at line 1 column 2"
+  },
+  {
+    "case": "unknown_clip",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/unknown_clip.json: clip Walk introuvable: missing"
+  },
+  {
+    "case": "unknown_slot",
+    "loaded": false,
+    "exit_code": 1,
+    "diagnostic": "Créature non chargée : Créature, manifeste creatures/unknown_slot.json: matériau PBR Scales absent de la scène: missing"
+  }
+]

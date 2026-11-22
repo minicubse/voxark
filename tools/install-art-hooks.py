@@ -16,6 +16,10 @@ def main():
     if not all((target / name).is_file() for name in shipped):
         raise ValueError("Les quatre hooks versionnés doivent être présents.")
     if installed.resolve() != target.resolve():
+        configured = subprocess.run(["git", "config", "--get", "core.hooksPath"],
+                                    capture_output=True, text=True)
+        if configured.returncode == 0:
+            raise ValueError(f"Chemin de hooks personnalisé à examiner : {configured.stdout.strip()}")
         # Compare the entire hook, including its instructions, with this Git LFS version.
         manual = git("-c", "core.hooksPath=.git/hooks", "lfs", "update", "--manual")
         examples = {paragraph.strip().replace("\n\t", "\n") for paragraph in manual.split("\n\n")

@@ -126,6 +126,15 @@ class GuardTests(unittest.TestCase):
         self.commit()
         self.guard(expected="AGENTS.md")
 
+    def test_nested_repository_rule_files_are_rejected_case_insensitively(self):
+        for filename in (".gitattributes", ".GITIGNORE", ".gitmodules", ".lfsconfig", "agents.md"):
+            with self.subTest(filename=filename):
+                self.git("switch", "-q", "--detach", "main")
+                path = f"assets/creatures/wyvern_art/textures/{filename}"
+                self.write(path, "untrusted repository configuration\n")
+                self.commit()
+                self.guard(expected=path)
+
     def test_rename_into_protected_path_is_rejected(self):
         target = "assets/creatures/wyvern_art_glb"
         self.git("mv", ASSET, target)
@@ -161,9 +170,19 @@ class GuardTests(unittest.TestCase):
         self.guard(expected="priority")
 
     def test_duplicate_queue_keys_are_rejected(self):
-        self.write(QUEUE, json.dumps(self.original).replace('"schema_version": 1', '"schema_version": 2, "schema_version": 1'))
+        queue = json.dumps(self.original).replace(
+            '"schema_version": 1', '"schema_version": 2, "schema_version": 1'
+        )
+        self.write(QUEUE, queue)
         self.commit()
         self.guard(expected="schema_version")
+
+    def test_queue_accepts_windows_utf8_bom(self):
+        queue = copy.deepcopy(self.original)
+        queue["orders"][0]["status"] = "IN_PROGRESS"
+        (self.repo / QUEUE).write_text(json.dumps(queue), encoding="utf-8-sig")
+        self.commit()
+        self.guard()
 
     def test_status_cannot_skip_in_progress(self):
         self.set_status("READY_FOR_INTEGRATION")

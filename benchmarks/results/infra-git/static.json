@@ -1,0 +1,64 @@
+{
+  "valid": true,
+  "manifest": "assets\\creatures\\wyvern.json",
+  "limits": {
+    "max_triangles": 18000,
+    "max_texture_size": 2048
+  },
+  "metrics": {
+    "scene": "Wyvern",
+    "textures": [],
+    "triangles": 6048,
+    "vertices": 3403,
+    "mesh_instances": 1,
+    "skins": 1,
+    "max_joints": 23,
+    "slots": {
+      "Scales": "Scales",
+      "Horns": "Horns",
+      "Eyes": "Eyes",
+      "Membranes": "Membranes"
+    },
+    "clips": {
+      "IdleGround": {
+        "name": "IdleGround",
+        "duration_seconds": 3.200000047683716,
+        "tracks": 23
+      },
+      "Walk": {
+        "name": "Walk",
+        "duration_seconds": 1.0399999618530273,
+        "tracks": 23
+      },
+      "Takeoff": {
+        "name": "Takeoff",
+        "duration_seconds": 1.0499999523162842,
+        "tracks": 23
+      },
+      "Flap": {
+        "name": "Flap",
+        "duration_seconds": 1.0199999809265137,
+        "tracks": 23
+      },
+      "Glide": {
+        "name": "Glide",
+        "duration_seconds": 3.200000047683716,
+        "tracks": 23
+      },
+      "Land": {
+        "name": "Land",
+        "duration_seconds": 1.100000023841858,
+        "tracks": 23
+      }
+    }
+  },
+  "errors": [],
+  "manual_checks": [
+    "Verify +Z faces forward and +Y faces up on an asymmetric model in the Bevy viewer.",
+    "Verify ground pivot and dimensions visually, including held poses and wing clearance.",
+    "Inspect bind pose and deformation, silhouette, materials, and both sides of membranes.",
+    "Inspect stationary movement, looping seams, and takeoff and landing transitions in the Bevy viewer.",
+    "Run the precompiled Bevy import test to verify decoding, instantiation, and animation playback."
+  ],
+  "model": "creatures/wyvern.glb"
+}

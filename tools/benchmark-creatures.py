@@ -16,6 +16,7 @@ import tempfile
 import time
 
 import psutil
+from creature_gltf import Gltf
 
 
 FOREST = run_path(str(Path(__file__).with_name("benchmark-forest.py")))
@@ -94,7 +95,8 @@ def client_command(a, case, report, capture):
             "--creatures", str(case.count), "--creature-shadows", "on" if case.shadows else "off",
         ])
         if case.count:
-            argv.extend(["--creature-state", case.state, "--creature-placement", case.placement])
+            argv.extend(["--creature-state", case.state, "--creature-placement", case.placement,
+                         "--creature-manifest", a.creature_manifest.as_posix()])
         if a.asset_root:
             argv.extend(["--asset-root", str(a.asset_root)])
     if case.pose_s is not None:
@@ -183,28 +185,27 @@ def sha256(path):
 def source_inventory(a):
     portable = a.client.parent / "assets"
     root = a.asset_root or (portable if portable.is_dir() else Path.cwd() / "assets")
-    manifest = root / MANIFEST
+    manifest = root / a.creature_manifest
     model = root / json.loads(manifest.read_text(encoding="utf8"))["model"]
     result = {
         "manifest": str(manifest), "manifest_sha256": sha256(manifest),
         "model": str(model), "model_sha256": sha256(model), "model_file_bytes": model.stat().st_size,
     }
-    if model.suffix.lower() == ".glb":
-        validator = run_path(str(Path(__file__).with_name("validate-wyvern.py")))
-        document, _ = validator["read_glb"](model)
-        accessors = document["accessors"]
-        clip_views = {
-            clip["name"]: {
-                accessors[sampler[k]]["bufferView"]
-                for sampler in clip["samplers"] for k in ("input", "output")
-            }
-            for clip in document["animations"]
-        }
-        sizes = {i: view["byteLength"] for i, view in enumerate(document["bufferViews"])}
-        result["clip_buffer_view_bytes"] = {
-            name: sum(sizes[i] for i in views) for name, views in clip_views.items()
-        }
-        result["unique_clip_buffer_view_bytes"] = sum(sizes[i] for i in set().union(*clip_views.values()))
+    document = Gltf(model.resolve(), root.resolve()).document
+    clip_views = {}
+    for index, clip in enumerate(document["animations"]):
+        views = set()
+        for sampler in clip["samplers"]:
+            for field in ("input", "output"):
+                accessor = document["accessors"][sampler[field]]
+                if "bufferView" in accessor:
+                    views.add(accessor["bufferView"])
+                if "sparse" in accessor:
+                    views.update(accessor["sparse"][part]["bufferView"] for part in ("indices", "values"))
+        clip_views[clip.get("name", f"#{index}")] = views
+    sizes = [view["byteLength"] for view in document["bufferViews"]]
+    result["clip_buffer_view_bytes"] = {name: sum(sizes[i] for i in views) for name, views in clip_views.items()}
+    result["unique_clip_buffer_view_bytes"] = sum(sizes[i] for i in set().union(*clip_views.values()))
     return result
 
 
@@ -411,6 +412,8 @@ def main():
     parser.add_argument("--client", type=Path, help="3D release executable")
     parser.add_argument("--baseline", type=Path, help="Optional 3C release executable in the same forest view")
     parser.add_argument("--asset-root", type=Path, help="Override the client asset directory")
+    parser.add_argument("--creature-manifest", type=Path, default=MANIFEST,
+                        help="Manifest path relative to the asset root (default: creatures/wyvern.json)")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--frames", type=int, help="Timed frames per run")
     parser.add_argument("--repeats", type=int, help="Passes over the scenarios, alternating forward and reverse")
@@ -419,6 +422,8 @@ def main():
     parser.add_argument("--allow-other-adapter", action="store_true", help="Allow Vulkan adapters other than integrated Radeon")
     parser.add_argument("--dry-run", action="store_true", help="Print the commands without launching the client")
     a = parser.parse_args()
+    if a.creature_manifest.is_absolute() or ".." in a.creature_manifest.parts:
+        parser.error("--creature-manifest must be relative to the asset root")
     a.output = a.output.resolve()
     if a.mode == "summarize":
         summarize(a.output)

@@ -1,0 +1,7 @@
+{
+  "base_lfs_sha256": "7b3fe3e3c8bb4fd4a50d632c7d6eea66239f4e32c177290c6db4984dffcc95f4",
+  "delivery_lfs_sha256": "fa5062efe23346c97857850780510adaa6b2b46394e3f433e2be8dc402d84bc3",
+  "native_import": true,
+  "prohibited_push_rejected": true,
+  "remote_type": "local bare"
+}

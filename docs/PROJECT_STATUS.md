@@ -1,4 +1,8 @@
-# Primal Voxel — jalon 3D
+# Primal Voxel — infrastructure Git et artistique
+
+La commande artistique `wyvern` est ouverte au statut `TODO`. Le provisoire 3D reste le modèle du jeu. La première mise en service sur les deux PC nécessite la publication de l’infrastructure, des objets LFS et du client de validation. [Déploiement Git](../art_pipeline/GIT_SETUP.md) · [Commande et contrat artistique](../art_pipeline/specs/wyvern.md) · [Vérifications du jalon](../art_pipeline/VERIFICATION.md).
+
+## Jalon 3D
 
 Le client Bevy importe une wyverne provisoire, ses 23 articulations et six clips glTF. **Inspecter-Wyverne.cmd** lance la démonstration locale. Le serveur et le mode en réseau conservent le périmètre 3C. [Inspection, vidéo et résultats 0/1/4/12](CREATURES_3D.md) · [Contrat du modèle de remplacement](WYVERN_ASSET.md).
 
