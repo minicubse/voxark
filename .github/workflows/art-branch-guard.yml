@@ -1,0 +1,34 @@
+name: Art branch guard
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  art-branch-guard:
+    name: Art branch guard
+    if: startsWith(github.event.pull_request.head.ref, 'art/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout trusted target
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          lfs: false
+          submodules: false
+      - name: Inspect art branch Git objects
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_TARGET: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_SOURCE: ${{ github.event.pull_request.head.ref }}
+        run: |
+          printf 'Checking %s against %s (%s)\n' "$PR_SOURCE" "$PR_TARGET" "$PR_BASE"
+          git fetch --no-tags --no-recurse-submodules origin "refs/pull/$PR_NUMBER/head"
+          python3 -I tools/check-art-branch.py --base "$PR_BASE" --head "$PR_HEAD" --branch "$PR_SOURCE"

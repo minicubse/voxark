@@ -1,3 +1,14 @@
 * text=auto eol=lf
 *.png binary
 *.gz binary
+.githooks/* text eol=lf
+*.glb filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.png filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.tga filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.exr filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.tif filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.tiff filter=lfs diff=lfs merge=lfs -text
+**/textures/**/*.ktx2 filter=lfs diff=lfs merge=lfs -text
