@@ -1,4 +1,5 @@
 mod creature_asset;
+mod creature_motion;
 mod daylight;
 mod flora;
 mod forest;
@@ -103,7 +104,9 @@ impl Options {
                 "--asset-root" => o.asset_root = Some(val.into()),
                 "--creature-manifest" => o.creature_manifest = val,
                 "--creature-state" => o.creature_state = val.to_ascii_lowercase(),
-                "--creature-time" => o.creature_time = Some(val.parse().expect("temps de démonstration")),
+                "--creature-time" => {
+                    o.creature_time = Some(val.parse().expect("temps de démonstration"))
+                }
                 "--creature-speed" => o.creature_speed = val.parse().expect("vitesse d’animation"),
                 "--creature-shadows" => o.creature_shadows = switch(&val),
                 "--creature-pause" => o.creature_pause = switch(&val),
@@ -185,11 +188,24 @@ impl Options {
         );
         assert!(o.creatures <= 64 && (0.05..=8.0).contains(&o.creature_speed));
         assert!(o.creature_time.is_none_or(|v| v.is_finite() && v >= 0.));
-        assert!(matches!(o.creature_state.as_str(), "demo"|"idleground"|"walk"|"takeoff"|"flap"|"glide"|"land"));
-        assert!(matches!(o.creature_placement.as_str(), "near"|"far"|"offscreen"));
+        assert!(matches!(
+            o.creature_state.as_str(),
+            "demo" | "idleground" | "walk" | "takeoff" | "flap" | "glide" | "land"
+        ));
+        assert!(matches!(
+            o.creature_placement.as_str(),
+            "near" | "far" | "offscreen"
+        ));
         if o.creatures > 0 {
-            assert!(o.connect.is_none(), "L’inspection des créatures est une démonstration locale");
-            assert!(o.preset.is_none_or(|p| p == primal_voxel::Preset::ForestModern), "La démonstration utilise forest-modern");
+            assert!(
+                o.connect.is_none(),
+                "L’inspection des créatures est une démonstration locale"
+            );
+            assert!(
+                o.preset
+                    .is_none_or(|p| p == primal_voxel::Preset::ForestModern),
+                "La démonstration utilise forest-modern"
+            );
             o.preset = Some(primal_voxel::Preset::ForestModern);
         }
         o
@@ -316,25 +332,42 @@ fn main() -> AppExit {
     });
     let now = Instant::now();
     // A portable build resolves its assets next to the executable, including when launched elsewhere.
-    let portable_assets = std::env::current_exe().ok().and_then(|p| p.parent().map(|dir| dir.join("assets")));
-    let assets = o.asset_root.clone().or_else(|| portable_assets.filter(|p| p.is_dir()))
-        .unwrap_or_else(|| std::env::current_dir().expect("dossier courant").join("assets"));
+    let portable_assets = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|dir| dir.join("assets")));
+    let assets = o
+        .asset_root
+        .clone()
+        .or_else(|| portable_assets.filter(|p| p.is_dir()))
+        .unwrap_or_else(|| {
+            std::env::current_dir()
+                .expect("dossier courant")
+                .join("assets")
+        });
     let creatures = o.creatures;
     let profiling = o.creature_profile;
     let measuring = o.frames > 0;
     let manifest = o.creature_manifest.clone();
-    app.add_plugins(DefaultPlugins.set(AssetPlugin {
-        file_path: std::path::absolute(assets).expect("dossier des assets").to_string_lossy().into_owned(),
-        ..default()
-    }).set(WindowPlugin {
-        primary_window: Some(Window {
-            title: "Primal Voxel — Bevy".into(),
-            resolution: WindowResolution::new(o.size.0, o.size.1).with_scale_factor_override(1.),
-            present_mode: PresentMode::Immediate,
-            ..default()
-        }),
-        ..default()
-    }))
+    app.add_plugins(
+        DefaultPlugins
+            .set(AssetPlugin {
+                file_path: std::path::absolute(assets)
+                    .expect("dossier des assets")
+                    .to_string_lossy()
+                    .into_owned(),
+                ..default()
+            })
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Primal Voxel — Bevy".into(),
+                    resolution: WindowResolution::new(o.size.0, o.size.1)
+                        .with_scale_factor_override(1.),
+                    present_mode: PresentMode::Immediate,
+                    ..default()
+                }),
+                ..default()
+            }),
+    )
     .add_plugins(forest::ForestPlugin)
     .insert_resource(WinitSettings::continuous())
     .insert_resource(o)
@@ -366,29 +399,34 @@ fn main() -> AppExit {
         Update,
         (
             control,
+            creature_motion::update_demo,
             stream,
             network::update,
             daylight::sync,
             publish,
+            creature_motion::publish_actors,
             measure,
             screenshot_key,
         )
             .chain(),
-    )
-    ;
+    );
     if profiling {
         app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin);
     }
     if measuring {
-        app.init_resource::<AnimationTiming>().add_systems(PostUpdate, (
-            begin_animation_timing.before(bevy::app::AnimationSystems),
-            end_animation_timing.after(bevy::app::AnimationSystems),
-        ).chain());
+        app.init_resource::<AnimationTiming>().add_systems(
+            PostUpdate,
+            (
+                begin_animation_timing.before(bevy::app::AnimationSystems),
+                end_animation_timing.after(bevy::app::AnimationSystems),
+            )
+                .chain(),
+        );
     }
     if creatures > 0 {
         app.add_plugins(creature_asset::CreatureAssetPlugin::new(manifest))
-            .add_systems(Startup, first_wyvern)
-            .add_systems(Update,(check_creature_assets, first_clip));
+            .add_plugins(creature_motion::CreatureMotionPlugin)
+            .add_systems(Update, (check_creature_assets, creature_shadow_flags));
     }
     app.run()
 }
@@ -406,21 +444,26 @@ fn end_animation_timing(mut timer: ResMut<AnimationTiming>) {
         timer.samples.push(start.elapsed().as_secs_f64() * 1e6);
     }
 }
-fn check_creature_assets(assets: Res<creature_asset::CreatureAssets>, mut exit: MessageWriter<AppExit>) {
+fn check_creature_assets(
+    assets: Res<creature_asset::CreatureAssets>,
+    mut exit: MessageWriter<AppExit>,
+) {
     if let creature_asset::CreatureAssetStatus::Failed(message) = assets.status() {
         eprintln!("Créature non chargée : {message}");
         exit.write(AppExit::error());
     }
 }
 
-fn first_clip(assets: Res<creature_asset::CreatureAssets>, mut players: Query<&mut AnimationPlayer, Added<creature_asset::CreatureAnimation>>) {
-    if let Some(index) = assets.node(creature_asset::CreatureClip::Flap) {
-        for mut p in &mut players { p.play(index).repeat(); }
+fn creature_shadow_flags(
+    o: Res<Options>,
+    new_parts: Query<Entity, Added<creature_asset::CreatureMesh>>,
+    mut commands: Commands,
+) {
+    if !o.creature_shadows {
+        for entity in &new_parts {
+            commands.entity(entity).insert(bevy::light::NotShadowCaster);
+        }
     }
-}
-fn first_wyvern(mut commands: Commands) {
-    commands.spawn((creature_asset::CreatureVisual::new(creature_asset::CreaturePalette::Jade),
-                    Transform::from_xyz(-4.,25.,0.)));
 }
 fn setup(
     mut cmds: Commands,
@@ -510,6 +553,7 @@ fn control(
     keys: Res<ButtonInput<KeyCode>>,
     buttons: Res<ButtonInput<MouseButton>>,
     mouse: Res<AccumulatedMouseMotion>,
+    wheel: Res<bevy::input::mouse::AccumulatedMouseScroll>,
     time: Res<Time<Real>>,
     mut cursor: Single<&mut CursorOptions>,
 ) {
@@ -529,6 +573,9 @@ fn control(
         }
         let axis = |a, b| u8::from(keys.pressed(a)) as f32 - u8::from(keys.pressed(b)) as f32;
         let f = rig.front();
+        if o.creatures > 0 {
+            rig.eye += f.as_dvec3() * f64::from(wheel.delta.y.clamp(-8., 8.)) * 0.75;
+        }
         let delta = (f * axis(KeyCode::KeyW, KeyCode::KeyS)
             + f.cross(Vec3::Y).normalize_or_zero() * axis(KeyCode::KeyD, KeyCode::KeyA)
             + Vec3::Y * axis(KeyCode::Space, KeyCode::ControlLeft))
@@ -646,6 +693,7 @@ fn measure(
     animation: Option<Res<AnimationTiming>>,
     diagnostics: Res<bevy::diagnostic::DiagnosticsStore>,
     assets: Option<Res<creature_asset::CreatureAssets>>,
+    motion: Option<Res<creature_motion::MotionReport>>,
     mut cmds: Commands,
     mut exit: MessageWriter<AppExit>,
 ) {
@@ -655,9 +703,11 @@ fn measure(
     let now = Instant::now();
     let ms = (now - bench.last).as_secs_f64() * 1000.;
     bench.last = now;
-    let ready = assets.as_ref().is_none_or(|a| a.counts().players == o.creatures);
+    let ready = assets
+        .as_ref()
+        .is_none_or(|a| a.counts().players == o.creatures);
     if ready && assets.is_some() && bench.creature_ready_ms.is_none() {
-        bench.creature_ready_ms = Some((now - bench.start).as_secs_f64()*1000.);
+        bench.creature_ready_ms = Some((now - bench.start).as_secs_f64() * 1000.);
     }
     let sig = (terrain.len(), terrain.uploads, terrain.removed);
     if bench.warm < 120 {
@@ -737,17 +787,27 @@ fn measure(
         report["creature_import"] = json!(a.info());
         report["app_start_to_rig_ready_ms"] = json!(bench.creature_ready_ms);
     }
-    report["driver"] = json!([gpu.driver,gpu.driver_info]);
+    if let Some(motion) = motion {
+        report["creature_motion"] = motion.json();
+    }
+    report["driver"] = json!([gpu.driver, gpu.driver_info]);
     if let Some(timer) = animation {
         let mean = timer.samples.iter().sum::<f64>() / timer.samples.len().max(1) as f64;
         report["animation_schedule_us"] = json!({"mean":mean,"samples":timer.samples});
     }
     if o.creature_profile {
-        report["render_passes"] = serde_json::Value::Object(diagnostics.iter().filter_map(|d| {
-            let name = d.path().to_string();
-            (name.starts_with("render/") && (name.ends_with("elapsed_cpu") || name.ends_with("elapsed_gpu")))
-                .then(|| d.average().map(|v| (name,json!(v)))).flatten()
-        }).collect());
+        report["render_passes"] = serde_json::Value::Object(
+            diagnostics
+                .iter()
+                .filter_map(|d| {
+                    let name = d.path().to_string();
+                    (name.starts_with("render/")
+                        && (name.ends_with("elapsed_cpu") || name.ends_with("elapsed_gpu")))
+                    .then(|| d.average().map(|v| (name, json!(v))))
+                    .flatten()
+                })
+                .collect(),
+        );
     }
     if let Some(path) = &o.report {
         std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap()).unwrap();
