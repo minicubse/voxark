@@ -32,6 +32,17 @@ Les versions successives d’un gros binaire consomment chacune leur taille comp
 
 ## Distribuer le validateur Bevy
 
+**Checkpoint du 27 novembre 2026.** Le propriétaire conserve le ZIP sur PC 1. Aucune Release de validation n’est publiée. Le binaire du jalon 3D (sources `7bba57a`, Bevy 0.20.1) accepte le manifeste v1 depuis un clone à `4344026`. Pour lancer la validation sous Windows x64 avec Python 3 et un pilote Vulkan, extraire le ZIP reçu par le canal convenu, puis ouvrir PowerShell dans le clone :
+
+~~~powershell
+$exe = (Resolve-Path (Read-Host 'Chemin du client PrimalVoxel-Bevy.exe extrait')).Path
+if ((Get-FileHash $exe -Algorithm SHA256).Hash -ne '375612d187f8fa516ace9f3f850a960bef6b800db5de1f9ca8a904795ef71472') { throw 'Binaire inattendu' }
+python tools/validate-creature.py --manifest assets/creatures/wyvern.json --asset-root assets
+if ($LASTEXITCODE) { throw 'Validation statique en échec' }
+python tools/test-creature-import.py --client $exe --manifest assets/creatures/wyvern.json --asset-root assets
+if ($LASTEXITCODE) { throw 'Import Bevy en échec' }
+~~~
+
 Le paquet Windows x64 du jalon 3D contient le client compatible avec le manifeste v1, ses licences et les lanceurs. PC 1 peut joindre **PrimalVoxel-3D-Windows-x64.zip** à une Release du dépôt partagé après publication, puis communiquer l’URL de cette Release et les empreintes. SHA-256 du ZIP de référence : `f8e42d08ec09f55c9534c60eeffb68c96e0d4bf50d7ee6202d121499470f6a83`. SHA-256 de `PrimalVoxel-Bevy.exe` extrait : `375612d187f8fa516ace9f3f850a960bef6b800db5de1f9ca8a904795ef71472`. Pour un nouveau binaire, publier les sommes correspondantes et la révision des sources après un essai d’import. PC 2 installe le ZIP hors du clone et vérifie le fichier avec `Get-FileHash -Algorithm SHA256`.
 
 ## Activer un clone
