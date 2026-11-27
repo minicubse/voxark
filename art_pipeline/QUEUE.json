@@ -10,7 +10,7 @@
       "output_path": "assets/creatures/wyvern_art/",
       "replaces": "procedural-wyvern-3d",
       "assigned_to": "PC2-ZCode",
-      "notes": "ART-C1 (PC 1) : maillage voxel unifié, armature 23 os, skinning normalisé, poses techniques et GLB technique vérifiés ; animations définitives à produire en ART-C2."
+      "notes": "ART-C2 (PC 1) : 6 clips contractuels (100 fps), 7 textures PNG <= 1024 px, wyvern.glb exporté via build.py (16 418 tris), validate-creature OK, import/captures/benchmark 0-1-4-12-far-offscreen Bevy vérifiés sur Ryzen 7 7730U / Radeon Vulkan ; statut conservé à IN_PROGRESS en attente de validation d'ouverture PR artistique."
     }
   ]
 }

@@ -1,0 +1,107 @@
+{
+  "valid": true,
+  "manifest": "assets\\creatures\\wyvern_art.json",
+  "limits": {
+    "max_triangles": 18000,
+    "max_texture_size": 2048
+  },
+  "metrics": {
+    "scene": "Wyvern",
+    "textures": [
+      {
+        "image": 0,
+        "source": "bufferView[8]",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "image": 1,
+        "source": "bufferView[9]",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "image": 2,
+        "source": "bufferView[18]",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "image": 3,
+        "source": "bufferView[19]",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "image": 4,
+        "source": "bufferView[28]",
+        "width": 512,
+        "height": 512
+      },
+      {
+        "image": 5,
+        "source": "bufferView[37]",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "image": 6,
+        "source": "bufferView[38]",
+        "width": 1024,
+        "height": 1024
+      }
+    ],
+    "triangles": 16418,
+    "vertices": 30128,
+    "mesh_instances": 1,
+    "skins": 1,
+    "max_joints": 23,
+    "slots": {
+      "Scales": "Scales",
+      "Horns": "Horns",
+      "Eyes": "Eyes",
+      "Membranes": "Membranes"
+    },
+    "clips": {
+      "IdleGround": {
+        "name": "IdleGround",
+        "duration_seconds": 3.200000047683716,
+        "tracks": 69
+      },
+      "Walk": {
+        "name": "Walk",
+        "duration_seconds": 1.0399999618530273,
+        "tracks": 69
+      },
+      "Takeoff": {
+        "name": "Takeoff",
+        "duration_seconds": 1.0499999523162842,
+        "tracks": 69
+      },
+      "Flap": {
+        "name": "Flap",
+        "duration_seconds": 1.0199999809265137,
+        "tracks": 69
+      },
+      "Glide": {
+        "name": "Glide",
+        "duration_seconds": 3.200000047683716,
+        "tracks": 69
+      },
+      "Land": {
+        "name": "Land",
+        "duration_seconds": 1.100000023841858,
+        "tracks": 69
+      }
+    }
+  },
+  "errors": [],
+  "manual_checks": [
+    "Verify +Z faces forward and +Y faces up on an asymmetric model in the Bevy viewer.",
+    "Verify ground pivot and dimensions visually, including held poses and wing clearance.",
+    "Inspect bind pose and deformation, silhouette, materials, and both sides of membranes.",
+    "Inspect stationary movement, looping seams, and takeoff and landing transitions in the Bevy viewer.",
+    "Run the precompiled Bevy import test to verify decoding, instantiation, and animation playback."
+  ],
+  "model": "creatures/wyvern_art/wyvern.glb"
+}

@@ -1,0 +1,499 @@
+{
+  "device": "AMD Ryzen 7 7730U / AMD Radeon (TM) Graphics (Vulkan)",
+  "frames_per_run": 600,
+  "repeats": 2,
+  "wyvern_art": {
+    "0": {
+      "median": {
+        "fps_avg": 196.9754,
+        "fps_1low": 127.5418,
+        "p95_ms": 6.4261,
+        "p99_ms": 7.0195,
+        "p999_ms": 9.8265,
+        "cpu_cores": 2.4249,
+        "peak_rss": 912050176.0
+      },
+      "max_peak_rss_mb": 870.98,
+      "animation_schedule_mean_us": 259.73,
+      "creature_inventory": {}
+    },
+    "1-near-shadow-off": {
+      "median": {
+        "fps_avg": 177.8616,
+        "fps_1low": 128.3607,
+        "p95_ms": 6.7619,
+        "p99_ms": 7.3976,
+        "p999_ms": 8.2031,
+        "cpu_cores": 2.7167,
+        "peak_rss": 946589696.0
+      },
+      "max_peak_rss_mb": 902.8,
+      "animation_schedule_mean_us": 466.97,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 736.0,
+        "joint_transform_bytes": 2576.0,
+        "joints_all_instances": 23.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 1.0,
+        "scene_to_render_asset_ms": 6.501950000000001,
+        "skinned_primitives": 4.0,
+        "triangles_all_instances": 16418.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 4.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 4.0,
+        "view_visible_triangles": 16418.0
+      }
+    },
+    "1-near-shadow-on": {
+      "median": {
+        "fps_avg": 168.1027,
+        "fps_1low": 91.635,
+        "p95_ms": 7.9388,
+        "p99_ms": 10.2203,
+        "p999_ms": 12.3089,
+        "cpu_cores": 2.6857,
+        "peak_rss": 949016576.0
+      },
+      "max_peak_rss_mb": 907.82,
+      "animation_schedule_mean_us": 442.23,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 736.0,
+        "joint_transform_bytes": 2576.0,
+        "joints_all_instances": 23.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 1.0,
+        "scene_to_render_asset_ms": 5.80935,
+        "skinned_primitives": 4.0,
+        "triangles_all_instances": 16418.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 4.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 4.0,
+        "view_visible_triangles": 16418.0
+      }
+    },
+    "12-far-shadow-on": {
+      "median": {
+        "fps_avg": 142.1569,
+        "fps_1low": 99.5214,
+        "p95_ms": 8.4228,
+        "p99_ms": 9.1888,
+        "p999_ms": 12.7608,
+        "cpu_cores": 2.7077,
+        "peak_rss": 936851456.0
+      },
+      "max_peak_rss_mb": 895.12,
+      "animation_schedule_mean_us": 697.87,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 10.0,
+        "scene_to_render_asset_ms": 5.7860499999999995,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 197016.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 48.0,
+        "view_visible_triangles": 197016.0
+      }
+    },
+    "12-near-shadow-off": {
+      "median": {
+        "fps_avg": 116.0328,
+        "fps_1low": 86.07,
+        "p95_ms": 9.9435,
+        "p99_ms": 10.779,
+        "p999_ms": 14.507,
+        "cpu_cores": 2.5956,
+        "peak_rss": 934649856.0
+      },
+      "max_peak_rss_mb": 893.39,
+      "animation_schedule_mean_us": 728.86,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 12.0,
+        "scene_to_render_asset_ms": 6.167949999999999,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 197016.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 48.0,
+        "view_visible_triangles": 197016.0
+      }
+    },
+    "12-near-shadow-on": {
+      "median": {
+        "fps_avg": 104.8699,
+        "fps_1low": 78.4441,
+        "p95_ms": 10.6971,
+        "p99_ms": 11.4972,
+        "p999_ms": 15.9849,
+        "cpu_cores": 2.4036,
+        "peak_rss": 936099840.0
+      },
+      "max_peak_rss_mb": 897.56,
+      "animation_schedule_mean_us": 723.81,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 12.0,
+        "scene_to_render_asset_ms": 6.063700000000001,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 197016.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 48.0,
+        "view_visible_triangles": 197016.0
+      }
+    },
+    "12-offscreen-shadow-on": {
+      "median": {
+        "fps_avg": 163.8241,
+        "fps_1low": 103.9831,
+        "p95_ms": 7.7096,
+        "p99_ms": 8.9828,
+        "p999_ms": 10.2362,
+        "cpu_cores": 3.0156,
+        "peak_rss": 947306496.0
+      },
+      "max_peak_rss_mb": 903.77,
+      "animation_schedule_mean_us": 649.05,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 0.0,
+        "scene_to_render_asset_ms": 5.63035,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 197016.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 27.5,
+        "view_visible_triangles": 122056.0
+      }
+    },
+    "4-near-shadow-off": {
+      "median": {
+        "fps_avg": 143.5173,
+        "fps_1low": 104.3049,
+        "p95_ms": 8.33,
+        "p99_ms": 8.8468,
+        "p999_ms": 10.9529,
+        "cpu_cores": 2.7068,
+        "peak_rss": 947376128.0
+      },
+      "max_peak_rss_mb": 903.8,
+      "animation_schedule_mean_us": 629.19,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 2944.0,
+        "joint_transform_bytes": 10304.0,
+        "joints_all_instances": 92.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 4.0,
+        "scene_to_render_asset_ms": 5.9365000000000006,
+        "skinned_primitives": 16.0,
+        "triangles_all_instances": 65672.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 16.0,
+        "view_visible_triangles": 65672.0
+      }
+    },
+    "4-near-shadow-on": {
+      "median": {
+        "fps_avg": 135.5732,
+        "fps_1low": 92.6944,
+        "p95_ms": 8.9986,
+        "p99_ms": 9.7687,
+        "p999_ms": 12.6539,
+        "cpu_cores": 2.6692,
+        "peak_rss": 949479424.0
+      },
+      "max_peak_rss_mb": 906.46,
+      "animation_schedule_mean_us": 635.6,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 2944.0,
+        "joint_transform_bytes": 10304.0,
+        "joints_all_instances": 92.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 4.0,
+        "scene_to_render_asset_ms": 6.0085,
+        "skinned_primitives": 16.0,
+        "triangles_all_instances": 65672.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 2749772.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 16418.0,
+        "view_visible_primitives": 16.0,
+        "view_visible_triangles": 65672.0
+      }
+    }
+  },
+  "wyvern_provisional": {
+    "0": {
+      "median": {
+        "fps_avg": 197.0151,
+        "fps_1low": 124.9448,
+        "p95_ms": 6.2538,
+        "p99_ms": 7.5773,
+        "p999_ms": 9.2896,
+        "cpu_cores": 2.5313,
+        "peak_rss": 911898624.0
+      },
+      "max_peak_rss_mb": 871.04,
+      "animation_schedule_mean_us": 269.44,
+      "creature_inventory": {}
+    },
+    "1-near-shadow-off": {
+      "median": {
+        "fps_avg": 188.1569,
+        "fps_1low": 119.5809,
+        "p95_ms": 6.6055,
+        "p99_ms": 7.6012,
+        "p999_ms": 10.455,
+        "cpu_cores": 2.7693,
+        "peak_rss": 919633920.0
+      },
+      "max_peak_rss_mb": 877.45,
+      "animation_schedule_mean_us": 440.11,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 736.0,
+        "joint_transform_bytes": 2576.0,
+        "joints_all_instances": 23.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 1.0,
+        "scene_to_render_asset_ms": 1.7936,
+        "skinned_primitives": 4.0,
+        "triangles_all_instances": 6048.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 4.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 4.0,
+        "view_visible_triangles": 6048.0
+      }
+    },
+    "1-near-shadow-on": {
+      "median": {
+        "fps_avg": 187.4655,
+        "fps_1low": 124.6785,
+        "p95_ms": 6.5998,
+        "p99_ms": 7.4085,
+        "p999_ms": 10.0402,
+        "cpu_cores": 2.823,
+        "peak_rss": 920782848.0
+      },
+      "max_peak_rss_mb": 878.96,
+      "animation_schedule_mean_us": 443.09,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 736.0,
+        "joint_transform_bytes": 2576.0,
+        "joints_all_instances": 23.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 1.0,
+        "scene_to_render_asset_ms": 1.8248499999999999,
+        "skinned_primitives": 4.0,
+        "triangles_all_instances": 6048.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 4.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 4.0,
+        "view_visible_triangles": 6048.0
+      }
+    },
+    "12-near-shadow-off": {
+      "median": {
+        "fps_avg": 178.8754,
+        "fps_1low": 113.6343,
+        "p95_ms": 6.9539,
+        "p99_ms": 8.2345,
+        "p999_ms": 9.6898,
+        "cpu_cores": 3.0953,
+        "peak_rss": 910163968.0
+      },
+      "max_peak_rss_mb": 869.38,
+      "animation_schedule_mean_us": 544.14,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 12.0,
+        "scene_to_render_asset_ms": 2.15445,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 72576.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 48.0,
+        "view_visible_triangles": 72576.0
+      }
+    },
+    "12-near-shadow-on": {
+      "median": {
+        "fps_avg": 176.5641,
+        "fps_1low": 120.2124,
+        "p95_ms": 6.7802,
+        "p99_ms": 7.5777,
+        "p999_ms": 10.5529,
+        "cpu_cores": 2.973,
+        "peak_rss": 777119744.0
+      },
+      "max_peak_rss_mb": 867.15,
+      "animation_schedule_mean_us": 532.1,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 8832.0,
+        "joint_transform_bytes": 30912.0,
+        "joints_all_instances": 276.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 12.0,
+        "scene_to_render_asset_ms": 1.6361500000000002,
+        "skinned_primitives": 48.0,
+        "triangles_all_instances": 72576.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 48.0,
+        "view_visible_triangles": 72576.0
+      }
+    },
+    "4-near-shadow-off": {
+      "median": {
+        "fps_avg": 180.6721,
+        "fps_1low": 119.9453,
+        "p95_ms": 7.1728,
+        "p99_ms": 7.8636,
+        "p999_ms": 9.3968,
+        "cpu_cores": 2.8394,
+        "peak_rss": 920446976.0
+      },
+      "max_peak_rss_mb": 878.92,
+      "animation_schedule_mean_us": 487.56,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 2944.0,
+        "joint_transform_bytes": 10304.0,
+        "joints_all_instances": 92.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 4.0,
+        "scene_to_render_asset_ms": 1.94455,
+        "skinned_primitives": 16.0,
+        "triangles_all_instances": 24192.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 16.0,
+        "view_visible_triangles": 24192.0
+      }
+    },
+    "4-near-shadow-on": {
+      "median": {
+        "fps_avg": 183.6639,
+        "fps_1low": 121.9969,
+        "p95_ms": 6.5452,
+        "p99_ms": 7.6552,
+        "p999_ms": 9.1939,
+        "cpu_cores": 2.753,
+        "peak_rss": 920399872.0
+      },
+      "max_peak_rss_mb": 878.26,
+      "animation_schedule_mean_us": 469.32,
+      "creature_inventory": {
+        "gpu_resident_meshes": 4.0,
+        "inverse_bind_bytes": 1472.0,
+        "joint_reference_bytes": 2944.0,
+        "joint_transform_bytes": 10304.0,
+        "joints_all_instances": 92.0,
+        "loaded_clips": 6.0,
+        "primary_view_instances": 4.0,
+        "scene_to_render_asset_ms": 1.94645,
+        "skinned_primitives": 16.0,
+        "triangles_all_instances": 24192.0,
+        "unique_graphs": 1.0,
+        "unique_inverse_bind_assets": 1.0,
+        "unique_materials_used": 12.0,
+        "unique_mesh_bytes": 254080.0,
+        "unique_meshes": 4.0,
+        "unique_triangles": 6048.0,
+        "view_visible_primitives": 16.0,
+        "view_visible_triangles": 24192.0
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "valid": true,
+  "manifest": "creatures/wyvern_art.json",
+  "adapter": "AMD Radeon (TM) Graphics",
+  "backend": "Vulkan",
+  "counts": {
+    "asset_load_ms": 79.4113,
+    "clips": 6,
+    "instances": 1,
+    "max_joints": 23,
+    "mesh_assets": 4,
+    "palette_materials": 12,
+    "players": 1,
+    "scenes": 1,
+    "skinned_meshes": 4,
+    "skins": 1,
+    "slots": 4
+  },
+  "import": {
+    "clip_durations_seconds": {
+      "Flap": 1.0199999809265137,
+      "Glide": 3.200000047683716,
+      "IdleGround": 3.200000047683716,
+      "Land": 1.100000023841858,
+      "Takeoff": 1.0499999523162842,
+      "Walk": 1.0399999618530273
+    },
+    "clips": {
+      "Flap": "Flap",
+      "Glide": "Glide",
+      "IdleGround": "IdleGround",
+      "Land": "Land",
+      "Takeoff": "Takeoff",
+      "Walk": "Walk"
+    },
+    "model": "creatures/wyvern_art/wyvern.glb",
+    "scale": 1.0,
+    "scene": "Wyvern"
+  }
+}
