@@ -4,13 +4,13 @@
     {
       "id": "wyvern",
       "priority": 1,
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "spec_path": "art_pipeline/specs/wyvern.md",
       "manifest_path": "assets/creatures/wyvern_art.json",
       "output_path": "assets/creatures/wyvern_art/",
       "replaces": "procedural-wyvern-3d",
       "assigned_to": "PC2-ZCode",
-      "notes": "Créer la wyverne voxel artistique définitive sans modifier le modèle provisoire."
+      "notes": "ART-C1 (PC 1) : maillage voxel unifié, armature 23 os, skinning normalisé, poses techniques et GLB technique vérifiés ; animations définitives à produire en ART-C2."
     }
   ]
 }
