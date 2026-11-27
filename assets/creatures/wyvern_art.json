@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "model": "creatures/wyvern_art/wyvern.glb",
+  "scene": "Wyvern",
+  "source_forward": "+Z",
+  "up_axis": "+Y",
+  "units": "meters",
+  "scale": 1.0,
+  "import_correction": "bevy_gltf_scene_rotation",
+  "pivot": "ground",
+  "root_motion": "in_place",
+  "clips": {
+    "IdleGround": "IdleGround",
+    "Walk": "Walk",
+    "Takeoff": "Takeoff",
+    "Flap": "Flap",
+    "Glide": "Glide",
+    "Land": "Land"
+  },
+  "slots": {
+    "Scales": "Scales",
+    "Horns": "Horns",
+    "Eyes": "Eyes",
+    "Membranes": "Membranes"
+  },
+  "palettes": {
+    "Jade": {
+      "Scales": [
+        0.1,
+        0.38,
+        0.29
+      ],
+      "Horns": [
+        0.66,
+        0.58,
+        0.39
+      ],
+      "Eyes": [
+        1.0,
+        0.72,
+        0.2
+      ],
+      "Membranes": [
+        0.18,
+        0.63,
+        0.55
+      ]
+    },
+    "Braise": {
+      "Scales": [
+        0.51,
+        0.15,
+        0.08
+      ],
+      "Horns": [
+        0.25,
+        0.16,
+        0.12
+      ],
+      "Eyes": [
+        1.0,
+        0.8,
+        0.27
+      ],
+      "Membranes": [
+        0.76,
+        0.32,
+        0.11
+      ]
+    },
+    "Obsidienne": {
+      "Scales": [
+        0.13,
+        0.17,
+        0.23
+      ],
+      "Horns": [
+        0.56,
+        0.49,
+        0.6
+      ],
+      "Eyes": [
+        0.54,
+        0.83,
+        1.0
+      ],
+      "Membranes": [
+        0.16,
+        0.48,
+        0.62
+      ]
+    }
+  }
+}

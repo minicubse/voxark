@@ -1,0 +1,325 @@
+{
+  "pass": "ART-C1",
+  "blender_version": "4.5.0",
+  "blend_path": "C:\\Users\\lenai\\.gemini\\antigravity\\scratch\\voxark-art-wyvern\\assets\\creatures\\wyvern_art\\wyvern.blend",
+  "blend_size_bytes": 510118,
+  "glb_path": "C:\\Users\\lenai\\.gemini\\antigravity\\scratch\\voxark-art-wyvern\\assets\\creatures\\wyvern_art\\wyvern_tech.glb",
+  "manifest_path": "C:\\Users\\lenai\\.gemini\\antigravity\\scratch\\voxark-art-wyvern\\assets\\creatures\\wyvern_art.json",
+  "armature_bones_count": 23,
+  "armature_bones": [
+    "Root",
+    "Body",
+    "NeckBase",
+    "NeckTip",
+    "Head",
+    "Jaw",
+    "TailBase",
+    "TailMid",
+    "TailTip",
+    "Hip.L",
+    "Knee.L",
+    "Ankle.L",
+    "WingShoulder.L",
+    "WingElbow.L",
+    "WingWrist.L",
+    "WingDigit.L",
+    "Hip.R",
+    "Knee.R",
+    "Ankle.R",
+    "WingShoulder.R",
+    "WingElbow.R",
+    "WingWrist.R",
+    "WingDigit.R"
+  ],
+  "skinned_mesh_objects": 1,
+  "materials_count": 4,
+  "materials": [
+    "Scales",
+    "Horns",
+    "Eyes",
+    "Membranes"
+  ],
+  "weight_audit": {
+    "vertex_count": 9828,
+    "triangle_count": 16024,
+    "max_influences_per_vertex": 4,
+    "unassigned_vertices": 0,
+    "normalization_errors": 0,
+    "invalid_weight_values": 0,
+    "root_weighted_vertices": 0,
+    "deforming_bones_used_count": 22,
+    "unused_bones": [
+      "Root"
+    ]
+  },
+  "pose_metrics": {
+    "BindOpen": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.688,
+        0.0
+      ],
+      "bounds_max_m": [
+        3.648,
+        3.658,
+        2.832
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 6.346,
+      "height_z_m": 2.832,
+      "membrane_min_z_m": 1.08,
+      "zero_area_polygons": 0
+    },
+    "FoldedWings": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -1.7551,
+        -2.7016,
+        0.0467
+      ],
+      "bounds_max_m": [
+        1.7551,
+        3.6621,
+        2.8173
+      ],
+      "width_x_m": 3.5103,
+      "length_y_m": 6.3637,
+      "height_z_m": 2.7706,
+      "membrane_min_z_m": 1.1316,
+      "zero_area_polygons": 0
+    },
+    "NeckHeadFlex": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.4989,
+        0.0
+      ],
+      "bounds_max_m": [
+        3.648,
+        3.658,
+        2.5968
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 6.1569,
+      "height_z_m": 2.5968,
+      "membrane_min_z_m": 1.08,
+      "zero_area_polygons": 0
+    },
+    "JawOpen": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.688,
+        0.0
+      ],
+      "bounds_max_m": [
+        3.648,
+        3.658,
+        2.832
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 6.346,
+      "height_z_m": 2.832,
+      "membrane_min_z_m": 1.08,
+      "zero_area_polygons": 0
+    },
+    "LegsFlex": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.765,
+        0.1799
+      ],
+      "bounds_max_m": [
+        3.648,
+        3.6617,
+        2.7358
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 6.4267,
+      "height_z_m": 2.5559,
+      "membrane_min_z_m": 1.1909,
+      "zero_area_polygons": 0
+    },
+    "TailCurl": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.688,
+        0.0
+      ],
+      "bounds_max_m": [
+        3.648,
+        2.3978,
+        2.832
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 5.0858,
+      "height_z_m": 2.832,
+      "membrane_min_z_m": 1.08,
+      "zero_area_polygons": 0
+    },
+    "ArticulationCombined": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.4634,
+        -2.6199,
+        0.1422
+      ],
+      "bounds_max_m": [
+        3.4634,
+        2.5643,
+        2.5823
+      ],
+      "width_x_m": 6.9267,
+      "length_y_m": 5.1843,
+      "height_z_m": 2.4401,
+      "membrane_min_z_m": 0.8784,
+      "zero_area_polygons": 0
+    },
+    "BindReturn": {
+      "vertices": 9828,
+      "triangles": 16024,
+      "bounds_min_m": [
+        -3.648,
+        -2.688,
+        0.0
+      ],
+      "bounds_max_m": [
+        3.648,
+        3.658,
+        2.832
+      ],
+      "width_x_m": 7.296,
+      "length_y_m": 6.346,
+      "height_z_m": 2.832,
+      "membrane_min_z_m": 1.08,
+      "zero_area_polygons": 0,
+      "max_vertex_drift_m": 0.0
+    }
+  },
+  "glb_audit": {
+    "file_size_bytes": 1729040,
+    "default_scene": "Wyvern",
+    "skinned_meshes": 1,
+    "primitives": 4,
+    "materials": [
+      "Eyes",
+      "Horns",
+      "Membranes",
+      "Scales"
+    ],
+    "membranes_double_sided": true,
+    "joints_count": 23,
+    "joint_names": [
+      "Root",
+      "Body",
+      "NeckBase",
+      "NeckTip",
+      "Head",
+      "Jaw",
+      "TailBase",
+      "TailMid",
+      "TailTip",
+      "Hip.L",
+      "Knee.L",
+      "Ankle.L",
+      "WingShoulder.L",
+      "WingElbow.L",
+      "WingWrist.L",
+      "WingDigit.L",
+      "Hip.R",
+      "Knee.R",
+      "Ankle.R",
+      "WingShoulder.R",
+      "WingElbow.R",
+      "WingWrist.R",
+      "WingDigit.R"
+    ],
+    "attributes": [
+      "COLOR_0",
+      "JOINTS_0",
+      "NORMAL",
+      "POSITION",
+      "WEIGHTS_0"
+    ],
+    "vertices_exported": 28986,
+    "triangles_exported": 16024,
+    "max_influences": 4,
+    "unassigned_vertices": 0,
+    "weight_norm_errors": 0,
+    "ibm_errors": 0,
+    "max_ibm_matrix_error": 1e-07,
+    "max_joint_bind_rotation_error": 1e-07,
+    "gltf_bounds_x_width_m": 7.296,
+    "gltf_bounds_y_height_m": 2.832,
+    "gltf_bounds_z_length_m": 6.346,
+    "gltf_min_m": [
+      -3.648,
+      0.0,
+      -3.658
+    ],
+    "gltf_max_m": [
+      3.648,
+      2.832,
+      2.688
+    ]
+  },
+  "roundtrip_reimport": {
+    "imported_armature_bones": 23,
+    "imported_mesh_materials": [
+      "Scales.001",
+      "Horns.001",
+      "Eyes.001",
+      "Membranes.001"
+    ],
+    "imported_vertices": 28986,
+    "imported_triangles": 16024,
+    "roundtrip_width_x_m": 7.296,
+    "roundtrip_length_y_m": 6.346,
+    "roundtrip_height_z_m": 2.832,
+    "roundtrip_bounds_min_m": [
+      -3.648,
+      -2.688,
+      0.0
+    ],
+    "roundtrip_bounds_max_m": [
+      3.648,
+      3.658,
+      2.832
+    ],
+    "dimension_deltas_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "head_world_after_reimport": [
+      0.0,
+      -1.64,
+      2.24
+    ],
+    "render_time_sec": 0.839
+  },
+  "render_times_sec": {
+    "c1_open_front.png": 2.552,
+    "c1_open_profile.png": 0.473,
+    "c1_open_top.png": 1.156,
+    "c1_open_three_quarter.png": 0.817,
+    "c1_folded_front.png": 0.398,
+    "c1_folded_profile.png": 0.445,
+    "c1_folded_three_quarter.png": 0.756,
+    "c1_articulation_profile.png": 0.443,
+    "c1_articulation_three_quarter.png": 0.795,
+    "c1_reimport_roundtrip.png": 0.839
+  },
+  "total_render_time_sec": 8.674
+}
