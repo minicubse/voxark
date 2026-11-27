@@ -4,7 +4,7 @@
     {
       "id": "wyvern",
       "priority": 1,
-      "status": "READY_FOR_INTEGRATION",
+      "status": "INTEGRATED",
       "spec_path": "art_pipeline/specs/wyvern.md",
       "manifest_path": "assets/creatures/wyvern_art.json",
       "output_path": "assets/creatures/wyvern_art/",
