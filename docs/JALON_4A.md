@@ -62,7 +62,7 @@ La cadence mesurée atteint 60,00 ticks/s et 20,00 snapshots de créatures/s par
 
 ## Reproduire les contrôles
 
-Utiliser Python 3.11 ou supérieur avec `psutil`, une session Windows graphique et les binaires release. Depuis la racine, adapter les deux répertoires de binaires et choisir des sorties neuves.
+Utiliser Python 3.11 ou supérieur avec `psutil` et `Pillow`, une session Windows graphique et les binaires release. Depuis la racine, adapter les deux répertoires de binaires et choisir des sorties neuves.
 
 ```powershell
 $bin4a = "target/release"
