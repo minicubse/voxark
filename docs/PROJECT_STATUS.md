@@ -1,10 +1,12 @@
 # Primal Voxel — état du projet
 
-## Jalon 4A — wyverne autoritaire
+## Jalon 4A intégré — wyverne autoritaire
 
-Le serveur pilote le déplacement et les six états de la wyverne provisoire. Deux clients Bevy ont retrouvé le même état sur 536 ticks communs et Macroquad v1 a édité le terrain pendant la partie. Les 132 tests Rust passent. Sur le Ryzen 7 7730U de PC 1, douze wyvernes donnent 177 FPS moyens et 107,6 FPS en 1 % low à 720p. La persistance des créatures est hors périmètre de 4A. Le serveur reconstruit le groupe initial au tick zéro après redémarrage. Les appuis suivent le relief généré, y compris lorsque les joueurs modifient le terrain. [Protocole, reproduction, limites et mesures](JALON_4A.md)
+Le jalon 4A et la wyverne artistique sont intégrés à `main` au commit `9524772`. Le serveur pilote les déplacements et les six états. Le client Bevy v2 restitue les créatures et le client Macroquad v1 continue de recevoir le terrain et les joueurs. Les 132 tests Rust passent après fusion. Le benchmark 4A du provisoire à douze wyvernes sur Ryzen 7 7730U donne 177 FPS moyens et 107,6 FPS en 1 % low à 720p. [Protocole, tests multijoueurs et limites](JALON_4A.md)
 
-Prochaine action sur PC 1, relire la branche moteur avant intégration. La commande artistique `wyvern` reste ouverte au statut `TODO`. PC 2 peut utiliser le validateur Windows 3D distribué par transfert local. [Commande artistique](../art_pipeline/specs/wyvern.md) · [Guide PC 1](../art_pipeline/INTEGRATION_PC1.md)
+La commande `wyvern` est intégrée après validation du modèle artistique en multijoueur, des objets Git LFS et de l’import Bevy après fusion. Le modèle provisoire `assets/creatures/wyvern.json` reste sélectionné par défaut. Pour utiliser la version artistique, passer `--creature-manifest creatures/wyvern_art.json` au client Bevy. Elle comprend 23 articulations, six clips et trois palettes. [Rapport de production, empreintes et provenance](../art_pipeline/reports/wyvern.md)
+
+Les appuis suivent une grille fixe calculée à partir du relief généré. Les modifications de terrain ne déplacent pas ces appuis. La persistance des créatures reste hors périmètre de 4A. Au redémarrage, le serveur reconstruit le groupe initial au tick zéro.
 
 ## Jalon 3D
 
