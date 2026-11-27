@@ -1,5 +1,7 @@
 //! Renderer-independent movement and authoritative voxel interactions.
 
+pub mod creatures;
+
 use primal_voxel::{MAX_BLOCK, Pos, WORLD_MAX, WORLD_MIN, World};
 use std::fmt;
 

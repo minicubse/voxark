@@ -6,6 +6,7 @@ rust-version.workspace = true
 
 [dependencies]
 primal-voxel = { path = "../voxel" }
+serde = { version = "1", features = ["derive"] }
 
 [lints]
 workspace = true
