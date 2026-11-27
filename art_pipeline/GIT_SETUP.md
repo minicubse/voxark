@@ -2,21 +2,25 @@
 
 `main` est la version stable. PC 1 développe sur `feat/code-*`, PC 2 sur une branche `art/<id>` par commande. L’historique du moteur et les fichiers artistiques appartiennent au même dépôt. Une Release sert à distribuer un outil exécutable, la file et les sources se synchronisent par Git.
 
-## Premier déploiement par le propriétaire
+## Récupérer le dépôt partagé
 
-Le dépôt d’origine du jalon INFRA-GIT n’avait aucun remote. Choisir ou créer le vrai dépôt partagé et donner aux deux PC accès aux objets Git **et** LFS. Depuis le clone PC 1, vérifier la destination avant publication. Ces commandes ciblent un nouveau distant vide. Si `git ls-remote` affiche des références existantes, examiner l’historique distant avec `git fetch origin` et rapprocher les branches par PR.
+Le dépôt commun est [minicubse/voxark](https://github.com/minicubse/voxark). Le commit d’infrastructure `4344026ce362a439582f59896df67c9de668fe5a` est disponible dans l’historique de `main`. Depuis un nouveau poste Windows, installer Git for Windows avec Git LFS, puis exécuter ces commandes dans le dossier qui accueillera le clone.
 
 ~~~powershell
-git remote -v
-$url = Read-Host 'URL réelle du dépôt partagé'
-git ls-remote $url
-if ($LASTEXITCODE) { throw 'Distant inaccessible' }
-git remote add origin $url
-git push -u origin main feat/code-art-pipeline
-git ls-remote --heads origin main feat/code-art-pipeline
+git clone --branch main https://github.com/minicubse/voxark.git voxark
+if ($LASTEXITCODE) { throw 'Échec du clonage' }
+Set-Location voxark
+git merge-base --is-ancestor 4344026ce362a439582f59896df67c9de668fe5a HEAD
+if ($LASTEXITCODE) { throw 'Commit INFRA-GIT absent' }
+python tools/install-art-hooks.py
+if ($LASTEXITCODE) { throw "Échec de l’installation des hooks" }
+git lfs pull origin
+if ($LASTEXITCODE) { throw 'Échec du téléchargement LFS' }
+git lfs fsck
+if ($LASTEXITCODE) { throw 'Objet LFS invalide' }
 ~~~
 
-Si un `origin` a été configuré depuis, vérifier `git remote get-url origin` et réutiliser le remote correspondant. Sur un dépôt préexistant protégé, pousser la branche d’infrastructure, proposer sa PR, puis vérifier la présence de son commit sur `origin/main`. Conserver les permissions et historiques existants. Configurer `main` comme branche par défaut.
+Un clone indépendant réalisé depuis PC 1 a récupéré le manuel, la fiche `wyvern` et le GLB provisoire. Après téléchargement LFS, le SHA-256 du GLB était `7b3fe3e3c8bb4fd4a50d632c7d6eea66239f4e32c177290c6db4984dffcc95f4`. Sur PC 2, utiliser les droits du compte artistique pour vérifier l’accès depuis ce poste.
 
 ## Contrôles GitHub à réaliser après publication
 
