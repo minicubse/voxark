@@ -12,6 +12,9 @@ pub enum Action {
     Pose,
     Plant(Pos),
     Photo,
+    Creatures,
+    CreatureTrace(bool),
+    Reconnect,
     Quit,
 }
 pub struct Playtest {
@@ -58,6 +61,10 @@ impl Playtest {
             ])),
             ["pose"] => Some(Action::Pose),
             ["photo"] => Some(Action::Photo),
+            ["creature-trace", "on"] => Some(Action::CreatureTrace(true)),
+            ["creature-trace", "off"] => Some(Action::CreatureTrace(false)),
+            ["creatures"] => Some(Action::Creatures),
+            ["reconnect"] => Some(Action::Reconnect),
             ["quit"] => Some(Action::Quit),
             _ => None,
         }
