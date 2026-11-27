@@ -1,0 +1,792 @@
+{
+  "scenario": {
+    "seed": 20261120,
+    "preset": "forest-modern",
+    "server_tick_hz": 60,
+    "resolution": "960x540",
+    "creatures": 1,
+    "backend": "Vulkan"
+  },
+  "executables": {
+    "server": {
+      "filename": "primal-server.exe",
+      "bytes": 4621312,
+      "sha256": "b7a0ebb2ddf2cf24c5610a6437d21b5457a81289095e4fe24577254238435bd9"
+    },
+    "bevy": {
+      "filename": "primal-client-bevy.exe",
+      "bytes": 128930816,
+      "sha256": "3e5fc177fba2ad0fd45458b348602acfd2ec558f55b6f9dd608dc9d57eb28062"
+    },
+    "legacy_macroquad": {
+      "filename": "PrimalVoxel.exe",
+      "bytes": 5726208,
+      "sha256": "20c4a447cbe31a11a644c6b1a9bedbafab6ba40ace6c1b6313da6e9aeb99812e"
+    }
+  },
+  "player_ids": {
+    "bevy-a": 2,
+    "bevy-b": 3,
+    "macroquad": 1
+  },
+  "authority": {
+    "positions_yaw_and_states_exact": true,
+    "same_tick_count": 536,
+    "samples_by_state": {
+      "Walk": 98,
+      "Takeoff": 33,
+      "Flap": 125,
+      "Glide": 173,
+      "Land": 30,
+      "IdleGround": 77
+    },
+    "cycle": [
+      {
+        "clip": "IdleGround",
+        "state_start_tick": 1204,
+        "first_matched_tick": 1212
+      },
+      {
+        "clip": "Walk",
+        "state_start_tick": 1504,
+        "first_matched_tick": 1506
+      },
+      {
+        "clip": "Takeoff",
+        "state_start_tick": 1691,
+        "first_matched_tick": 1704
+      },
+      {
+        "clip": "Flap",
+        "state_start_tick": 1754,
+        "first_matched_tick": 1761
+      },
+      {
+        "clip": "Glide",
+        "state_start_tick": 2030,
+        "first_matched_tick": 2037
+      },
+      {
+        "clip": "Land",
+        "state_start_tick": 2342,
+        "first_matched_tick": 2358
+      }
+    ]
+  },
+  "render": {
+    "samples_by_state": {
+      "Walk": 96,
+      "Takeoff": 28,
+      "Flap": 106,
+      "Glide": 154,
+      "Land": 8,
+      "IdleGround": 47
+    },
+    "max_difference": {
+      "position_m": 3.352055764523042e-06,
+      "yaw_rad": 2.2021459744614447e-07,
+      "phase_s": 1.6988339801571328e-07
+    },
+    "max_origin_reconstruction_error_m": 0,
+    "sample_counts": {
+      "bevy-a": 649,
+      "bevy-b": 649
+    },
+    "duplicate_roots": 0
+  },
+  "late_join": {
+    "before_bevy_b_started": {
+      "authoritative": [
+        {
+          "id": 9223372036854775809,
+          "locomotion": "Walk",
+          "palette": "Jade",
+          "position": [
+            -2.8809714040701695,
+            25.0,
+            7.750450493925173
+          ],
+          "species": "Wyvern",
+          "state_start_tick": 300,
+          "yaw": 1.1344605684280396
+        }
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "origin_blocks": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "player_id": 2,
+      "render_tick": 313.008576,
+      "tick": 318,
+      "tick_hz": 60,
+      "visuals": [
+        {
+          "clip": "Walk",
+          "entity": 4294967055,
+          "id": 9223372036854775809,
+          "local_position": [
+            -2.856809616088867,
+            25.0,
+            7.761665344238281
+          ],
+          "phase_seconds": 0.21680960059165955,
+          "position": [
+            -2.856809616088867,
+            25.0,
+            7.761665344238281
+          ],
+          "ready": true,
+          "sample_tick": 313.008576,
+          "state_start_tick": 300,
+          "visible": false,
+          "yaw": 1.1377902030944824
+        }
+      ]
+    },
+    "with_bevy_b": {
+      "bevy-a": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Walk",
+            "palette": "Jade",
+            "position": [
+              -3.350751679170889,
+              25.0,
+              7.5122543811075895
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 300,
+            "yaw": 1.0686089992523193
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 354.512226,
+        "tick": 360,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Walk",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -3.266005039215088,
+              25.0,
+              7.558104038238525
+            ],
+            "phase_seconds": 0.9085370898246765,
+            "position": [
+              -3.266005039215088,
+              25.0,
+              7.558104038238525
+            ],
+            "ready": true,
+            "sample_tick": 354.512226,
+            "state_start_tick": 300,
+            "visible": false,
+            "yaw": 1.0806533098220825
+          }
+        ]
+      },
+      "bevy-b": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Walk",
+            "palette": "Jade",
+            "position": [
+              -3.350751679170889,
+              25.0,
+              7.5122543811075895
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 300,
+            "yaw": 1.0686089992523193
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 3,
+        "render_tick": 354.241602,
+        "tick": 360,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Walk",
+            "entity": 4294967054,
+            "id": 9223372036854775809,
+            "local_position": [
+              -3.261915683746338,
+              25.0,
+              7.560297012329102
+            ],
+            "phase_seconds": 0.9040266871452332,
+            "position": [
+              -3.261915683746338,
+              25.0,
+              7.560297012329102
+            ],
+            "ready": true,
+            "sample_tick": 354.241602,
+            "state_start_tick": 300,
+            "visible": false,
+            "yaw": 1.0812333822250366
+          }
+        ]
+      }
+    }
+  },
+  "interest": {
+    "outside_feet": [
+      160.5,
+      52.0,
+      0.5
+    ],
+    "outside": {
+      "bevy-a": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.232606962372875,
+              31.54743157721706,
+              -1.5510459686371094
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.2592759132385254
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 3000.653406,
+        "tick": 3006,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -7.332798957824707,
+              31.125259399414062,
+              -1.1238919496536255
+            ],
+            "phase_seconds": 0.7108901143074036,
+            "position": [
+              -7.332798957824707,
+              31.125259399414062,
+              -1.1238919496536255
+            ],
+            "ready": true,
+            "sample_tick": 3000.653406,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.20442400872707367
+          }
+        ]
+      },
+      "bevy-b": {
+        "authoritative": [],
+        "origin": [
+          10,
+          3,
+          0
+        ],
+        "origin_blocks": [
+          160.0,
+          48.0,
+          0.0
+        ],
+        "player_id": 3,
+        "render_tick": 3000.927228,
+        "tick": 3006,
+        "tick_hz": 60,
+        "visuals": []
+      }
+    },
+    "return_feet": [
+      -9.5,
+      36.0,
+      17.5
+    ],
+    "returned": {
+      "bevy-a": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.165065114603771,
+              31.7864279403304,
+              -1.7905843771588659
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.29038700461387634
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 3005.044878,
+        "tick": 3009,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -7.251595973968506,
+              31.471797943115234,
+              -1.4747196435928345
+            ],
+            "phase_seconds": 0.7840812802314758,
+            "position": [
+              -7.251595973968506,
+              31.471797943115234,
+              -1.4747196435928345
+            ],
+            "ready": true,
+            "sample_tick": 3005.044878,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.2494439035654068
+          }
+        ]
+      },
+      "bevy-b": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.165065114603771,
+              31.7864279403304,
+              -1.7905843771588659
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.29038700461387634
+          }
+        ],
+        "origin": [
+          -1,
+          2,
+          1
+        ],
+        "origin_blocks": [
+          -16.0,
+          32.0,
+          16.0
+        ],
+        "player_id": 3,
+        "render_tick": 3005.671734,
+        "tick": 3009,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 8589934047,
+            "id": 9223372036854775809,
+            "local_position": [
+              8.834935188293457,
+              -0.21357205510139465,
+              -17.790584564208984
+            ],
+            "phase_seconds": 0.8500000238418579,
+            "position": [
+              -7.165064811706543,
+              31.786427944898605,
+              -1.7905845642089844
+            ],
+            "ready": true,
+            "sample_tick": 3009.0,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.29038700461387634
+          }
+        ]
+      }
+    }
+  },
+  "reconnect": {
+    "disconnected": {
+      "bevy-a": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.089668684073025,
+              32.02673625380127,
+              -2.029621377906509
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.3125240206718445
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 3006.012456,
+        "tick": 3012,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -7.232326507568359,
+              31.548423767089844,
+              -1.5520405769348145
+            ],
+            "phase_seconds": 0.8002076148986816,
+            "position": [
+              -7.232326507568359,
+              31.548423767089844,
+              -1.5520405769348145
+            ],
+            "ready": true,
+            "sample_tick": 3006.012456,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.25940507650375366
+          }
+        ]
+      },
+      "bevy-b": {
+        "authoritative": [],
+        "origin": [
+          -1,
+          2,
+          1
+        ],
+        "origin_blocks": [
+          -16.0,
+          32.0,
+          16.0
+        ],
+        "player_id": null,
+        "render_tick": null,
+        "tick": null,
+        "tick_hz": null,
+        "visuals": []
+      }
+    },
+    "rejoined": {
+      "bevy-a": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -3.0463212861083506,
+              39.026066922824036,
+              -11.719454343383411
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.9158909916877747
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 3093.943074,
+        "tick": 3099,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -3.6404635906219482,
+              38.64350891113281,
+              -11.21339225769043
+            ],
+            "phase_seconds": 0.2257179319858551,
+            "position": [
+              -3.6404635906219482,
+              38.64350891113281,
+              -11.21339225769043
+            ],
+            "ready": true,
+            "sample_tick": 3093.943074,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.8220957517623901
+          }
+        ]
+      },
+      "bevy-b": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -3.0463212861083506,
+              39.026066922824036,
+              -11.719454343383411
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.9158909916877747
+          }
+        ],
+        "origin": [
+          -1,
+          2,
+          1
+        ],
+        "origin_blocks": [
+          -16.0,
+          32.0,
+          16.0
+        ],
+        "player_id": 3,
+        "render_tick": 3093.01326,
+        "tick": 3099,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 12884901285,
+            "id": 9223372036854775809,
+            "local_position": [
+              12.253667831420898,
+              6.572768211364746,
+              -27.11701011657715
+            ],
+            "phase_seconds": 0.2102210372686386,
+            "position": [
+              -3.7463321685791016,
+              38.572768211364746,
+              -11.117010116577148
+            ],
+            "ready": true,
+            "sample_tick": 3093.01326,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.8050219416618347
+          }
+        ]
+      }
+    }
+  },
+  "macroquad_edit": {
+    "position": [
+      -17,
+      28,
+      2
+    ],
+    "value_before": 5,
+    "value_after": 0,
+    "revision_before": 0,
+    "revision_after": 1,
+    "macroquad_meshed_ms": 330.76380000056815,
+    "bevy_meshed_ms": 300.60750000029657
+  },
+  "photography": {
+    "bevy-a": {
+      "capture": {
+        "filename": "bevy-a.png",
+        "bytes": 516317,
+        "sha256": "b5e3b3889593919901a8b0aed9401a597064e6bee350de8f500ed96dc18646a5"
+      },
+      "camera_feet": [
+        10.5,
+        33.0,
+        17.5
+      ],
+      "seen": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.441274429266151,
+              28.614558334018245,
+              1.4675538429894095
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": 0.12124104052782059
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 2,
+        "render_tick": 2961.972288,
+        "tick": 2967,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967055,
+            "id": 9223372036854775809,
+            "local_position": [
+              -7.388772487640381,
+              28.268062591552734,
+              1.8255975246429443
+            ],
+            "phase_seconds": 0.06620480120182037,
+            "position": [
+              -7.388772487640381,
+              28.268062591552734,
+              1.8255975246429443
+            ],
+            "ready": true,
+            "sample_tick": 2961.972288,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": 0.1664804220199585
+          }
+        ]
+      }
+    },
+    "bevy-b": {
+      "capture": {
+        "filename": "bevy-b.png",
+        "bytes": 462542,
+        "sha256": "a727faedc4b781d02c25185563689bed2f12d65f4ac4634bc767d6a16ebbfc4b"
+      },
+      "camera_feet": [
+        -9.5,
+        36.0,
+        17.5
+      ],
+      "seen": {
+        "authoritative": [
+          {
+            "id": 9223372036854775809,
+            "locomotion": "Flap",
+            "palette": "Jade",
+            "position": [
+              -7.424814603898064,
+              30.60696967206378,
+              -0.5942182112558612
+            ],
+            "species": "Wyvern",
+            "state_start_tick": 2958,
+            "yaw": -0.13720737397670746
+          }
+        ],
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "origin_blocks": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "player_id": 3,
+        "render_tick": 2989.54053,
+        "tick": 2994,
+        "tick_hz": 60,
+        "visuals": [
+          {
+            "clip": "Flap",
+            "entity": 4294967054,
+            "id": 9223372036854775809,
+            "local_position": [
+              -7.4646148681640625,
+              30.26512336730957,
+              -0.24222323298454285
+            ],
+            "phase_seconds": 0.5256754755973816,
+            "position": [
+              -7.4646148681640625,
+              30.26512336730957,
+              -0.24222323298454285
+            ],
+            "ready": true,
+            "sample_tick": 2989.54053,
+            "state_start_tick": 2958,
+            "visible": true,
+            "yaw": -0.09292169660329819
+          }
+        ]
+      }
+    }
+  }
+}

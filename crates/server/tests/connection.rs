@@ -248,21 +248,24 @@ fn creatures(link: &Link, minimum_tick: u64, visible: bool) -> (u64, Vec<Creatur
 #[test]
 fn late_join_and_reconnect_resample_creatures_without_sending_them_to_v1() {
     let tmp = tempfile::tempdir().unwrap();
-    let mut server = Command::new(env!("CARGO_BIN_EXE_primal-server"))
-        .arg("--world")
-        .arg(tmp.path().join("world.pvx"))
-        .args([
-            "--bind",
-            "127.0.0.1:0",
-            "--ticks",
-            "720",
-            "--creatures",
-            "1",
-        ])
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
+    let start = || {
+        Command::new(env!("CARGO_BIN_EXE_primal-server"))
+            .arg("--world")
+            .arg(tmp.path().join("world.pvx"))
+            .args([
+                "--bind",
+                "127.0.0.1:0",
+                "--ticks",
+                "720",
+                "--creatures",
+                "1",
+            ])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap()
+    };
+    let mut server = start();
     let mut started = String::new();
     BufReader::new(server.stdout.as_mut().unwrap())
         .read_line(&mut started)
@@ -321,9 +324,33 @@ fn late_join_and_reconnect_resample_creatures_without_sending_them_to_v1() {
     let traffic = reconnected.creature_traffic();
     assert!(traffic.bytes > 0 && traffic.messages > 0);
     assert_eq!(legacy.creature_traffic().messages, 0);
+    writeln!(stdin, "despawn-creature {}", first_state[0].id.0).unwrap();
+    let (removed, _) = creatures(&reconnected, reconnected_tick + 1, false);
+    writeln!(stdin, "spawn-creature").unwrap();
+    let (_, fresh) = creatures(&reconnected, removed + 1, true);
+    assert_ne!(fresh[0].id, first_state[0].id);
     drop(reconnected);
     drop(first);
     drop(legacy);
     writeln!(stdin, "stop").unwrap();
     assert!(server.wait().unwrap().success());
+
+    // The same region store restores player identity. The demonstration population
+    // is rebuilt from startup configuration; runtime spawns do not survive a restart.
+    let mut restarted = start();
+    let mut line = String::new();
+    BufReader::new(restarted.stdout.as_mut().unwrap())
+        .read_line(&mut line)
+        .unwrap();
+    let info: serde_json::Value = serde_json::from_str(&line).unwrap();
+    let after_restart =
+        Link::open_creatures(info["address"].as_str().unwrap(), second_token, 60).unwrap();
+    assert_eq!(player_id(&after_restart), (second_id, seed));
+    let (restart_tick, restored) = creatures(&after_restart, 0, true);
+    assert_eq!(restored, expected.states(restart_tick).collect::<Vec<_>>());
+    assert_eq!(restored[0].id, first_state[0].id);
+    assert_ne!(restored[0].id, fresh[0].id);
+    drop(after_restart);
+    writeln!(restarted.stdin.as_mut().unwrap(), "stop").unwrap();
+    assert!(restarted.wait().unwrap().success());
 }
