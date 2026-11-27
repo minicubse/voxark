@@ -3,6 +3,35 @@
 Production réalisée sur PC 1 (`AMD Ryzen 7 7730U`, `AMD Radeon (TM) Graphics`, `15.38 GiB` RAM, Windows 11) sur la branche locale `art/wyvern` (worktree séparé).  
 Les fichiers rust `crates/`, le manifeste provisoire [wyvern.json](../../assets/creatures/wyvern.json) et `assets/creatures/wyvern.glb` sont restés intacts.
 
+## Provenance et droits d'utilisation
+
+### Origine technique de la livraison
+
+La wyverne de cette PR a été construite pour Primal Voxel par génération procédurale dans Blender et Python, avec l’assistance de Gemini dans Google Antigravity. PC 1 a vérifié la trace locale de la session de production : elle associe les métadonnées de génération Gemini aux opérations sur les quatre scripts ci-dessous, aux commits `95d7621` et `5b99665` et à l’empreinte du GLB livré. Le nom d’auteur Git seul ne permettrait pas cette attribution. Les échanges privés de la session ne font pas partie de la livraison.
+
+| Fichier | Origine et rôle vérifiés |
+|---|---|
+| `prototype.py` | Prototype de silhouette construit dans une scène vide avec les primitives Blender et les fonctions de maillage du projet. Première version suivie dans `d00a40c`. |
+| `rig_skin_c1.py` | Étape technique du même commit. Le script construit le maillage unifié, l’armature et les poids. Son import glTF est un contrôle de réimportation du GLB qu’il vient d’exporter. |
+| `build_art_c2.py` | Générateur livré dans `95d7621`. Il part d’une scène vide, construit le maillage, les matériaux, les 23 os et les six actions, puis enregistre `wyvern.blend`. |
+| `generate_textures.py` | Générateur Python du même commit. Il calcule les motifs d’écailles, de cornes, de membranes et d’yeux et encode les pixels en PNG avec la bibliothèque standard. Ses entrées sont des paramètres numériques. |
+| `wyvern.glb` | Export de la scène `Wyvern` du .blend par le script du projet `tools/blender/wyvern/build.py`, déjà présent sur la branche de base. Ce script appelle l’exporteur glTF livré avec Blender. |
+
+**Contrôle indépendant sur PC 1.** Depuis une scène vide, les fonctions de construction de C2 ont reproduit les coordonnées des 10 070 sommets, les indices des 16 418 faces et leur affectation aux matériaux du .blend livré. L’ouverture de ce .blend avec l’exécution automatique désactivée a révélé zéro bibliothèque Blender liée. Ses seuls chemins de ressources sont les sept PNG relatifs sous `//textures/`. Le générateur a reproduit chacun de ces sept fichiers à l’octet près dans un dossier temporaire. Les sept images embarquées dans le GLB correspondent pixel pour pixel aux PNG et le GLB ne référence aucun tampon ni aucune image par URI externe.
+
+Enfin, un nouvel export du .blend livré avec Blender 4.5.0 et l’exporteur glTF 4.5.47 a reproduit **exactement** le GLB dont le SHA-256 est `cd5564529fd055ab1be3663eb9d125545f9605e653201c6bb09eab6faf400be6`. Ces contrôles établissent la filière de la géométrie et des textures livrées sans import de modèle Meshy ni incorporation d’une ressource graphique tierce identifiée. Les dix empreintes publiées pour le .blend, les deux GLB et les sept PNG sont celles des fichiers vérifiés ci-dessous.
+
+### Outils et conditions d’utilisation
+
+- **Blender et son API Python** (`bpy`, `bmesh`, `mathutils`) servent à créer le maillage, le rig et les actions. La GPL de Blender régit le logiciel. Son utilisation pour produire une œuvre graphique ne place pas à elle seule cette œuvre sous GPL. [Licence Blender](https://www.blender.org/about/license/) · [FAQ GNU sur les sorties d’un programme](https://www.gnu.org/licenses/gpl-faq.html#GPLOutput)
+- **Khronos glTF-Blender-IO 4.5.47** assure l’export. Le module installé déclare `Apache-2.0`. Une redistribution du module doit respecter sa licence et ses notices. Le GLB contient les données de la scène exportée. [Licence de l’exporteur Khronos](https://github.com/KhronosGroup/glTF-Blender-IO/blob/main/LICENSE.txt)
+- **Python 3.11 et zlib** fournissent les fonctions mathématiques, l’encodage binaire et la compression des PNG. Les conditions PSF et les notices des composants, notamment celle de zlib, s’appliquent à la redistribution de ces logiciels. [Licences Python et notice zlib](https://docs.python.org/3.11/license.html#zlib)
+- **Gemini dans Google Antigravity** a assisté la production des scripts. L’usage du service relève des conditions Google et Antigravity, ou du contrat administrateur pour les offres professionnelles concernées. La trace technique ne précise pas l’offre contractuelle du compte. [Conditions Antigravity](https://antigravity.google/terms) · [Conditions Google](https://policies.google.com/terms?hl=fr)
+
+### Licence du projet
+
+Ces ressources sont livrées pour l’intégration à Primal Voxel. Au commit artistique examiné, le dépôt ne publie aucune licence explicite de réutilisation des modèles, textures ou quatre scripts de production. Le choix d’une licence pour leur diffusion appartient aux titulaires des droits. Cette section documente les outils et les apports identifiés. Elle n’accorde pas de licence à des tiers et ne garantit aucune exclusivité juridique.
+
 ## Fichiers et reproduction
 
 - **Blender** : `Blender 4.5.0` LTS officiel (`hash 8cb6b388974a`, Python `3.11.11`, `bpy 4.5.0`, `BLENDER_EEVEE_NEXT`), installé localement hors `%TEMP%`.
