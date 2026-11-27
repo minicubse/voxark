@@ -1,6 +1,10 @@
-# Primal Voxel — infrastructure Git et artistique
+# Primal Voxel — état du projet
 
-La commande artistique `wyvern` est ouverte au statut `TODO`. Le provisoire 3D reste le modèle du jeu. La première mise en service sur les deux PC nécessite la publication de l’infrastructure, des objets LFS et du client de validation. [Déploiement Git](../art_pipeline/GIT_SETUP.md) · [Commande et contrat artistique](../art_pipeline/specs/wyvern.md) · [Vérifications du jalon](../art_pipeline/VERIFICATION.md).
+## Jalon 4A — wyverne autoritaire
+
+Le serveur pilote le déplacement et les six états de la wyverne provisoire. Deux clients Bevy ont retrouvé le même état sur 536 ticks communs et Macroquad v1 a édité le terrain pendant la partie. Les 132 tests Rust passent. Sur le Ryzen 7 7730U de PC 1, douze wyvernes donnent 177 FPS moyens et 107,6 FPS en 1 % low à 720p. Au redémarrage, le serveur reconstruit la démonstration au tick zéro. [Protocole, reproduction, limites et mesures](JALON_4A.md)
+
+Prochaine action sur PC 1, relire la branche moteur avant intégration. La commande artistique `wyvern` reste ouverte au statut `TODO`. PC 2 peut utiliser le validateur Windows 3D distribué par transfert local. [Commande artistique](../art_pipeline/specs/wyvern.md) · [Guide PC 1](../art_pipeline/INTEGRATION_PC1.md)
 
 ## Jalon 3D
 
