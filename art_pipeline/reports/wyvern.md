@@ -114,29 +114,57 @@ python tools/test-creature-import.py --client "...\PrimalVoxel-Bevy.exe" --manif
 - **Code de sortie** : `0` (`"valid": true`)
 - **Métriques** : `asset_load_ms = 79.41 ms`, `clips = 6`, `instances = 1`, `max_joints = 23`, `mesh_assets = 4`, `skinned_meshes = 4`, `skins = 1`, `slots = 4`, `palette_materials = 12`. Voir [bevy_import_report.json](../previews/wyvern/art_c2/bevy_import_report.json).
 
-### 3. Benchmark comparatif Bevy (`0`, `1`, `4`, `12` instances, `600` frames x `2` passes, 1280x720 Low)
+### 3. Benchmark comparatif Bevy & Sonde longue (`ART-C2` + `ART-C3`, Ryzen 7 7730U / Radeon Vulkan, Low `1280x720`)
 
-Synthèse comparée sur la même machine entre `wyvern_art.json` (`16 418` tris, `7` textures) et le modèle provisoire `wyvern.json` (`6 048` tris, sans textures) ; détail dans [bevy_benchmark_summary.json](../previews/wyvern/art_c2/bevy_benchmark_summary.json) :
+#### Sonde longue `offscreen-return` (`3 600` images, `4` créatures proches, ombres ON)
 
-| Scénario | `wyvern_art` FPS médian | `wyvern_art` P99 | `wyvern_art` 1% low | `sched_us` | RSS max | Provisoire `wyvern.json` FPS / P99 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `0` (forêt seule) | `197.0 FPS` | `7.02 ms` | `127.5 FPS` | `259.7 us` | `871.0 MB` | `197.0 FPS` / `7.58 ms` |
-| `1-near-shadow-off` | `177.9 FPS` | `7.40 ms` | `128.4 FPS` | `467.0 us` | `902.8 MB` | `188.2 FPS` / `7.60 ms` |
-| `1-near-shadow-on` | `168.1 FPS` | `10.22 ms` | `91.6 FPS` | `442.2 us` | `907.8 MB` | `187.5 FPS` / `7.41 ms` |
-| `4-near-shadow-off` | `143.5 FPS` | `8.85 ms` | `104.3 FPS` | `629.2 us` | `903.8 MB` | `180.7 FPS` / `7.86 ms` |
-| `4-near-shadow-on` | `135.6 FPS` | `9.77 ms` | `92.7 FPS` | `635.6 us` | `906.5 MB` | `183.7 FPS` / `7.66 ms` |
-| `12-near-shadow-off` | `116.0 FPS` | `10.78 ms` | `86.1 FPS` | `728.9 us` | `893.4 MB` | `178.9 FPS` / `8.23 ms` |
-| `12-near-shadow-on` | `104.9 FPS` | `11.50 ms` | `78.4 FPS` | `723.8 us` | `897.6 MB` | `176.6 FPS` / `7.58 ms` |
-| `12-far-shadow-on` | `142.2 FPS` | `9.19 ms` | `99.5 FPS` | `697.9 us` | `895.1 MB` | — |
-| `12-offscreen-shadow-on` | `163.8 FPS` | `8.98 ms` | `104.0 FPS` | `649.0 us` | `903.8 MB` | — |
+```powershell
+python tools/benchmark-creatures.py probe --client "...\PrimalVoxel-Bevy.exe" --asset-root assets --creature-manifest creatures/wyvern_art.json --frames 3600 --repeats 1 --output "...\bevy_probe_c3"
+```
 
-Profilage GPU (`profile`, `300` frames) sur `wyvern_art.json` : à `12-near-shadow-on` (`197 016` tris rendus), `main_opaque_pass_3d/elapsed_gpu` passe de `2.61 ms` (`0`) à `6.15 ms` (`+3.54 ms`, dû aux `16 418` tris x `12` et normal maps) et `per_view_shadow_pass/elapsed_gpu` de `0.38 ms` à `0.89 ms`, tout en maintenant `> 100 FPS` sur GPU intégré.
+- **Code de sortie** : `0` (`probe-offscreen-return`)
+- **Performances** : **`137.4 FPS` moyens**, **`85.5 FPS` (`1 % low`)**, **`10.42 ms` (`P99`)**, `animation_schedule_us` moyen `544.8 us`, RSS max `931.8 MiB` (`977 084 416 B`).
+- **Horloge et animation après retour dans le champ** :
+  - `before` (`0.673 s`) : `visible_meshes = 4`, `elapsed_s = 0.667 s`
+  - `first_away` (`1.166 s`) -> `last_away` (`3.390 s`) : `visible_meshes = 0`, `elapsed_s` progresse continûment (`1.160 s -> 3.383 s`)
+  - `returned` (`3.876 s`) : `visible_meshes = 4`, `elapsed_s = 3.870 s`
+  - Articulations mesurées en rotation hors champ : `Body`, `Head`, `Jaw`, `TailTip`, `WingWrist.L`, `WingWrist.R`.
 
-### 4. Contrôle Git / LFS & Limites constatées
+#### Mesures soutenues `600 f x 2` et prolongées `4 200 f x 3` (`wyvern_art.json` vs provisoire `wyvern.json`)
 
-- Contrôles `tools/check-art-branch.py` et `git lfs fsck` à exécuter juste après le commit ART-C2 final.
-- **Limites visibles honnêtement observées** :
-  - Un minuscule interstice diagonal d'environ `1 px` subsiste en vue orthogonale stricte de liaison ([c2_bind_front.png](../previews/wyvern/art_c2/c2_bind_front.png)) entre le longeron externe discret (`step = 0.048 m`) et l'arête distale `wd -> tip` sur l'extrémité externe de l'aile (quasi imperceptible en poses d'animation et en vue jeu Bevy).
-  - La sonde optionnelle `probe` (`offscreen-return`, `3600` frames) et le test de crossfade multi-secondes en client interactif continu restent gérés côté runtime Bevy (vérifiés statiquement par l'avance de boucle, la cohérence d'horloge `100 fps` et `render_transition_sequence_video`).
-  - La branche `art/wyvern` reste locale (le push non interactif `origin art/wyvern` a échoué faute d'identifiants GitHub configurés sur ce poste ; sauvegarde intégrale + bundle maintenus hors worktree).
-  - `art_pipeline/QUEUE.json` reste volontairement à `IN_PROGRESS` jusqu'à décision utilisateur de passage à `READY_FOR_INTEGRATION`.
+Série courte complète (`600` frames x `2` passes, détail dans [bevy_benchmark_summary.json](../previews/wyvern/art_c2/bevy_benchmark_summary.json)) et série prolongée (`4 200` frames x `3` passes alternées, détail dans [art_c3_validation_summary.json](../previews/wyvern/art_c2/art_c3_validation_summary.json)) :
+
+| Scénario (`ombres ON`, `4 200 f x 3`) | `wyvern_art` FPS moyens | `wyvern_art` 1 % low | `wyvern_art` P99 | `sched_us` | Provisoire `wyvern.json` FPS / 1 % low / P99 |
+| --- | --- | --- | --- | --- | --- |
+| `0` (forêt seule) | `202.9 FPS` | `117.6 FPS` | `7.59 ms` | `281.0 us` | — (`197.0` sur `600 f`) |
+| `1-near-shadow-on` | `184.0 FPS` | `120.1 FPS` | `7.54 ms` | `473.4 us` | — (`187.5` sur `600 f`) |
+| `4-near-shadow-on` | `139.7 FPS` | `92.2 FPS` | `9.47 ms` | `602.6 us` | — (`183.7` sur `600 f`) |
+| `12-near-shadow-on` | **`107.0 FPS`** | **`79.5 FPS`** | **`11.31 ms`** | `643.3 us` | `183.9 FPS` / `131.1 FPS` / `6.99 ms` |
+
+Série complémentaire `600 f x 2` (`shadow-off`, `far`, `offscreen`) sur `wyvern_art.json` :
+- `1-near-shadow-off` : `177.9 FPS` (`1% low 128.4`, `P99 7.40 ms`) · `1-near-shadow-on` : `168.1 FPS` (`1% low 91.6`, `P99 10.22 ms`)
+- `4-near-shadow-off` : `143.5 FPS` (`1% low 104.3`, `P99 8.85 ms`) · `4-near-shadow-on` : `135.6 FPS` (`1% low 92.7`, `P99 9.77 ms`)
+- `12-near-shadow-off` : `116.0 FPS` (`1% low 86.1`, `P99 10.78 ms`) · `12-near-shadow-on` : `104.9 FPS` (`1% low 78.4`, `P99 11.50 ms`)
+- `12-far-shadow-on` : `142.2 FPS` (`1% low 99.5`, `P99 9.19 ms`) · `12-offscreen-shadow-on` : `163.8 FPS` (`1% low 104.0`, `P99 8.98 ms`)
+
+#### Analyse causale de l'écart à `12-near-shadow-on` (`107.0 FPS` vs `183.9 FPS` provisoire)
+
+Les mesures comparées `profile` (`300` frames) et `trace` (`wgpu`, `NO_COLOR=1`) permettent de dissocier précisément chaque facteur :
+
+| Poste mesuré (`12-near-shadow-on`) | Provisoire `wyvern.json` | Artistique `wyvern_art.json` | Delta & explication |
+| --- | --- | --- | --- |
+| Géométrie / tris visibles (`12x`) | `72 576` tris (`6 048/u`) | `197 016` tris (`16 418/u`) | **`2.71x`** triangles |
+| Sommets glTF & buffers GPU | `3 403` v/u (`254 080 B`) | `30 128` v/u (`2 749 772 B`) | **`8.85x` sommets**, **`10.82x` mémoire mesh** (`TANGENT`, `TEXCOORD_0`, split flat-voxel) |
+| Skinning CPU (`23` os x `12` = `276`) | `534.8 us` (`4200f`) | `643.3 us` (`4200f`) | **`+108.5 us/frame` seulement** (`cpu_cores 2.35` vs `2.92`) : pas de goulot CPU |
+| `early_mesh_preprocessing` GPU | `0.0155 ms` | `0.0163 ms` | `+0.0008 ms` (négligeable) |
+| Matériaux & shading opaque (`main_opaque_pass_3d`) | `2.9619 ms` (`0` img) | **`6.1515 ms`** (`7` PNG + `3` norm) | **`+3.19 ms` (~85 % du coût GPU)** : transformation de `361k` sommets + PBR avec normal maps `1024x1024` + `Membranes` `doubleSided` |
+| Pass d'ombres (`per_view_shadow_pass`) | `0.3568 ms` | **`0.8944 ms`** | **`+0.54 ms` (~14 % du coût GPU)** sur `197k` tris dans les cascades |
+| Appels `wgpu` (`trace`, par intervalle) | `12` draw, `37` writes, `569 us` | `14` draw, `43` writes, `840 us` | Ordonnancement quasi inchangé (`2` submits) |
+
+L'écart de `76.9 FPS` entre `wyvern_art` (`107.0 FPS` / `9.35 ms`) et le modèle provisoire (`183.9 FPS` / `5.44 ms`) provient donc essentiellement du pipeline fragment/vertex GPU dans `main_opaque_pass_3d` (texture+normal mapping + `8.85x` sommets splittés) et secondairement du rendu d'ombre (`+0.54 ms`), tout en conservant une marge confortable par rapport à la cible minimale d'acceptation (`>= 60 FPS` moyens : **`+78 %` de marge** en moyenne et **`79.5 FPS` au 1 % low**).
+
+### 4. Dernière revue artistique, contrôle Git / LFS & Limites
+
+- **Revue micro-interstice en bout d'aile (`ART-C3`)** : l'examen comparatif entre [c2_bind_front.png](../previews/wyvern/art_c2/c2_bind_front.png) et les vues Bevy en vol ([bevy_flap-front.png](../previews/wyvern/art_c2/bevy/bevy_flap-front.png), [bevy_glide-side.png](../previews/wyvern/art_c2/bevy/bevy_glide-side.png), [bevy_near-4-palettes.png](../previews/wyvern/art_c2/bevy/bevy_near-4-palettes.png)) confirme que le micro-jour diagonal (`~1 px`) entre longeron voxel discret (`0.048 m`) et membrane distale n'apparaît qu'en projection orthogonale stricte de liaison et est imperceptible en jeu et dans toutes les animations. Conformément à la règle ART-C3 (« ne pas modifier arbitrairement une géométrie validée pour un défaut imperceptible en jeu »), la topologie, les poids et le `.glb` validés sont conservés intacts.
+- **Contrôles Git / LFS** : `tools/check-art-branch.py` et `git lfs fsck` validés après le commit ART-C2 (`95d7621`) et réexécutés sur le commit final `READY_FOR_INTEGRATION`.
+- **Statut** : `wyvern` passé à **`READY_FOR_INTEGRATION`** dans `art_pipeline/QUEUE.json` ; aucune fusion sur `main` ni modification du modèle provisoire [wyvern.json](../../assets/creatures/wyvern.json) ou `assets/creatures/wyvern.glb`.

@@ -4,13 +4,13 @@
     {
       "id": "wyvern",
       "priority": 1,
-      "status": "IN_PROGRESS",
+      "status": "READY_FOR_INTEGRATION",
       "spec_path": "art_pipeline/specs/wyvern.md",
       "manifest_path": "assets/creatures/wyvern_art.json",
       "output_path": "assets/creatures/wyvern_art/",
       "replaces": "procedural-wyvern-3d",
       "assigned_to": "PC2-ZCode",
-      "notes": "ART-C2 (PC 1) : 6 clips contractuels (100 fps), 7 textures PNG <= 1024 px, wyvern.glb exporté via build.py (16 418 tris), validate-creature OK, import/captures/benchmark 0-1-4-12-far-offscreen Bevy vérifiés sur Ryzen 7 7730U / Radeon Vulkan ; statut conservé à IN_PROGRESS en attente de validation d'ouverture PR artistique."
+      "notes": "ART-C3 (PC 1) : modèle validé (16 418 tris, 23 os, 6 clips 100 fps, 7 textures PNG, 3 palettes), validate-creature OK, import/captures Bevy OK, sonde offscreen-return 3600f OK (137.4 FPS), benchmark prolongé 4200fx3 à 12 near ombres ON : 107.0 FPS moyens / 79.5 FPS 1% low / P99 11.31 ms (> 60 FPS) ; prêt pour revue et intégration."
     }
   ]
 }

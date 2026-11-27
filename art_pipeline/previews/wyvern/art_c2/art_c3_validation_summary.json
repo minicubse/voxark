@@ -1,0 +1,179 @@
+{
+  "pass": "ART-C3",
+  "device": "AMD Ryzen 7 7730U / AMD Radeon (TM) Graphics (Vulkan, 1280x720 Low)",
+  "probe_offscreen_return_3600f": {
+    "fps_avg": 137.43,
+    "fps_1low": 85.52,
+    "p99_ms": 10.423,
+    "animation_schedule_mean_us": 544.78,
+    "checkpoints": {
+      "before": {
+        "real_s": 0.6730684000000005,
+        "visible_meshes": 4,
+        "elapsed_s": 0.6668050000000004
+      },
+      "first_away": {
+        "real_s": 1.1664365000000008,
+        "visible_meshes": 0,
+        "elapsed_s": 1.1601731000000008
+      },
+      "last_away": {
+        "real_s": 3.389664999999999,
+        "visible_meshes": 0,
+        "elapsed_s": 3.3834015999999987
+      },
+      "returned": {
+        "real_s": 3.876273600000001,
+        "visible_meshes": 4,
+        "elapsed_s": 3.8700102000000007
+      }
+    },
+    "joints_rotating_away": [
+      "Body",
+      "Head",
+      "Jaw",
+      "TailTip",
+      "WingWrist.L",
+      "WingWrist.R"
+    ]
+  },
+  "measure_4200f_3repeats_wyvern_art": {
+    "0": {
+      "fps_avg": 202.86,
+      "fps_1low": 117.6,
+      "p95_ms": 6.304,
+      "p99_ms": 7.587,
+      "p999_ms": 9.462,
+      "cpu_cores": 2.713,
+      "max_peak_rss_mb": 877.42,
+      "animation_schedule_mean_us": 281.0
+    },
+    "1-near-shadow-on": {
+      "fps_avg": 183.99,
+      "fps_1low": 120.09,
+      "p95_ms": 6.548,
+      "p99_ms": 7.544,
+      "p999_ms": 9.571,
+      "cpu_cores": 2.787,
+      "max_peak_rss_mb": 913.43,
+      "animation_schedule_mean_us": 473.44
+    },
+    "12-near-shadow-on": {
+      "fps_avg": 106.98,
+      "fps_1low": 79.51,
+      "p95_ms": 10.57,
+      "p99_ms": 11.306,
+      "p999_ms": 15.759,
+      "cpu_cores": 2.347,
+      "max_peak_rss_mb": 899.02,
+      "animation_schedule_mean_us": 643.3
+    },
+    "4-near-shadow-on": {
+      "fps_avg": 139.68,
+      "fps_1low": 92.16,
+      "p95_ms": 8.617,
+      "p99_ms": 9.467,
+      "p999_ms": 13.126,
+      "cpu_cores": 2.664,
+      "max_peak_rss_mb": 909.88,
+      "animation_schedule_mean_us": 602.64
+    }
+  },
+  "measure_4200f_3repeats_provisional": {
+    "12-near-shadow-on": {
+      "fps_avg": 183.95,
+      "fps_1low": 131.12,
+      "p95_ms": 6.497,
+      "p99_ms": 6.99,
+      "p999_ms": 8.136,
+      "cpu_cores": 2.924,
+      "max_peak_rss_mb": 869.24,
+      "animation_schedule_mean_us": 534.83
+    }
+  },
+  "profile_300f_wyvern_art": {
+    "0": {
+      "fps_avg": 192.65,
+      "animation_schedule_mean_us": 224.05,
+      "main_opaque_gpu_ms": 2.6085,
+      "shadow_pass_gpu_ms": 0.3787,
+      "early_mesh_prep_gpu_ms": 0.0142,
+      "tonemapping_gpu_ms": 0.3658,
+      "upscaling_gpu_ms": 0.4317
+    },
+    "1-near-shadow-on": {
+      "fps_avg": 177.75,
+      "animation_schedule_mean_us": 344.37,
+      "main_opaque_gpu_ms": 2.8283,
+      "shadow_pass_gpu_ms": 0.3826,
+      "early_mesh_prep_gpu_ms": 0.0129,
+      "tonemapping_gpu_ms": 0.3761,
+      "upscaling_gpu_ms": 0.4519
+    },
+    "12-near-shadow-on": {
+      "fps_avg": 101.25,
+      "animation_schedule_mean_us": 548.81,
+      "main_opaque_gpu_ms": 6.1515,
+      "shadow_pass_gpu_ms": 0.8944,
+      "early_mesh_prep_gpu_ms": 0.0163,
+      "tonemapping_gpu_ms": 0.3756,
+      "upscaling_gpu_ms": 0.4294
+    }
+  },
+  "profile_300f_provisional": {
+    "0": {
+      "fps_avg": 195.67,
+      "animation_schedule_mean_us": 223.49,
+      "main_opaque_gpu_ms": 2.5754,
+      "shadow_pass_gpu_ms": 0.3788,
+      "early_mesh_prep_gpu_ms": 0.0137,
+      "tonemapping_gpu_ms": 0.3623,
+      "upscaling_gpu_ms": 0.4229
+    },
+    "1-near-shadow-on": {
+      "fps_avg": 198.03,
+      "animation_schedule_mean_us": 343.25,
+      "main_opaque_gpu_ms": 2.3816,
+      "shadow_pass_gpu_ms": 0.3361,
+      "early_mesh_prep_gpu_ms": 0.0133,
+      "tonemapping_gpu_ms": 0.3632,
+      "upscaling_gpu_ms": 0.4319
+    },
+    "12-near-shadow-on": {
+      "fps_avg": 178.04,
+      "animation_schedule_mean_us": 515.22,
+      "main_opaque_gpu_ms": 2.9619,
+      "shadow_pass_gpu_ms": 0.3568,
+      "early_mesh_prep_gpu_ms": 0.0155,
+      "tonemapping_gpu_ms": 0.3679,
+      "upscaling_gpu_ms": 0.4282
+    }
+  },
+  "trace_60f_wgpu": {
+    "wyvern_art": {
+      "0": {
+        "draw_commands": 8.0,
+        "submits": 2.0,
+        "submit_cpu_us": 612.0,
+        "buffer_writes": 22.0,
+        "fps_avg": 195.4
+      },
+      "12-near-shadow-on": {
+        "draw_commands": 14.0,
+        "submits": 2.0,
+        "submit_cpu_us": 840.0,
+        "buffer_writes": 43.0,
+        "fps_avg": 108.67
+      }
+    },
+    "wyvern_provisional": {
+      "12-near-shadow-on": {
+        "draw_commands": 12.0,
+        "submits": 2.0,
+        "submit_cpu_us": 569.0,
+        "buffer_writes": 37.0,
+        "fps_avg": 168.88
+      }
+    }
+  }
+}
