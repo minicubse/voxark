@@ -1,6 +1,7 @@
 mod creature_asset;
 mod creature_metrics;
 mod creature_motion;
+mod creature_network;
 mod daylight;
 mod flora;
 mod forest;
@@ -377,6 +378,7 @@ fn main() -> AppExit {
     let profiling = o.creature_profile;
     let film = o.creature_film.is_some();
     let measuring = o.frames > 0;
+    let connected = o.connect.is_some();
     let manifest = o.creature_manifest.clone();
     app.add_plugins(
         DefaultPlugins
@@ -451,7 +453,7 @@ fn main() -> AppExit {
                 .before(stream),
         );
     }
-    if measuring && creatures > 0 {
+    if measuring && (creatures > 0 || connected) {
         app.add_plugins(creature_metrics::CreatureMetricsPlugin);
     }
     if profiling {
@@ -467,10 +469,14 @@ fn main() -> AppExit {
                 .chain(),
         );
     }
-    if creatures > 0 {
+    if creatures > 0 || connected {
         app.add_plugins(creature_asset::CreatureAssetPlugin::new(manifest))
-            .add_plugins(creature_motion::CreatureMotionPlugin)
             .add_systems(Update, (check_creature_assets, creature_shadow_flags));
+    }
+    if connected {
+        app.add_plugins(creature_network::NetworkCreaturePlugin);
+    } else if creatures > 0 {
+        app.add_plugins(creature_motion::CreatureMotionPlugin);
     }
     app.run()
 }
@@ -749,9 +755,15 @@ fn measure(
     let now = Instant::now();
     let ms = (now - bench.last).as_secs_f64() * 1000.;
     bench.last = now;
-    let ready = assets
-        .as_ref()
-        .is_none_or(|a| a.counts().players == o.creatures);
+    let expected = online.as_ref().map_or(Some(o.creatures), |n| {
+        let session = n.0.lock().unwrap();
+        session
+            .creatures
+            .has_snapshot()
+            .then(|| session.creatures.len())
+    });
+    let ready =
+        expected.is_some_and(|count| assets.as_ref().is_none_or(|a| a.counts().players == count));
     if ready && assets.is_some() && bench.creature_ready_ms.is_none() {
         bench.creature_ready_ms = Some((now - bench.start).as_secs_f64() * 1000.);
     }

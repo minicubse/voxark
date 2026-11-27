@@ -18,7 +18,7 @@ use crate::{
     terrain::Terrain,
 };
 
-const FADE: Duration = Duration::from_millis(220);
+pub(crate) const FADE: Duration = Duration::from_millis(220);
 const PROBE_AWAY: f64 = 0.8;
 const PROBE_RETURN: f64 = 3.6;
 const INSPECTION_KEYS: [KeyCode; 6] = [
@@ -407,11 +407,11 @@ pub(crate) fn publish_actors(terrain: Res<Terrain>, mut actors: Query<(&Actor, &
     }
 }
 
-fn origin_blocks(origin: [i32; 3]) -> DVec3 {
+pub(crate) fn origin_blocks(origin: [i32; 3]) -> DVec3 {
     DVec3::from_array(origin.map(|index| f64::from(index) * f64::from(primal_voxel::CHUNK as u32)))
 }
 
-fn local_position(world: DVec3, origin: [i32; 3]) -> Vec3 {
+pub(crate) fn local_position(world: DVec3, origin: [i32; 3]) -> Vec3 {
     (world - origin_blocks(origin)).as_vec3()
 }
 
@@ -430,7 +430,7 @@ fn looping(clip: CreatureClip) -> bool {
     !matches!(clip, CreatureClip::Takeoff | CreatureClip::Land)
 }
 
-fn clip_phase(clip: CreatureClip, elapsed: f64, duration: f64) -> f64 {
+pub(crate) fn clip_phase(clip: CreatureClip, elapsed: f64, duration: f64) -> f64 {
     if looping(clip) {
         elapsed.rem_euclid(duration)
     } else {
