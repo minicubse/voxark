@@ -1,0 +1,73 @@
+{
+  "pass": "ART-B2",
+  "blender_version": "4.5.0",
+  "blend_path": "C:\\Users\\lenai\\.gemini\\antigravity\\scratch\\voxark-art-wyvern\\assets\\creatures\\wyvern_art\\wyvern.blend",
+  "blend_size_bytes": 442075,
+  "wyvern_open": {
+    "mesh_objects": 26,
+    "vertices": 10327,
+    "triangles": 16330,
+    "bounds_min_m": [
+      -3.652,
+      -2.696,
+      0.0
+    ],
+    "bounds_max_m": [
+      3.652,
+      3.7,
+      2.816
+    ],
+    "width_x_m": 7.304,
+    "length_y_m": 6.396,
+    "height_z_m": 2.816,
+    "wing_and_membrane_min_z_m": 1.054
+  },
+  "wyvern_folded": {
+    "mesh_objects": 26,
+    "vertices": 10267,
+    "triangles": 16222,
+    "bounds_min_m": [
+      -1.7617,
+      -2.7164,
+      -0.0011
+    ],
+    "bounds_max_m": [
+      1.7617,
+      3.7043,
+      2.7923
+    ],
+    "width_x_m": 3.5234,
+    "length_y_m": 6.4208,
+    "height_z_m": 2.7933,
+    "wing_and_membrane_min_z_m": 1.1927
+  },
+  "human_reference": {
+    "mesh_objects": 1,
+    "vertices": 63,
+    "triangles": 94,
+    "bounds_min_m": [
+      1.85,
+      -2.5,
+      0.0
+    ],
+    "bounds_max_m": [
+      2.55,
+      -2.2,
+      1.8
+    ],
+    "width_x_m": 0.7,
+    "length_y_m": 0.3,
+    "height_z_m": 1.8,
+    "wing_and_membrane_min_z_m": null
+  },
+  "render_times_sec": {
+    "open_front.png": 2.867,
+    "open_profile.png": 0.565,
+    "open_top.png": 1.283,
+    "open_three_quarter.png": 0.879,
+    "folded_front.png": 0.556,
+    "folded_profile.png": 0.514,
+    "folded_three_quarter.png": 0.959
+  },
+  "total_render_time_sec": 7.623
+}
