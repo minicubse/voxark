@@ -13,6 +13,9 @@ use std::{
 #[derive(Resource)]
 pub struct Online(pub Mutex<Session>);
 pub struct Session {
+    pub creatures: crate::creature_network::NetworkCreatures,
+    report_creatures: bool,
+    creature_trace: bool,
     style: super::forest::Style,
     lit: bool,
     address: String,
@@ -48,6 +51,9 @@ impl Session {
         lit: bool,
     ) -> Self {
         Self {
+            creatures: Default::default(),
+            report_creatures: false,
+            creature_trace: false,
             style,
             lit,
             address: addr,
@@ -74,6 +80,12 @@ impl Session {
             driver: playtest.then(primal_net::playtest::Playtest::open),
         }
     }
+    pub fn take_creature_report(&mut self) -> bool {
+        std::mem::take(&mut self.report_creatures) || self.creature_trace
+    }
+    pub fn player_id(&self) -> Option<u64> {
+        self.id
+    }
     pub fn is_forest(&self) -> bool {
         self.replica
             .as_ref()
@@ -95,6 +107,7 @@ impl Session {
     fn reset(&mut self, terrain: &mut Terrain, cmds: &mut Commands) {
         self.link.take();
         self.id = None;
+        self.creatures = Default::default();
         self.own = None;
         self.tick = None;
         self.player_count = 0;
@@ -108,6 +121,18 @@ impl Session {
         self.retry = Instant::now() + Duration::from_secs(1);
     }
     fn receive(&mut self, msg: ServerMsg, rig: &mut CameraRig, bench: bool) -> Result<(), String> {
+        if let ServerMsg::Creatures {
+            tick,
+            tick_hz,
+            creatures,
+        } = msg
+        {
+            if self.id.is_some() {
+                self.creatures
+                    .receive(tick, tick_hz, creatures, Instant::now());
+            }
+            return Ok(());
+        }
         match &msg {
             ServerMsg::Welcome { id, seed } => {
                 if self.link.as_ref().is_some_and(|l| l.forest_modern()) {
@@ -190,6 +215,17 @@ pub fn update(
 ) {
     let Some(mut online) = online else { return };
     let n = online.0.get_mut().unwrap();
+    let action = n.driver.as_mut().and_then(|driver| driver.next_action());
+    if matches!(action, Some(primal_net::playtest::Action::Reconnect)) {
+        n.reset(&mut terrain, &mut cmds);
+        return;
+    }
+    if let Some(primal_net::playtest::Action::CreatureTrace(enabled)) = action {
+        n.creature_trace = enabled;
+    }
+    if matches!(action, Some(primal_net::playtest::Action::Creatures)) {
+        n.report_creatures = true;
+    }
     if keys.just_pressed(KeyCode::KeyR) {
         n.reset(&mut terrain, &mut cmds);
     }
@@ -197,7 +233,7 @@ pub fn update(
         if Instant::now() < n.retry {
             return;
         }
-        match Link::open(&n.address, n.token, n.input_hz) {
+        match Link::open_creatures(&n.address, n.token, n.input_hz) {
             Ok(l) => n.link = Some(l),
             Err(e) => {
                 eprintln!("Connexion : {e}");
@@ -227,7 +263,7 @@ pub fn update(
     let mut click = None;
     if let Some(driver) = n.driver.as_mut() {
         use primal_net::playtest::Action;
-        match driver.next_action() {
+        match action {
             Some(Action::Look(y, p)) => {
                 rig.yaw = y;
                 rig.pitch = p;

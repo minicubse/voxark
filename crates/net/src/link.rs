@@ -1,5 +1,8 @@
 //! The UDP client pumps at the simulation rate even when rendering stalls.
-use crate::{Channel, ClientMsg, ClientTransport, ConnectionId, ServerMsg, welcome_channel};
+use crate::{
+    CREATURE_PROTOCOL_VERSION, Channel, ClientMsg, ClientTransport, ConnectionId, CreatureTraffic,
+    PROTOCOL_VERSION, ServerMsg, welcome_channel,
+};
 use primal_voxel::Preset;
 use std::{
     net::{SocketAddr, ToSocketAddrs},
@@ -27,6 +30,7 @@ pub struct Link {
     pub id: ConnectionId,
     rtt_us: Arc<AtomicU64>,
     forest_modern: Arc<AtomicBool>,
+    creature_traffic: Arc<Mutex<CreatureTraffic>>,
     pub sent_inputs: Arc<AtomicU64>,
     commands: mpsc::SyncSender<ClientMsg>,
     thread: Option<thread::JoinHandle<()>>,
@@ -37,6 +41,12 @@ fn send(t: &mut ClientTransport, ch: Channel, msg: &ClientMsg) -> Result<(), Str
 }
 impl Link {
     pub fn open(addr: &str, token: [u8; 32], hz: u32) -> Result<Self, String> {
+        Self::open_version(addr, token, hz, PROTOCOL_VERSION)
+    }
+    pub fn open_creatures(addr: &str, token: [u8; 32], hz: u32) -> Result<Self, String> {
+        Self::open_version(addr, token, hz, CREATURE_PROTOCOL_VERSION)
+    }
+    fn open_version(addr: &str, token: [u8; 32], hz: u32, version: u16) -> Result<Self, String> {
         if !(10..=120).contains(&hz) {
             return Err("Cadence serveur hors limites".into());
         }
@@ -63,6 +73,8 @@ impl Link {
         let timing = rtt_us.clone();
         let forest_modern = Arc::new(AtomicBool::new(false));
         let forest = forest_modern.clone();
+        let creature_traffic = Arc::new(Mutex::new(CreatureTraffic::default()));
+        let creature_received = creature_traffic.clone();
         let sent_inputs = Arc::new(AtomicU64::new(0));
         let counter = sent_inputs.clone();
         let (commands, rx) = mpsc::sync_channel(32);
@@ -86,7 +98,7 @@ impl Link {
                             &mut transport,
                             Channel::Control,
                             &ClientMsg::Hello {
-                                version: crate::PROTOCOL_VERSION,
+                                version,
                                 generator: primal_voxel::GENERATOR_VERSION,
                                 token,
                             },
@@ -104,6 +116,9 @@ impl Link {
                                 Ordering::Release,
                             );
                             send(&mut transport, Channel::Control, &ClientMsg::Ready)?;
+                        }
+                        if matches!(msg, ServerMsg::Creatures { .. }) {
+                            creature_received.lock().unwrap().record(bytes.len());
                         }
                         tx.try_send(msg).map_err(|e| e.to_string())?;
                     }
@@ -163,6 +178,7 @@ impl Link {
             id,
             rtt_us,
             forest_modern,
+            creature_traffic,
             sent_inputs,
             thread: Some(thread),
         })
@@ -173,6 +189,9 @@ impl Link {
     /// Available when the caller receives Welcome.
     pub fn forest_modern(&self) -> bool {
         self.forest_modern.load(Ordering::Acquire)
+    }
+    pub fn creature_traffic(&self) -> CreatureTraffic {
+        *self.creature_traffic.lock().unwrap()
     }
     pub fn edit(&self, msg: ClientMsg) -> Result<(), String> {
         self.commands.try_send(msg).map_err(|e| e.to_string())

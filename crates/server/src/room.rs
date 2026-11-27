@@ -1,10 +1,12 @@
 use crate::disk::Disk;
+use crate::metrics::TickTimes;
 use primal_ledger::{PlayerState, PlayerUpdate};
 use primal_net::{Actor, direction};
 use primal_net::{
-    Channel, ChunkData, ClientMsg, ConnectionId, PROTOCOL_VERSION, ServerEvent, ServerMsg,
-    ServerTransport, decode, encode, welcome_channel,
+    CREATURE_PROTOCOL_VERSION, Channel, ChunkData, ClientMsg, ConnectionId, CreatureTraffic,
+    PROTOCOL_VERSION, ServerEvent, ServerMsg, ServerTransport, decode, encode, welcome_channel,
 };
+use primal_simulation::creatures::{CreatureState, CreatureWorld};
 use primal_simulation::{Input, Player};
 use primal_streaming::{Streamer, View};
 use primal_voxel::{ChunkPos, GENERATOR_VERSION, World, chunk_at, generate_for};
@@ -12,8 +14,11 @@ use std::sync::mpsc::{Receiver, TryRecvError};
 use std::{
     collections::{HashMap, HashSet},
     io,
-    time::Duration,
+    time::{Duration, Instant},
 };
+
+pub const SNAPSHOT_TICKS: u64 = 3;
+const INTEREST_CHUNKS: i32 = 3;
 
 struct EditRequest {
     seq: u64,
@@ -27,6 +32,7 @@ struct Peer {
     id: u64,
     token: [u8; 32],
     ready: bool,
+    wants_creatures: bool,
     player: Option<Player>,
     sent: HashMap<ChunkPos, u64>,
     arrival: Option<[f32; 3]>,
@@ -57,6 +63,7 @@ impl Peer {
 }
 struct Admission {
     token: [u8; 32],
+    wants_creatures: bool,
     result: Receiver<io::Result<PlayerState>>,
 }
 struct Pending {
@@ -75,6 +82,10 @@ pub struct Room {
     unsaved: HashMap<[u8; 32], PlayerState>,
     hello_deadlines: HashMap<ConnectionId, u64>,
     revisions: HashMap<ChunkPos, u64>,
+    creatures: CreatureWorld,
+    creature_states: Vec<CreatureState>,
+    creature_traffic: CreatureTraffic,
+    tick_hz: u32,
 }
 impl Room {
     pub fn new(
@@ -82,6 +93,8 @@ impl Room {
         disk: Disk,
         revisions: HashMap<ChunkPos, u64>,
         profiles: HashMap<[u8; 32], PlayerState>,
+        creatures: CreatureWorld,
+        tick_hz: u32,
     ) -> Self {
         Self {
             net,
@@ -93,6 +106,10 @@ impl Room {
             unsaved: HashMap::new(),
             hello_deadlines: HashMap::new(),
             revisions,
+            creatures,
+            creature_states: Vec::new(),
+            creature_traffic: CreatureTraffic::default(),
+            tick_hz,
         }
     }
     fn message(
@@ -112,7 +129,7 @@ impl Room {
                     token,
                 },
             ) if !self.peers.contains_key(&id) && !self.admissions.contains_key(&id) => {
-                if version != PROTOCOL_VERSION
+                if !matches!(version, PROTOCOL_VERSION | CREATURE_PROTOCOL_VERSION)
                     || generator != GENERATOR_VERSION
                     || token == [0; 32]
                     || self.peers.values().any(|p| p.token == token)
@@ -137,7 +154,14 @@ impl Room {
                 };
                 match self.disk.register(token, initial) {
                     Ok(result) => {
-                        self.admissions.insert(id, Admission { token, result });
+                        self.admissions.insert(
+                            id,
+                            Admission {
+                                token,
+                                wants_creatures: version == CREATURE_PROTOCOL_VERSION,
+                                result,
+                            },
+                        );
                     }
                     Err(_) => {
                         let _ = self.net.send(
@@ -346,7 +370,11 @@ impl Room {
             }
         }
         for (id, stored) in completed {
-            let token = self.admissions.remove(&id).unwrap().token;
+            let Admission {
+                token,
+                wants_creatures,
+                ..
+            } = self.admissions.remove(&id).unwrap();
             let previous = self.profiles.get(&token);
             let resumed = previous.is_some();
             let state = previous.cloned().unwrap_or(stored);
@@ -371,6 +399,7 @@ impl Room {
                     id: state.id,
                     token,
                     ready: false,
+                    wants_creatures,
                     player: None,
                     sent: HashMap::new(),
                     arrival: resumed.then_some(state.position),
@@ -430,7 +459,7 @@ impl Room {
         for id in self.peers.keys().copied().collect::<Vec<_>>() {
             self.remember(id);
         }
-        let start = std::time::Instant::now();
+        let start = Instant::now();
         while !self.unsaved.is_empty() || !self.pending.is_empty() {
             self.poll_disk(world)?;
             self.checkpoints()?;
@@ -446,7 +475,7 @@ impl Room {
         stream: &mut Streamer<()>,
         tick: u64,
         dt: Duration,
-    ) -> io::Result<Duration> {
+    ) -> io::Result<TickTimes> {
         self.poll_disk(stream.world_mut())?;
         self.net.poll(dt).map_err(io::Error::other)?;
         while let Some(event) = self.net.next_event() {
@@ -483,7 +512,7 @@ impl Room {
                 Err(_) => self.net.disconnect(id),
             }
         }
-        let now = std::time::Instant::now();
+        let now = Instant::now();
         let mut ids: Vec<_> = self.peers.keys().copied().collect();
         ids.sort_by_key(|id| id.0);
         let views: Vec<_> = ids.iter().map(|id| self.peers[id].view()).collect();
@@ -493,6 +522,10 @@ impl Room {
             return Err(io::Error::other(e.clone()));
         }
         let streaming = now.elapsed();
+        let now = Instant::now();
+        self.creature_states.clear();
+        self.creature_states.extend(self.creatures.states(tick));
+        let creature_simulation = now.elapsed();
         let world = stream.world();
         let residents = world.chunks();
         for id in ids {
@@ -521,11 +554,11 @@ impl Room {
 
                 p.input.jump = false;
             }
-            if p.ready && tick.is_multiple_of(3) {
+            if p.ready && tick.is_multiple_of(SNAPSHOT_TICKS) {
                 Self::chunks(&mut self.net, id, p, &residents, world, &self.revisions);
             }
         }
-        if tick.is_multiple_of(3) {
+        if tick.is_multiple_of(SNAPSHOT_TICKS) {
             let mut actors: Vec<_> = self
                 .peers
                 .values()
@@ -547,6 +580,30 @@ impl Room {
             for (&id, p) in &self.peers {
                 if p.ready {
                     let _ = self.net.send(id, Channel::Snapshots, data.clone());
+                    if p.wants_creatures {
+                        let center = chunk_at(p.view().block);
+                        let creatures = self
+                            .creature_states
+                            .iter()
+                            .filter(|state| {
+                                let chunk = chunk_at(state.position.map(|v| v.floor() as i32));
+                                (chunk[0] - center[0])
+                                    .abs()
+                                    .max((chunk[2] - center[2]).abs())
+                                    <= INTEREST_CHUNKS
+                            })
+                            .copied()
+                            .collect();
+                        let bytes = encode(&ServerMsg::Creatures {
+                            tick,
+                            tick_hz: self.tick_hz,
+                            creatures,
+                        })?;
+                        let len = bytes.len();
+                        if self.net.send(id, Channel::Snapshots, bytes).is_ok() {
+                            self.creature_traffic.record(len);
+                        }
+                    }
                 }
             }
         }
@@ -557,13 +614,29 @@ impl Room {
         }
         self.checkpoints()?;
         self.net.flush().map_err(io::Error::other)?;
-        Ok(streaming)
+        Ok(TickTimes {
+            streaming,
+            creature_simulation,
+        })
     }
     pub fn players(&self) -> usize {
         self.peers.len()
     }
     pub fn traffic(&self) -> primal_net::TrafficStats {
         self.net.stats()
+    }
+    pub fn creature_traffic(&self) -> CreatureTraffic {
+        self.creature_traffic
+    }
+    pub fn spawn_creature(&mut self) -> Option<u64> {
+        self.creatures.spawn().map(|id| id.0)
+    }
+    pub fn despawn_creature(&mut self, id: u64) -> bool {
+        self.creatures
+            .despawn(primal_simulation::creatures::CreatureId(id))
+    }
+    pub fn creatures_at(&self, tick: u64) -> impl Iterator<Item = CreatureState> + '_ {
+        self.creatures.states(tick)
     }
     pub fn teleport(&mut self, id: u64, position: [f32; 3]) -> bool {
         if !position
@@ -594,7 +667,7 @@ impl Room {
         for &k in residents {
             let dx = (k[0] - c[0]).abs();
             let dz = (k[2] - c[2]).abs();
-            if dx.max(dz) <= 3 {
+            if dx.max(dz) <= INTEREST_CHUNKS {
                 candidates.push((dx * dx + dz * dz + (k[1] - c[1]).pow(2), k));
             }
         }

@@ -1,4 +1,5 @@
 use crate::Channel;
+use primal_simulation::creatures::CreatureState;
 use primal_voxel::{CHUNK, ChunkPos, MAX_BLOCK, Pos, Preset, World, generate_for};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{
@@ -9,6 +10,8 @@ use std::{
 };
 
 pub const PROTOCOL_VERSION: u16 = 1;
+/// Opt-in Hello version for full creature interest snapshots.
+pub const CREATURE_PROTOCOL_VERSION: u16 = 2;
 const MAX_MESSAGE: usize = 32 * 1024;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -70,6 +73,26 @@ pub enum ServerMsg {
         reason: String,
     },
     Error(String),
+    /// Complete set for this peer at the given tick. An empty set clears interest.
+    /// Receivers retain their previous set on loss and ignore non-increasing ticks.
+    Creatures {
+        tick: u64,
+        tick_hz: u32,
+        creatures: Vec<CreatureState>,
+    },
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct CreatureTraffic {
+    /// Exact Postcard payload bytes, excluding packet headers.
+    pub bytes: u64,
+    pub messages: u64,
+}
+impl CreatureTraffic {
+    pub fn record(&mut self, bytes: usize) {
+        self.bytes += bytes as u64;
+        self.messages += 1;
+    }
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ChunkData {
@@ -270,7 +293,72 @@ impl Replica {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use primal_simulation::creatures::{CreatureId, Locomotion, MAX_CREATURES, Palette, Species};
     use primal_voxel::generate_chunk;
+
+    #[test]
+    fn legacy_handshake_keeps_its_v1_wire_format() {
+        let mut hello_v1 = vec![0, 1, 4];
+        hello_v1.extend([7; 32]);
+        assert_eq!(
+            encode(&ClientMsg::Hello {
+                version: PROTOCOL_VERSION,
+                generator: 4,
+                token: [7; 32],
+            })
+            .unwrap(),
+            hello_v1,
+        );
+        assert_eq!(encode(&ClientMsg::Ready).unwrap(), [3]);
+        assert_eq!(
+            encode(&ServerMsg::Welcome { id: 42, seed: 79 }).unwrap(),
+            [0, 42, 79],
+        );
+        assert_eq!(
+            encode(&ServerMsg::Players {
+                tick: 5,
+                players: vec![]
+            })
+            .unwrap(),
+            [1, 5, 0],
+        );
+    }
+
+    #[test]
+    fn full_creature_snapshot_fits_the_unreliable_lane_and_preserves_large_poses() {
+        let creatures: Vec<_> = (0..MAX_CREATURES as u64)
+            .map(|offset| CreatureState {
+                id: CreatureId(u64::MAX - offset),
+                species: Species::Wyvern,
+                palette: Palette::Obsidienne,
+                position: [2_000_000_000.125, 124.125, -2_000_000_000.375],
+                yaw: 0.125,
+                locomotion: Locomotion::Flap,
+                state_start_tick: u64::MAX - 3,
+            })
+            .collect();
+        let bytes = encode(&ServerMsg::Creatures {
+            tick: u64::MAX,
+            tick_hz: 120,
+            creatures: creatures.clone(),
+        })
+        .unwrap();
+        assert_eq!(bytes[0], 6, "creature snapshot must follow legacy messages");
+        crate::check_size(Channel::Snapshots, bytes.len()).unwrap();
+        match decode(&bytes).unwrap() {
+            ServerMsg::Creatures {
+                tick,
+                tick_hz,
+                creatures: decoded,
+            } => {
+                assert_eq!(tick, u64::MAX);
+                assert_eq!(tick_hz, 120);
+                assert_eq!(decoded, creatures);
+            }
+            _ => panic!("not a creature snapshot"),
+        }
+    }
+
     #[test]
     fn replica_queues_corner_neighbours_on_arrival_and_forget() {
         let mut replica = Replica::new(99);

@@ -1,6 +1,7 @@
 mod disk;
 mod metrics;
 mod room;
+use primal_simulation::creatures::{CreatureWorld, MAX_CREATURES};
 use primal_storage::RegionStore;
 use primal_streaming::{StreamConfig, Streamer};
 use primal_voxel::{Preset, World};
@@ -29,6 +30,7 @@ struct Config {
     preset: Option<Preset>,
     tick_hz: u32,
     max_players: usize,
+    creatures: usize,
     ticks: Option<u64>,
 }
 impl Default for Config {
@@ -40,6 +42,7 @@ impl Default for Config {
             preset: None,
             tick_hz: 60,
             max_players: 8,
+            creatures: 1,
             ticks: None,
         }
     }
@@ -67,12 +70,16 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
             "--preset" => c.preset = Some(value.parse()?),
             "--ticks" => c.ticks = Some(value.parse()?),
             "--max-players" => c.max_players = value.parse()?,
+            "--creatures" => c.creatures = value.parse()?,
             "--tick-hz" => c.tick_hz = value.parse()?,
             _ => return Err(format!("Option inconnue {flag}").into()),
         }
     }
     if !(10..=120).contains(&c.tick_hz) || !(1..=32).contains(&c.max_players) {
         return Err("tick_hz doit être entre 10 et 120 et max_players entre 1 et 32".into());
+    }
+    if c.creatures > MAX_CREATURES {
+        return Err(format!("creatures doit être entre 0 et {MAX_CREATURES}").into());
     }
     Ok(c)
 }
@@ -81,6 +88,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let c = config()?;
     let store = RegionStore::open_with_preset(&c.world, c.seed, c.preset)?;
     let preset = store.preset();
+    let creatures = CreatureWorld::new(store.seed(), preset, c.creatures, c.tick_hz);
     let (disk, revisions, profiles) = disk::Disk::open(&c.world, store.clone())?;
     let mut stream = Streamer::headless(
         World::with_preset(store.seed(), preset),
@@ -89,7 +97,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     let net = primal_net::ServerTransport::bind(c.bind, c.max_players)?;
     let address = net.local_addr();
-    let mut room = room::Room::new(net, disk, revisions, profiles);
+    let mut room = room::Room::new(net, disk, revisions, profiles, creatures, c.tick_hz);
     let running = Arc::new(AtomicBool::new(true));
     let signal = running.clone();
     ctrlc::set_handler(move || signal.store(false, Ordering::Release))?;
@@ -107,13 +115,32 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut tick = 0u64;
     println!(
         "{}",
-        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world,"preset":preset.as_str()})
+        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world,"preset":preset.as_str(),"creatures":c.creatures})
     );
     while running.load(Ordering::Acquire) && c.ticks.is_none_or(|limit| tick < limit) {
         for cmd in admin.try_iter().take(16) {
             let args: Vec<_> = cmd.split_whitespace().collect();
             match args.as_slice() {
                 ["stop"] => running.store(false, Ordering::Release),
+                ["spawn-creature"] => {
+                    println!(
+                        "{}",
+                        json!({"event":"spawn-creature","id":room.spawn_creature()})
+                    );
+                }
+                ["despawn-creature", id] => {
+                    let removed = id.parse().ok().is_some_and(|id| room.despawn_creature(id));
+                    println!("{}", json!({"event":"despawn-creature","ok":removed}));
+                }
+                ["creatures"] => {
+                    let last_completed = tick.saturating_sub(1);
+                    let sampled = last_completed - last_completed % room::SNAPSHOT_TICKS;
+                    let creatures: Vec<_> = room.creatures_at(sampled).collect();
+                    println!(
+                        "{}",
+                        json!({"event":"creatures","tick":sampled,"tick_hz":c.tick_hz,"creatures":creatures})
+                    );
+                }
                 ["teleport", id, x, y, z] => {
                     let ok = match (id.parse(), x.parse(), y.parse(), z.parse()) {
                         (Ok(id), Ok(x), Ok(y), Ok(z)) => room.teleport(id, [x, y, z]),
@@ -128,8 +155,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         let began = Instant::now();
-        let streaming = room.tick(&mut stream, tick, step)?;
-        metrics.record(began.elapsed(), streaming);
+        let times = room.tick(&mut stream, tick, step)?;
+        metrics.record(began.elapsed(), times);
         tick += 1;
         next += step;
         thread::sleep(next.saturating_duration_since(Instant::now()));
@@ -139,6 +166,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 stream.world().resident_len(),
                 room.players(),
                 room.traffic(),
+                room.creature_traffic(),
             );
         }
         if next.elapsed() > step * 4 {
@@ -150,6 +178,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         stream.world().resident_len(),
         room.players(),
         room.traffic(),
+        room.creature_traffic(),
     );
     room.finish(stream.world_mut())?;
     let deadline = Instant::now() + Duration::from_secs(15);
