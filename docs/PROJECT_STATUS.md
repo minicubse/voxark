@@ -1,5 +1,9 @@
 # Primal Voxel — état du projet
 
+## Jalon 4B.2 proposé — navigation locale
+
+La branche `feat/code-creature-navigation-4b2` propose le mode serveur `navigation`. La première wyverne y contourne les petits obstacles sur une grille locale alimentée par les voxels résidents. Les modes 4B.1 restent disponibles. [Démonstration, limites et mesures](JALON_4B2.md)
+
 ## Jalon 4B.1 intégré — première wyverne réactive
 
 La [PR #5](https://github.com/minicubse/voxark/pull/5) est intégrée à `main` au commit `061bc22`. Le serveur démarre en mode `demo`. L’option `--creature-behavior reactive` ou le champ JSON `"creature_behavior": "reactive"` active l’IA de la première wyverne. Elle détecte les joueurs à portée même derrière un mur. Un obstacle peut bloquer son déplacement et son retour. [Comportement, limites et validation sur PC 1](JALON_4B1.md)

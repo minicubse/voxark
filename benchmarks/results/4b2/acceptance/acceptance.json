@@ -1,0 +1,188 @@
+{
+  "behavior": "navigation",
+  "seed": 20261120,
+  "manifest": "creatures/wyvern_art.json",
+  "server_hz": 60,
+  "home": [
+    -2.8291746923771393,
+    25.0,
+    7.774379414605454
+  ],
+  "player_ids": [
+    1,
+    3,
+    2
+  ],
+  "approach_player_feet": [
+    5.170825307622861,
+    26.0,
+    7.774379414605454
+  ],
+  "observer_feet": [
+    6.170825307622861,
+    37.0,
+    -0.22562058539454632
+  ],
+  "stages": [
+    {
+      "tick": 150,
+      "decision": [
+        "Rest",
+        null
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "IdleGround",
+        "palette": "Jade",
+        "position": [
+          -2.8291746923771393,
+          25.0,
+          7.774379414605454
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 149,
+        "yaw": 2.3180179595947266
+      }
+    },
+    {
+      "tick": 159,
+      "decision": [
+        "Observe",
+        1
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "IdleGround",
+        "palette": "Jade",
+        "position": [
+          -2.8291746923771393,
+          25.0,
+          7.774379414605454
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 149,
+        "yaw": 2.5274572372436523
+      }
+    },
+    {
+      "tick": 255,
+      "decision": [
+        "Approach",
+        1
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "Walk",
+        "palette": "Jade",
+        "position": [
+          -2.701150661446228,
+          25.0,
+          7.667666597746469
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 251,
+        "yaw": -1.3089971542358398
+      }
+    },
+    {
+      "tick": 513,
+      "decision": [
+        "Stop",
+        1
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "IdleGround",
+        "palette": "Jade",
+        "position": [
+          2.4922667907375535,
+          25.0,
+          5.521531424394685
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 506,
+        "yaw": -2.0943946838378906
+      }
+    },
+    {
+      "tick": 570,
+      "decision": [
+        "Return",
+        null
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "IdleGround",
+        "palette": "Jade",
+        "position": [
+          2.5,
+          25.0,
+          5.5
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 565,
+        "yaw": -0.7516464591026306
+      }
+    },
+    {
+      "tick": 849,
+      "decision": [
+        "Rest",
+        null
+      ],
+      "state": {
+        "id": 9223372036854775809,
+        "locomotion": "IdleGround",
+        "palette": "Jade",
+        "position": [
+          -2.8291746923771393,
+          25.0,
+          7.774379414605454
+        ],
+        "species": "Wyvern",
+        "state_start_tick": 842,
+        "yaw": 2.3561952114105225
+      }
+    }
+  ],
+  "wire_ticks": 156,
+  "aligned_render_samples": 445,
+  "max_render_difference": {
+    "position_m": 4.76837158203125e-07,
+    "yaw_rad": 1.9981962662285468e-07,
+    "phase_s": 1.8708840343606425e-07
+  },
+  "interest_ticks": [
+    885,
+    894
+  ],
+  "reconnect_ticks": [
+    894,
+    963
+  ],
+  "macroquad_edit": {
+    "position": [
+      -17,
+      28,
+      2
+    ],
+    "value_before": 5,
+    "value_after": 0,
+    "revision_before": 0,
+    "revision_after": 1,
+    "macroquad_meshed_ms": 234.2052000003605,
+    "bevy_meshed_ms": 162.78810000039812
+  },
+  "captures": [
+    {
+      "filename": "bevy-a.png",
+      "bytes": 546543,
+      "sha256": "f230df79e05e11aaa97813110975438981a67ed041016d1de2887c07a6c895ab"
+    },
+    {
+      "filename": "bevy-b.png",
+      "bytes": 650419,
+      "sha256": "e8b29245937d8806596865d7bd7e3b1ad795112b96b6a961701dcf426c7bb74c"
+    }
+  ]
+}
