@@ -243,7 +243,33 @@ def photo(name, clients, feet, scratch, result):
     raise AssertionError(f"{name}: wyvern did not enter main-camera visibility")
 
 
-def run(server_bin, bevy_bin, legacy_bin, asset_root, result, scratch):
+def edit_with_legacy(server, a, macro, player_a, macro_id, already_flying=False):
+    if not already_flying:
+        macro.send("fly")
+        POSE(macro)
+    (trunk, view, aim), *_ = FOREST_SITES()
+    teleport(server, macro, macro_id, view)
+    watch = "watch " + " ".join(map(str, trunk))
+    since = time.perf_counter()
+    for proc in (a, macro):
+        proc.send(watch)
+    _, _, before_a = a.observe(5, since, peers=2, pos=trunk)
+    _, _, before_macro = macro.observe(5, since, peers=2, pos=trunk)
+    assert before_a == before_macro
+    LOOK(macro, view, aim)
+    since = time.perf_counter()
+    macro.send("click 0")
+    seen_macro, actor_macro, after_macro = macro.observe(0, since, peers=2, pos=trunk)
+    seen_a, actor_a, after_a = a.observe(0, since, peers=2, pos=trunk)
+    assert actor_macro == macro_id and actor_a == player_a and after_a == after_macro > before_macro
+    return {
+        "position": trunk, "value_before": 5, "value_after": 0, "revision_before": before_macro,
+        "revision_after": after_macro, "macroquad_meshed_ms": (seen_macro - since) * 1000,
+        "bevy_meshed_ms": (seen_a - since) * 1000,
+    }
+
+
+def run(server_bin, bevy_bin, legacy_bin, asset_root, result, scratch, manifest):
     result.mkdir(parents=True, exist_ok=False)
     scratch.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="creature-network-", dir=scratch))
@@ -265,7 +291,7 @@ def run(server_bin, bevy_bin, legacy_bin, asset_root, result, scratch):
         assert started["tick_hz"] == TICK_HZ and started["preset"] == "forest-modern", started
 
         def client(exe, name):
-            options = ["--asset-root", asset_root] if exe == bevy_bin else []
+            options = ["--asset-root", asset_root, "--creature-manifest", manifest] if exe == bevy_bin else []
             return start([
                 exe, "--connect", started["address"], "--resolution", RESOLUTION,
                 "--identity", work / f"{name}.identity", "--test-input",
@@ -402,28 +428,7 @@ def run(server_bin, bevy_bin, legacy_bin, asset_root, result, scratch):
                     assert visible_instance(frame)["id"] == visible_instance(joined[name])["id"], frames
 
         # Exercise the legacy renderer's real crosshair, server edit, and both meshers.
-        macro.send("fly")
-        POSE(macro)
-        (trunk, view, aim), *_ = FOREST_SITES()
-        teleport(server, macro, macro_id, view)
-        watch = "watch " + " ".join(map(str, trunk))
-        since = time.perf_counter()
-        for proc in (a, macro):
-            proc.send(watch)
-        _, _, before_a = a.observe(5, since, peers=2, pos=trunk)
-        _, _, before_macro = macro.observe(5, since, peers=2, pos=trunk)
-        assert before_a == before_macro
-        LOOK(macro, view, aim)
-        since = time.perf_counter()
-        macro.send("click 0")
-        seen_macro, actor_macro, after_macro = macro.observe(0, since, peers=2, pos=trunk)
-        seen_a, actor_a, after_a = a.observe(0, since, peers=2, pos=trunk)
-        assert actor_macro == macro_id and actor_a == player_a and after_a == after_macro > before_macro
-        legacy_edit = {
-            "position": trunk, "value_before": 5, "value_after": 0, "revision_before": before_macro,
-            "revision_after": after_macro, "macroquad_meshed_ms": (seen_macro - since) * 1000,
-            "bevy_meshed_ms": (seen_a - since) * 1000,
-        }
+        legacy_edit = edit_with_legacy(server, a, macro, player_a, macro_id)
 
         for proc in (b, a, macro):
             proc.close("quit")
@@ -458,7 +463,8 @@ if __name__ == "__main__":
     parser.add_argument("--asset-root", type=Path, default=REPO / "assets")
     parser.add_argument("--scratch", type=Path, default=REPO / "benchmarks/tmp",
                         help="Parent for disposable worlds, captures in progress and process logs")
+    parser.add_argument("--creature-manifest", default="creatures/wyvern.json")
     args = parser.parse_args()
     run(executable(args.binaries, "primal-server.exe"),
         executable(args.binaries, "primal-client-bevy.exe", "PrimalVoxel-Bevy.exe"),
-        args.legacy_macroquad.resolve(), args.asset_root.resolve(), args.result.resolve(), args.scratch.resolve())
+        args.legacy_macroquad.resolve(), args.asset_root.resolve(), args.result.resolve(), args.scratch.resolve(), args.creature_manifest)

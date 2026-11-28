@@ -1,5 +1,9 @@
 # Primal Voxel — état du projet
 
+## Jalon 4B.1 proposé en revue
+
+La branche `feat/code-creature-ai-4b1` ajoute un comportement neutre côté serveur à la première wyverne. Le serveur démarre en démonstration 4A par défaut. Le mode `reactive` se sélectionne au démarrage. [Comportement, synchronisation des deux clients et mesures sur PC 1](JALON_4B1.md)
+
 ## Jalon 4A intégré — wyverne autoritaire
 
 Le jalon 4A et la wyverne artistique sont intégrés à `main` au commit `9524772`. Le serveur pilote les déplacements et les six états. Le client Bevy v2 restitue les créatures et le client Macroquad v1 continue de recevoir le terrain et les joueurs. Les 132 tests Rust passent après fusion. Le benchmark 4A du provisoire à douze wyvernes sur Ryzen 7 7730U donne 177 FPS moyens et 107,6 FPS en 1 % low à 720p. [Protocole, tests multijoueurs et limites](JALON_4A.md)

@@ -1,7 +1,7 @@
 mod disk;
 mod metrics;
 mod room;
-use primal_simulation::creatures::{CreatureWorld, MAX_CREATURES};
+use primal_simulation::creatures::{Behavior, CreatureWorld, MAX_CREATURES};
 use primal_storage::RegionStore;
 use primal_streaming::{StreamConfig, Streamer};
 use primal_voxel::{Preset, World};
@@ -31,6 +31,7 @@ struct Config {
     tick_hz: u32,
     max_players: usize,
     creatures: usize,
+    creature_behavior: Behavior,
     ticks: Option<u64>,
 }
 impl Default for Config {
@@ -43,6 +44,7 @@ impl Default for Config {
             tick_hz: 60,
             max_players: 8,
             creatures: 1,
+            creature_behavior: Behavior::Demo,
             ticks: None,
         }
     }
@@ -71,6 +73,13 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
             "--ticks" => c.ticks = Some(value.parse()?),
             "--max-players" => c.max_players = value.parse()?,
             "--creatures" => c.creatures = value.parse()?,
+            "--creature-behavior" => {
+                c.creature_behavior = match value.as_str() {
+                    "demo" => Behavior::Demo,
+                    "reactive" => Behavior::Reactive,
+                    _ => return Err(format!("Comportement de créature inconnu : {value}").into()),
+                }
+            }
             "--tick-hz" => c.tick_hz = value.parse()?,
             _ => return Err(format!("Option inconnue {flag}").into()),
         }
@@ -88,7 +97,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let c = config()?;
     let store = RegionStore::open_with_preset(&c.world, c.seed, c.preset)?;
     let preset = store.preset();
-    let creatures = CreatureWorld::new(store.seed(), preset, c.creatures, c.tick_hz);
+    let creatures = CreatureWorld::with_behavior(
+        store.seed(),
+        preset,
+        c.creatures,
+        c.tick_hz,
+        c.creature_behavior,
+    );
     let (disk, revisions, profiles) = disk::Disk::open(&c.world, store.clone())?;
     let mut stream = Streamer::headless(
         World::with_preset(store.seed(), preset),
@@ -115,7 +130,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut tick = 0u64;
     println!(
         "{}",
-        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world,"preset":preset.as_str(),"creatures":c.creatures})
+        json!({"event":"started","address":address,"tick_hz":c.tick_hz,"world":c.world,"preset":preset.as_str(),"creatures":c.creatures,"creature_behavior":c.creature_behavior})
     );
     while running.load(Ordering::Acquire) && c.ticks.is_none_or(|limit| tick < limit) {
         for cmd in admin.try_iter().take(16) {
@@ -135,10 +150,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 ["creatures"] => {
                     let last_completed = tick.saturating_sub(1);
                     let sampled = last_completed - last_completed % room::SNAPSHOT_TICKS;
-                    let creatures: Vec<_> = room.creatures_at(sampled).collect();
+                    let (creatures, decision) = room.creature_snapshot();
                     println!(
                         "{}",
-                        json!({"event":"creatures","tick":sampled,"tick_hz":c.tick_hz,"creatures":creatures})
+                        json!({"event":"creatures","tick":sampled,"tick_hz":c.tick_hz,"creatures":creatures,"decision":decision})
                     );
                 }
                 ["teleport", id, x, y, z] => {

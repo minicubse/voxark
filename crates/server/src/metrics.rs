@@ -5,12 +5,14 @@ use std::time::{Duration, Instant};
 
 pub struct TickTimes {
     pub streaming: Duration,
+    pub ai_time: Duration,
     pub creature_simulation: Duration,
 }
 
 pub struct Metrics {
     started: Instant,
     cpu: Option<ProcessTime>,
+    ai_time: Duration,
     ticks: Vec<Duration>,
     streaming: Vec<Duration>,
     creature_simulation: Vec<Duration>,
@@ -23,6 +25,7 @@ impl Metrics {
     pub fn new() -> Self {
         Self {
             started: Instant::now(),
+            ai_time: Duration::ZERO,
             cpu: ProcessTime::try_now().ok(),
             ticks: vec![],
             streaming: vec![],
@@ -32,6 +35,7 @@ impl Metrics {
     }
     pub fn record(&mut self, tick: Duration, times: TickTimes) {
         self.ticks.push(tick);
+        self.ai_time += times.ai_time;
         self.streaming.push(times.streaming);
         self.creature_simulation.push(times.creature_simulation);
     }
@@ -65,7 +69,7 @@ impl Metrics {
         println!(
             "{}",
             json!({"event":"metrics","tick":tick,"samples":self.len(),"period_s":elapsed,"actual_hz":self.len() as f64/elapsed,
-        "tick_p50_ms":p(&self.ticks,50),"tick_p95_ms":p(&self.ticks,95),"tick_p99_ms":p(&self.ticks,99),
+        "ai_step_mean_us":self.ai_time.as_secs_f64()*1e6/self.len() as f64,"tick_p50_ms":p(&self.ticks,50),"tick_p95_ms":p(&self.ticks,95),"tick_p99_ms":p(&self.ticks,99),
         "stream_p95_ms":p(&self.streaming,95),"resident":resident,"players":peers,
         "cpu_ms":self.cpu.and_then(|v|v.try_elapsed().ok()).map(|d|d.as_secs_f64()*1000.),
         "creature_sim_mean_ms":creature_sim_ms,"creature_sim_p95_ms":p(&self.creature_simulation,95),
@@ -77,6 +81,7 @@ impl Metrics {
         self.started = Instant::now();
         self.cpu = ProcessTime::try_now().ok();
         self.ticks.clear();
+        self.ai_time = Duration::ZERO;
         self.streaming.clear();
         self.creature_simulation.clear();
         self.previous_creature_traffic = creature_traffic;
