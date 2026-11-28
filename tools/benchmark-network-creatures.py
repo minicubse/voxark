@@ -44,6 +44,8 @@ def hardware():
 
 def trial(args, number, count, control, host, behavior=None):
     server = args.old_server if control else args.server
+    if behavior == "reactive" and args.reactive_server:
+        server = args.reactive_server
     client = args.old_client if control else args.client
     label = f"r{number}-" + ("3d-online-0" if control else f"4a-online-{count}")
     if behavior:
@@ -185,9 +187,10 @@ if __name__ == "__main__":
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--frames", type=int, default=3600)
     parser.add_argument("--counts", type=int, nargs="+", default=[0, 1, 4, 12], choices=[0, 1, 4, 12])
-    parser.add_argument("--behaviors", nargs="+", choices=["demo", "reactive"])
+    parser.add_argument("--behaviors", nargs="+", choices=["demo", "reactive", "navigation"])
     parser.add_argument("--creature-manifest")
     parser.add_argument("--mixed-macroquad", type=Path, help="Also render a second Bevy and a legacy v1 client")
+    parser.add_argument("--reactive-server", type=Path, help="Use the historical 4B.1 server for paired reactive trials")
     args = parser.parse_args()
     if args.mixed_macroquad and (not args.creature_manifest or args.old_server):
         parser.error("Mixed peers require a manifest and the current server/client")
