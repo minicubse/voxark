@@ -341,6 +341,7 @@ impl Room {
                 if !world.set(pending.target, pending.block) {
                     return Err(io::Error::other("Chunk épinglé incohérent après commit"));
                 }
+                self.creatures.terrain_edited(pending.target);
                 world.mark_saved(done.chunk, world.chunk_revision(done.chunk).unwrap());
                 self.revisions.insert(done.chunk, done.revision);
             }
@@ -757,6 +758,7 @@ fn ground_step_clear(world: &World, pos: [f64; 3]) -> bool {
 
 #[cfg(test)]
 mod tests {
+    mod navigation;
     use super::*;
     use primal_simulation::creatures::Behavior;
     use primal_voxel::Preset;

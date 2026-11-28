@@ -4,6 +4,7 @@ use primal_voxel::{Preset, surface_for};
 use serde::{Deserialize, Serialize};
 use std::f64::consts::TAU;
 
+mod navigation;
 mod reactive;
 pub use reactive::Decision;
 use reactive::Reactive;
@@ -14,6 +15,7 @@ pub enum Behavior {
     #[default]
     Demo,
     Reactive,
+    Navigation,
 }
 
 pub const MAX_CREATURES: usize = 12;
@@ -120,10 +122,10 @@ impl CreatureWorld {
         self.serial = self.serial.checked_add(1)?;
         let id = CreatureId(self.serial);
         self.population.push((id, slot));
-        if slot == 0 && self.behavior == Behavior::Reactive {
+        if slot == 0 && self.behavior != Behavior::Demo {
             let mut home = self.state(id, slot, self.motion(0));
             home.state_start_tick = self.last_tick;
-            self.reactive = Some(Reactive::new(home));
+            self.reactive = Some(Reactive::new(home, self.behavior == Behavior::Navigation));
         }
         Some(id)
     }
@@ -148,6 +150,16 @@ impl CreatureWorld {
         self.last_tick = tick;
         if let Some(actor) = &mut self.reactive {
             actor.step(tick, self.tick_hz, &self.ground, players, clear);
+        }
+    }
+
+    /// Invalidate the local path only for edits in the bounded navigation patch.
+    pub fn terrain_edited(&mut self, [x, _, z]: [i32; 3]) {
+        if (-PATCH_EDGE..PATCH_EDGE).contains(&x)
+            && (-PATCH_EDGE..PATCH_EDGE).contains(&z)
+            && let Some(nav) = self.reactive.as_mut().and_then(|r| r.navigation.as_mut())
+        {
+            nav.invalidate();
         }
     }
 

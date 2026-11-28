@@ -5,7 +5,7 @@ use std::f64::consts::{PI, TAU};
 
 const DETECT: f64 = 12.;
 const LOSE: f64 = 16.;
-const STOP: f64 = 3.5;
+pub(super) const STOP: f64 = 3.5;
 const RESUME: f64 = 4.5;
 const SPEED: f64 = 2.0;
 
@@ -19,6 +19,7 @@ pub enum Decision {
 }
 
 pub(super) struct Reactive {
+    pub(super) navigation: Option<Box<super::navigation::Navigator>>,
     home: [f64; 3],
     pub state: CreatureState,
     pub decision: Decision,
@@ -27,8 +28,9 @@ pub(super) struct Reactive {
 }
 
 impl Reactive {
-    pub fn new(home: CreatureState) -> Self {
+    pub fn new(home: CreatureState, navigation: bool) -> Self {
         Self {
+            navigation: navigation.then(Box::default),
             home: home.position,
             state: home,
             decision: Decision::Rest,
@@ -39,6 +41,9 @@ impl Reactive {
 
     fn enter(&mut self, state: Decision, tick: u64) {
         if self.decision != state {
+            if let Some(nav) = &mut self.navigation {
+                nav.invalidate();
+            }
             self.decision = state;
             self.changed = tick;
         }
@@ -95,7 +100,7 @@ impl Reactive {
         let dist = dx.hypot(dz);
         if self.decision == Decision::Observe && tick.saturating_sub(self.changed) >= hold {
             self.enter(
-                if dist <= STOP {
+                if dist <= STOP && self.navigation.is_none() {
                     Decision::Stop
                 } else {
                     Decision::Approach
@@ -105,6 +110,23 @@ impl Reactive {
         } else if self.decision == Decision::Stop && dist >= RESUME && elapsed >= hold {
             self.enter(Decision::Approach, tick);
         }
+        let navigating = matches!(self.decision, Decision::Approach | Decision::Return);
+        let (steering, terminal) = if navigating && let Some(nav) = &mut self.navigation {
+            nav.steer(
+                tick,
+                hz,
+                [x, z],
+                [goal[0], goal[2]],
+                self.decision == Decision::Approach,
+                |[x, z]| clear([x, ground.at(x, z), z]),
+            )
+            .unwrap_or(([x, z], false))
+        } else {
+            ([goal[0], goal[2]], true)
+        };
+        let dx = steering[0] - x;
+        let dz = steering[1] - z;
+        let dist = dx.hypot(dz);
         let mut moving = false;
         if dist > 1e-8 && self.decision != Decision::Rest {
             let desired = (-dx).atan2(-dz);
@@ -113,7 +135,7 @@ impl Reactive {
             let max_turn = PI / f64::from(hz);
             self.state.yaw =
                 ((yaw + error.clamp(-max_turn, max_turn) + PI).rem_euclid(TAU) - PI) as f32;
-            let margin = if self.decision == Decision::Return {
+            let margin = if self.decision == Decision::Return || !terminal {
                 0.
             } else {
                 STOP
@@ -125,7 +147,7 @@ impl Reactive {
             {
                 let step = remaining.min(SPEED / f64::from(hz));
                 let (nx, nz) = if step >= dist {
-                    (goal[0], goal[2])
+                    (steering[0], steering[1])
                 } else {
                     (x + dx / dist * step, z + dz / dist * step)
                 };
@@ -136,12 +158,14 @@ impl Reactive {
                     if clear(next) {
                         self.state.position = next;
                         moving = true;
+                    } else if let Some(nav) = &mut self.navigation {
+                        nav.invalidate();
                     }
                 }
             }
         }
         let left = (goal[0] - self.state.position[0]).hypot(goal[2] - self.state.position[2]);
-        if self.decision == Decision::Approach && left <= STOP + 1e-8 {
+        if self.decision == Decision::Approach && terminal && left <= STOP + 1e-8 {
             self.enter(Decision::Stop, tick);
         } else if self.decision == Decision::Return && left <= 1e-8 {
             self.enter(Decision::Rest, tick);
