@@ -1,0 +1,111 @@
+{
+  "scenario": {
+    "seed": 20261120,
+    "preset": "forest-modern",
+    "server_tick_hz": 60,
+    "resolution": "960x540",
+    "creatures": 1,
+    "backend": "Vulkan"
+  },
+  "executables": {
+    "server": {
+      "filename": "primal-server.exe",
+      "bytes": 4639232,
+      "sha256": "8e0507e54bf61b409934dfa5511130b4e8d0ab5cd6cbceb177024dae5cd2df15"
+    },
+    "bevy": {
+      "filename": "primal-client-bevy.exe",
+      "bytes": 128877056,
+      "sha256": "b781f8b4d34c178f9cf818a2ef5379e1986fec3fe8af51b7c87e2a0c22032488"
+    },
+    "legacy_macroquad": {
+      "filename": "PrimalVoxel.exe",
+      "bytes": 5726208,
+      "sha256": "20c4a447cbe31a11a644c6b1a9bedbafab6ba40ace6c1b6313da6e9aeb99812e"
+    }
+  },
+  "authority": {
+    "positions_yaw_and_states_exact": true,
+    "same_tick_count": 656,
+    "samples_by_state": {
+      "Walk": 95,
+      "Takeoff": 42,
+      "Flap": 178,
+      "Glide": 195,
+      "Land": 42,
+      "IdleGround": 104
+    },
+    "cycle": [
+      {
+        "clip": "IdleGround",
+        "state_start_tick": 1204,
+        "first_matched_tick": 1206
+      },
+      {
+        "clip": "Walk",
+        "state_start_tick": 1504,
+        "first_matched_tick": 1506
+      },
+      {
+        "clip": "Takeoff",
+        "state_start_tick": 1691,
+        "first_matched_tick": 1692
+      },
+      {
+        "clip": "Flap",
+        "state_start_tick": 1754,
+        "first_matched_tick": 1755
+      },
+      {
+        "clip": "Glide",
+        "state_start_tick": 2030,
+        "first_matched_tick": 2034
+      },
+      {
+        "clip": "Land",
+        "state_start_tick": 2342,
+        "first_matched_tick": 2343
+      }
+    ]
+  },
+  "render": {
+    "samples_by_state": {
+      "Walk": 113,
+      "Takeoff": 39,
+      "Flap": 184,
+      "Glide": 209,
+      "Land": 42,
+      "IdleGround": 112
+    },
+    "max_difference": {
+      "position_m": 3.2821579695136518e-06,
+      "yaw_rad": 2.6648129791695396e-07,
+      "phase_s": 1.6864981944308965e-07
+    },
+    "max_origin_reconstruction_error_m": 0,
+    "sample_counts": {
+      "bevy-a": 705,
+      "bevy-b": 705
+    },
+    "duplicate_roots": 0
+  },
+  "macroquad_edit": {
+    "position": [
+      -17,
+      28,
+      2
+    ],
+    "value_before": 5,
+    "value_after": 0,
+    "revision_before": 0,
+    "revision_after": 1,
+    "macroquad_meshed_ms": 463.0251999999473,
+    "bevy_meshed_ms": 388.26879999987796
+  },
+  "manifest": "creatures/wyvern_art.json",
+  "demo_default": true,
+  "legacy_reference": "benchmarks/results/4a/acceptance/same-tick.jsonl",
+  "historical_equal_tick_count": 501,
+  "first_equal_tick": 366,
+  "last_equal_tick": 2433
+}

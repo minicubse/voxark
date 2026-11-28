@@ -1,0 +1,12 @@
+{
+  "demo": {
+    "ticks": 4000000,
+    "thread_cpu_ms": 31.25,
+    "us_per_tick": 0.007812
+  },
+  "reactive": {
+    "ticks": 4000000,
+    "thread_cpu_ms": 656.25,
+    "us_per_tick": 0.164062
+  }
+}
