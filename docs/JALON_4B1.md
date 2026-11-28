@@ -1,6 +1,6 @@
 # Jalon 4B.1 — Première wyverne réactive
 
-Proposition sur `feat/code-creature-ai-4b1`, issue de `fd1025458b1b1fc3be8495fdce1a35ee39eb4b23`. Le serveur choisit la cible, la direction et l’allure. Deux clients Bevy ont suivi la même wyverne artistique pendant qu’un client Macroquad v1 participait à la session.
+Le jalon a été intégré à `main` par la [PR #5](https://github.com/minicubse/voxark/pull/5) au commit `061bc22e5b96544aa631219636ca1299068e4d77`. Le serveur choisit la cible, la direction et l’allure. Deux clients Bevy ont suivi la même wyverne artistique pendant qu’un client Macroquad v1 participait à la session.
 
 ## Essayer le comportement
 
@@ -30,6 +30,8 @@ La mémoire de décision appartient au premier emplacement de la population. Une
 Le serveur émet `IdleGround` ou `Walk` selon le mouvement réalisé. Il conserve `state_start_tick` tant que le clip continue. L’identité, le format des messages v1/v2 et l’interpolation des clients utilisent le code du jalon 4A.
 
 ### Terrain et limites
+
+La détection utilise la distance entre la wyverne et le joueur. Elle fonctionne aussi derrière un mur, car le serveur ne teste pas la ligne de vue. Le contrôle des voxels intervient au moment de marcher.
 
 Le centre de la créature reste entre −15,5 et +15,5 m en X et Z. L’altitude suit la surface prééchantillonnée du `GroundPatch`. Avant chaque déplacement, le serveur vérifie le support réel et l’espace libre dans les voxels résidents, sur quatre points distants de 0,35 m du centre en X et Z. Une surface inconnue, un trou, un mur ou une limite de patch bloque le pas et donne `IdleGround`. La créature peut reprendre si le pas redevient possible. Un obstacle persistant peut aussi empêcher le retour. Cette approche ne cherche aucun détour. Les ailes ne participent pas à la collision et un sol supprimé sous une créature stationnaire ne déclenche pas de chute.
 
