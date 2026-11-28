@@ -77,6 +77,7 @@ fn config() -> Result<Config, Box<dyn std::error::Error>> {
                 c.creature_behavior = match value.as_str() {
                     "demo" => Behavior::Demo,
                     "reactive" => Behavior::Reactive,
+                    "navigation" => Behavior::Navigation,
                     _ => return Err(format!("Comportement de créature inconnu : {value}").into()),
                 }
             }
