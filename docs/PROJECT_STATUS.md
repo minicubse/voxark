@@ -1,8 +1,8 @@
 # Primal Voxel — état du projet
 
-## Jalon 4B.1 proposé en revue
+## Jalon 4B.1 intégré — première wyverne réactive
 
-La branche `feat/code-creature-ai-4b1` ajoute un comportement neutre côté serveur à la première wyverne. Le serveur démarre en démonstration 4A par défaut. Le mode `reactive` se sélectionne au démarrage. [Comportement, synchronisation des deux clients et mesures sur PC 1](JALON_4B1.md)
+La [PR #5](https://github.com/minicubse/voxark/pull/5) est intégrée à `main` au commit `061bc22`. Le serveur démarre en mode `demo`. L’option `--creature-behavior reactive` ou le champ JSON `"creature_behavior": "reactive"` active l’IA de la première wyverne. Elle détecte les joueurs à portée même derrière un mur. Un obstacle peut bloquer son déplacement et son retour. [Comportement, limites et validation sur PC 1](JALON_4B1.md)
 
 ## Jalon 4A intégré — wyverne autoritaire
 
