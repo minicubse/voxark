@@ -4,6 +4,18 @@ use primal_voxel::{Preset, surface_for};
 use serde::{Deserialize, Serialize};
 use std::f64::consts::TAU;
 
+mod reactive;
+pub use reactive::Decision;
+use reactive::Reactive;
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Behavior {
+    #[default]
+    Demo,
+    Reactive,
+}
+
 pub const MAX_CREATURES: usize = 12;
 const CREATURE_ID_BASE: u64 = 1 << 63;
 
@@ -62,10 +74,23 @@ pub struct CreatureWorld {
     tick_hz: u32,
     stage_ends: [u64; STAGES.len()],
     ground: GroundPatch,
+    behavior: Behavior,
+    reactive: Option<Reactive>,
+    last_tick: u64,
 }
 
 impl CreatureWorld {
     pub fn new(seed: u64, preset: Preset, count: usize, tick_hz: u32) -> Self {
+        Self::with_behavior(seed, preset, count, tick_hz, Behavior::Demo)
+    }
+
+    pub fn with_behavior(
+        seed: u64,
+        preset: Preset,
+        count: usize,
+        tick_hz: u32,
+        behavior: Behavior,
+    ) -> Self {
         let tick_hz = tick_hz.max(1);
         let mut cycle = 0;
         let stage_ends = STAGES.map(|stage| {
@@ -75,6 +100,9 @@ impl CreatureWorld {
         let mut world = Self {
             population: Vec::with_capacity(MAX_CREATURES),
             serial: CREATURE_ID_BASE,
+            behavior,
+            reactive: None,
+            last_tick: 0,
             tick_hz,
             stage_ends,
             ground: GroundPatch::new(seed, preset),
@@ -92,6 +120,11 @@ impl CreatureWorld {
         self.serial = self.serial.checked_add(1)?;
         let id = CreatureId(self.serial);
         self.population.push((id, slot));
+        if slot == 0 && self.behavior == Behavior::Reactive {
+            let mut home = self.state(id, slot, self.motion(0));
+            home.state_start_tick = self.last_tick;
+            self.reactive = Some(Reactive::new(home));
+        }
         Some(id)
     }
 
@@ -99,10 +132,30 @@ impl CreatureWorld {
         let Some(index) = self.population.iter().position(|entry| entry.0 == id) else {
             return false;
         };
-        self.population.remove(index);
+        if self.population.remove(index).1 == 0 {
+            self.reactive = None;
+        }
         true
     }
 
+    /// Advance once after authoritative player physics. Positions are feet, in metres.
+    pub fn advance(
+        &mut self,
+        tick: u64,
+        players: impl Iterator<Item = (u64, [f64; 3])>,
+        clear: impl Fn([f64; 3]) -> bool,
+    ) {
+        self.last_tick = tick;
+        if let Some(actor) = &mut self.reactive {
+            actor.step(tick, self.tick_hz, &self.ground, players, clear);
+        }
+    }
+
+    pub fn decision(&self) -> Option<(Decision, Option<u64>)> {
+        self.reactive.as_ref().map(|r| (r.decision, r.target))
+    }
+
+    /// Reactive slots return their last advanced state. Demo slots sample the given tick.
     /// All spawned slots at one authoritative tick, in stable identity order.
     pub fn states(&self, tick: u64) -> impl ExactSizeIterator<Item = CreatureState> + '_ {
         let motion = self.motion(tick);
@@ -157,6 +210,11 @@ impl CreatureWorld {
     }
 
     fn state(&self, id: CreatureId, slot: usize, motion: Motion) -> CreatureState {
+        if let Some(r) = &self.reactive
+            && r.state.id == id
+        {
+            return r.state;
+        }
         // Opposing slots are filled first so 1, 2 or 4 actors fit the same route.
         const SLOT_ORDER: [u8; MAX_CREATURES] = [0, 6, 3, 9, 1, 7, 4, 10, 2, 8, 5, 11];
         const PALETTES: [Palette; 3] = [Palette::Jade, Palette::Braise, Palette::Obsidienne];

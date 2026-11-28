@@ -6,7 +6,7 @@ use primal_net::{
     CREATURE_PROTOCOL_VERSION, Channel, ChunkData, ClientMsg, ConnectionId, CreatureTraffic,
     PROTOCOL_VERSION, ServerEvent, ServerMsg, ServerTransport, decode, encode, welcome_channel,
 };
-use primal_simulation::creatures::{CreatureState, CreatureWorld};
+use primal_simulation::creatures::{CreatureState, CreatureWorld, Decision};
 use primal_simulation::{Input, Player};
 use primal_streaming::{Streamer, View};
 use primal_voxel::{ChunkPos, GENERATOR_VERSION, World, chunk_at, generate_for};
@@ -84,6 +84,7 @@ pub struct Room {
     revisions: HashMap<ChunkPos, u64>,
     creatures: CreatureWorld,
     creature_states: Vec<CreatureState>,
+    snapshot_decision: Option<(Decision, Option<u64>)>,
     creature_traffic: CreatureTraffic,
     tick_hz: u32,
 }
@@ -106,8 +107,9 @@ impl Room {
             unsaved: HashMap::new(),
             hello_deadlines: HashMap::new(),
             revisions,
+            creature_states: creatures.states(0).collect(),
+            snapshot_decision: creatures.decision(),
             creatures,
-            creature_states: Vec::new(),
             creature_traffic: CreatureTraffic::default(),
             tick_hz,
         }
@@ -522,10 +524,6 @@ impl Room {
             return Err(io::Error::other(e.clone()));
         }
         let streaming = now.elapsed();
-        let now = Instant::now();
-        self.creature_states.clear();
-        self.creature_states.extend(self.creatures.states(tick));
-        let creature_simulation = now.elapsed();
         let world = stream.world();
         let residents = world.chunks();
         for id in ids {
@@ -558,6 +556,27 @@ impl Room {
                 Self::chunks(&mut self.net, id, p, &residents, world, &self.revisions);
             }
         }
+        // Player integration and pending-edit rollbacks have finished for this tick.
+        let started = Instant::now();
+        let active = self.creatures.decision().is_some();
+        let players = self
+            .peers
+            .values()
+            .filter(|p| p.ready)
+            .filter_map(|p| p.player.as_ref().map(|a| (p.id, a.position.map(f64::from))));
+        self.creatures
+            .advance(tick, players, |pos| ground_step_clear(world, pos));
+        let ai_time = if active {
+            started.elapsed()
+        } else {
+            Duration::ZERO
+        };
+        if tick.is_multiple_of(SNAPSHOT_TICKS) {
+            self.creature_states.clear();
+            self.creature_states.extend(self.creatures.states(tick));
+            self.snapshot_decision = self.creatures.decision();
+        }
+        let creature_simulation = started.elapsed();
         if tick.is_multiple_of(SNAPSHOT_TICKS) {
             let mut actors: Vec<_> = self
                 .peers
@@ -595,9 +614,9 @@ impl Room {
                             .copied()
                             .collect();
                         let bytes = encode(&ServerMsg::Creatures {
+                            creatures,
                             tick,
                             tick_hz: self.tick_hz,
-                            creatures,
                         })?;
                         let len = bytes.len();
                         if self.net.send(id, Channel::Snapshots, bytes).is_ok() {
@@ -617,6 +636,7 @@ impl Room {
         Ok(TickTimes {
             streaming,
             creature_simulation,
+            ai_time,
         })
     }
     pub fn players(&self) -> usize {
@@ -635,8 +655,8 @@ impl Room {
         self.creatures
             .despawn(primal_simulation::creatures::CreatureId(id))
     }
-    pub fn creatures_at(&self, tick: u64) -> impl Iterator<Item = CreatureState> + '_ {
-        self.creatures.states(tick)
+    pub fn creature_snapshot(&self) -> (&[CreatureState], Option<(Decision, Option<u64>)>) {
+        (&self.creature_states, self.snapshot_decision)
     }
     pub fn teleport(&mut self, id: u64, position: [f32; 3]) -> bool {
         if !position
@@ -714,4 +734,92 @@ fn valid_angles(yaw: f32, pitch: f32) -> bool {
         && yaw.abs() < 1e7
         && pitch.is_finite()
         && pitch.abs() <= std::f32::consts::FRAC_PI_2 + 0.001
+}
+
+/// A small core footprint. Unknown, excavated or obstructed cells veto the step.
+fn ground_step_clear(world: &World, pos: [f64; 3]) -> bool {
+    for dx in [-0.35, 0.35] {
+        for dz in [-0.35, 0.35] {
+            let x = (pos[0] + dx).floor() as i32;
+            let z = (pos[2] + dz).floor() as i32;
+            let top = primal_voxel::surface_for(world.preset(), world.seed(), x, z);
+            if (pos[1] - f64::from(top + 1)).abs() > 1.0
+                || !matches!(world.lookup([x, top, z]), Some(1..))
+                || (top + 1..=(pos[1] + 1.8).floor() as i32)
+                    .any(|y| world.lookup([x, y, z]) != Some(0))
+            {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use primal_simulation::creatures::Behavior;
+    use primal_voxel::Preset;
+
+    fn forest() -> World {
+        let mut world = World::with_preset(20261120, Preset::ForestModern);
+        for x in -1..=0 {
+            for z in -1..=0 {
+                let key = [x, 1, z];
+                let data = generate_for(world.preset(), world.seed(), key).unwrap();
+                let ticket = world.begin_load(key).unwrap();
+                assert!(world.install_chunk(ticket, data, &[]));
+            }
+        }
+        world
+    }
+
+    #[test]
+    fn ground_probe_rejects_unloaded_holes_and_added_walls() {
+        let mut world = forest();
+        let x = 1;
+        let z = 7;
+        let y = primal_voxel::surface_for(world.preset(), world.seed(), x, z);
+        let feet = [1.5, f64::from(y + 1), 7.5];
+        assert!(ground_step_clear(&world, feet));
+        let unloaded = World::with_preset(world.seed(), world.preset());
+        assert!(!ground_step_clear(&unloaded, feet));
+        let original = world.get([x, y, z]);
+        assert!(world.set([x, y, z], 0));
+        assert!(!ground_step_clear(&world, feet));
+        assert!(world.set([x, y, z], original));
+        assert!(world.set([x, y + 2, z], 1));
+        assert!(!ground_step_clear(&world, feet));
+    }
+
+    #[test]
+    #[ignore = "opt-in release CPU benchmark"]
+    fn ai_thread_cpu() {
+        use cpu_time::ThreadTime;
+        use std::hint::black_box;
+        const TICKS: u64 = 4_000_000;
+        let world = forest();
+        for behavior in [Behavior::Demo, Behavior::Reactive] {
+            let mut group =
+                CreatureWorld::with_behavior(world.seed(), world.preset(), 1, 60, behavior);
+            let home = group.states(0).next().unwrap().position;
+            let start = ThreadTime::now();
+            for tick in 1..=TICKS {
+                let near = tick % 960 < 480;
+                let player = [home[0] + if near { 8. } else { 30. }, home[1], home[2]];
+                black_box(&mut group).advance(tick, [(1, black_box(player))].into_iter(), |p| {
+                    ground_step_clear(&world, p)
+                });
+            }
+            let cpu = start.elapsed();
+            println!(
+                "AI_CPU {:?} ticks={} cpu_ms={:.3} us_per_tick={:.6}",
+                behavior,
+                TICKS,
+                cpu.as_secs_f64() * 1000.,
+                cpu.as_secs_f64() * 1e6 / TICKS as f64
+            );
+            black_box(group);
+        }
+    }
 }
